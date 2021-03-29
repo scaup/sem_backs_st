@@ -3,6 +3,20 @@
 -Q theories st
 
 theories/prelude/autosubst.v
+
+theories/lam/lang.v
+theories/lamst/lang.v
+
+theories/lam/types.v
+theories/lamst/types.v
+
+theories/lam/typing.v
+theories/lamst/typing.v
+
+theories/lam/lib/omega.v
+theories/lam/lib/fixlam.v
+theories/lam/lib/dummy.v
+
 # We sometimes want to locally override notation, and there is no good way to do that with scopes.
 # -arg -w -arg -notation-overridden
 # Cannot use non-canonical projections as it causes massive unification failures
