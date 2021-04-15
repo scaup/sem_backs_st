@@ -3,9 +3,13 @@
 -Q theories st
 
 theories/prelude/autosubst.v
+theories/prelude/generic.v
 
 theories/lam/lang.v
 theories/lamst/lang.v
+
+theories/lam/wkpre.v
+theories/lam/tactics.v
 
 theories/lam/types.v
 theories/lamst/types.v
@@ -15,7 +19,24 @@ theories/lamst/typing.v
 
 theories/lam/lib/omega.v
 theories/lam/lib/fixlam.v
-theories/lam/lib/dummy.v
+theories/lam/lib/universe/base.v
+theories/lam/lib/universe/embed_project.v
+theories/lam/lib/universe/eval.v
+
+theories/backtranslations/un_syn/expressions.v
+theories/backtranslations/un_syn/typed.v
+
+theories/lam/logrel/generic/lift.v
+theories/lam/logrel/definitions.v
+
+theories/backtranslations/un_syn/logrel/definitions.v
+theories/backtranslations/un_syn/logrel/un_le_syn/fundamental.v
+theories/backtranslations/un_syn/logrel/syn_le_un/fundamental.v
+
+theories/lam/lib/guard_assert.v
+
+
+theories/backtranslations/sem_syn/connective.v
 
 # We sometimes want to locally override notation, and there is no good way to do that with scopes.
 # -arg -w -arg -notation-overridden

@@ -1,4 +1,4 @@
-From st Require Export autosubst.
+From st.prelude Require Import autosubst generic.
 
 Inductive type :=
  | TUnit : type
@@ -9,7 +9,7 @@ Inductive type :=
  | TArrow : type → type → type
  | TRec (τ : {bind 1 of type})
  | TVar (X : var)
- | TForall (τ : {bind 1 of type})
+ (* | TForall (τ : {bind 1 of type}) *)
  | TSTref (ρ τ : type)
  | TST (ρ τ : type).
 
@@ -21,7 +21,7 @@ Instance Rename_type : Rename type. derive. Defined.
 Instance Subst_type : Subst type. derive. Defined.
 Instance SubstLemmas_typer : SubstLemmas type. derive. Qed.
 
-Declare Scope types_nost_scope.
+Declare Scope types_st_scope.
 
 Infix "×" := TProd (at level 99) : types_st_scope.
 Infix "+" := TSum : types_st_scope.

@@ -1,6 +1,6 @@
-From iris.program_logic Require Export language ectx_language ectxi_language.
-From st Require Export prelude.autosubst.
-From stdpp Require Export gmap prelude.
+From iris.program_logic Require Import language ectx_language ectxi_language.
+From st.prelude Require Export autosubst generic.
+From stdpp Require Import gmap prelude.
 
 Local Open Scope Z_scope.
 
@@ -19,14 +19,16 @@ Inductive bin_op : Set :=
 (** The syntax of expressions *)
 Inductive expr :=
 | Var (x : var)
-| LetIn (e : expr) (e : {bind 1 of expr})
+| LetIn (e1 : expr) (e2 : {bind 1 of expr})
 | Lam (e : {bind 1 of expr})
-| Rec (e : {bind 2 of expr})
+(* | Fix (e : expr) *)
+(* | Rec (e : {bind 2 of expr}) *)
 | App (e1 e2 : expr)
 (* Base Types *)
 | Lit (l : base_lit)
 | BinOp (op : bin_op) (e1 e2 : expr)
 | If (e0 e1 e2 : expr)
+| Seq (e1 e2 : expr)
 (* Products *)
 | Pair (e1 e2 : expr)
 | Fst (e : expr)
@@ -38,9 +40,9 @@ Inductive expr :=
 (* Recursive Types *)
 | Fold (e : expr)
 | Unfold (e : expr)
-(* Polymorphic Types *)
-| TLam (e : expr)
-| TApp (e : expr)
+(** Polymorphic Types *)
+(* | TLam (e : expr) *)
+(* | TApp (e : expr) *)
 (* Kleisli *)
 | Return (e: expr)
 | Bind (e1: expr) (e2: expr)
@@ -59,8 +61,8 @@ Instance SubstLemmas_expr : SubstLemmas expr. derive. Qed.
 (** Values for STLang *)
 Inductive val :=
 | LamV (e : {bind 1 of expr})
-| RecV (e : {bind 1 of expr})
-| TLamV (e : {bind 1 of expr})
+(* | RecV (e : {bind 2 of expr}) *)
+(* | TLamV (e : {bind 1 of expr}) *)
 | ReturnV (v: val)
 | BindV (v1 v2: val)
 | LitV (v : base_lit)
@@ -72,11 +74,16 @@ Inductive val :=
 | ReadV (v : val)
 | WriteV (v1 v2 : val).
 
+Declare Scope val_st_scope.
+Delimit Scope val_st_scope with Vₛₜ.
+
+Notation "()" := (LitV LitUnit) : val_st_scope.
+
 Fixpoint of_val (v : val) : expr :=
  match v with
  | LamV e => Lam e
- | RecV e => Rec e
- | TLamV e => TLam e
+ (* | RecV e => Rec e *)
+ (* | TLamV e => TLam e *)
  | ReturnV v => Return (of_val v)
  | BindV v1 v2 => Bind (of_val v1) (of_val v2)
  | LitV v => Lit v
@@ -92,8 +99,8 @@ Fixpoint of_val (v : val) : expr :=
 Fixpoint to_val (e : expr) : option val :=
  match e with
  | Lam e => Some (LamV e)
- | Rec e => Some (RecV e)
- | TLam e => Some (TLamV e)
+ (* | Rec e => Some (RecV e) *)
+ (* | TLam e => Some (TLamV e) *)
  | Return e => v ← to_val e; Some (ReturnV v)
  | Bind e1 e2 => v1 ← to_val e1; v2 ← to_val e2; Some (BindV v1 v2)
  | Lit e => Some (LitV e)
@@ -120,19 +127,19 @@ Definition state := gmap loc val.
 (** Reduction relation for the effectful language *)
 Inductive eff_head_step :
 expr -> state -> list Empty_set → expr -> state → list expr → Prop :=
-| ReadES l σ v κ :
+| ReadES l σ v :
    σ !! l = Some v ->
-   eff_head_step (Read (Lit (LitLoc l))) σ κ (Return (of_val v)) σ []
-| WriteES σ l e v κ :
+   eff_head_step (Read (Lit (LitLoc l))) σ [] (Return (of_val v)) σ []
+| WriteES σ l e v :
    is_Some (σ !! l) -> to_val e = Some v ->
    eff_head_step (Write (Lit (LitLoc l)) e)
-                  σ κ (Return (Lit LitUnit)) (<[l:=v]>σ) []
-| AllocES σ l e v κ :
+                  σ [] (Return (Lit LitUnit)) (<[l:=v]>σ) []
+| AllocES σ l e v :
    (σ !! l) = None -> to_val e = Some v ->
-   eff_head_step (Alloc e) σ κ (Return (Lit (LitLoc l))) (<[l:=v]>σ) []
-| BindRetES σ v1 v2 e1 e2 κ :
+   eff_head_step (Alloc e) σ [] (Return (Lit (LitLoc l))) (<[l:=v]>σ) []
+| BindRetES σ v1 v2 e1 e2 :
    to_val e1 = Some v1 -> to_val e2 = Some v2 ->
-   eff_head_step (Bind (Return e1) e2) σ κ (App e2 e1) σ [].
+   eff_head_step (Bind (Return e1) e2) σ [] (App e2 e1) σ [].
 
 Lemma to_of_val v : to_val (of_val v) = Some v.
 Proof.
@@ -287,11 +294,11 @@ Qed.
 
 (** Evaluation contexts *)
 Inductive ectx_item :=
-| LetInLCtx (e2 : expr)
-| LetInRCtx (v1 : val)
+(* | FixCtx *)
+| LetInCtx (e2 : expr)
 | AppLCtx (e2 : expr)
 | AppRCtx (v1 : val)
-| TAppCtx
+(* | TAppCtx *)
 | PairLCtx (e2 : expr)
 | PairRCtx (v1 : val)
 | FstCtx
@@ -302,6 +309,7 @@ Inductive ectx_item :=
 | IfCtx (e2 : expr) (e3 : expr)
 | BinOpLCtx (op : bin_op) (e2 : expr)
 | BinOpRCtx (op : bin_op) (v1 : val)
+| SeqCtx (e2 : expr)
 | FoldCtx
 | UnfoldCtx
 | AllocCtx
@@ -317,11 +325,11 @@ Inductive ectx_item :=
 
 Definition fill_item (Ki : ectx_item) (e : expr) : expr :=
  match Ki with
- | LetInLCtx e2 => LetIn e e2
- | LetInRCtx v1 => LetIn (of_val v1) e
+ (* | FixCtx => Fix e *)
+ | LetInCtx e2 => LetIn e e2
  | AppLCtx e2 => App e e2
  | AppRCtx v1 => App (of_val v1) e
- | TAppCtx => TApp e
+ (* | TAppCtx => TApp e *)
  | PairLCtx e2 => Pair e e2
  | PairRCtx v1 => Pair (of_val v1) e
  | FstCtx => Fst e
@@ -332,6 +340,7 @@ Definition fill_item (Ki : ectx_item) (e : expr) : expr :=
  | IfCtx e1 e2 => If e e1 e2
  | BinOpLCtx op e2 => BinOp op e e2
  | BinOpRCtx op v1 => BinOp op (of_val v1) e
+ | SeqCtx e2 => Seq e e2
  | FoldCtx => Fold e
  | UnfoldCtx => Unfold e
  | AllocCtx => Alloc e
@@ -360,60 +369,66 @@ Definition bin_op_eval (op : bin_op) (z1 z2 : Z) : val :=
 (** Reduction relation for STLang: *)
 Inductive head_step : expr → state → list Empty_set → expr → state → list expr → Prop :=
 (* Embedding of the effectful language into STLang *)
-| EffS σ σ' (e : eff_expr) e' κ :
-   prim_step e σ κ e' σ' [] ->
-   head_step (RunST e) σ κ (RunST e') σ' []
-| RunRet σ e v κ :
+| EffS σ σ' (e : eff_expr) e' :
+   prim_step e σ [] e' σ' [] ->
+   head_step (RunST e) σ [] (RunST e') σ' []
+| RunRet σ e v :
     to_val e = Some v ->
-    head_step (RunST (Return e)) σ κ e σ []
-| Compare_suc σ κ l :
+    head_step (RunST (Return e)) σ [] e σ []
+| Compare_suc σ l :
     head_step
-      (Compare (Lit (LitLoc l)) (Lit (LitLoc l))) σ κ (Lit (LitBool true)) σ []
-| Compare_fail σ l l' κ :
+      (Compare (Lit (LitLoc l)) (Lit (LitLoc l))) σ [] (Lit (LitBool true)) σ []
+| Compare_fail σ l l' :
     l ≠ l' →
     head_step
-      (Compare (Lit (LitLoc l)) (Lit (LitLoc l'))) σ κ (Lit (LitBool false)) σ []
+      (Compare (Lit (LitLoc l)) (Lit (LitLoc l'))) σ [] (Lit (LitBool false)) σ []
 (* β *)
-| BetaLetIn e1 v1 e2 v2 σ κ :
+| LetIn_head_step e1 v1 e2 σ :
    to_val e1 = Some v1 →
+   head_step (LetIn e1 e2) σ [] e2.[e1/] σ []
+| App_Lam_head_step e1 e2 v2 σ :
    to_val e2 = Some v2 →
-   head_step (LetIn e1 e2) σ κ e2.[e1/] σ []
-| BetaLam e1 e2 v2 σ κ :
-   to_val e2 = Some v2 →
-   head_step (App (Lam e1) e2) σ κ e1.[e2/] σ []
-| BetaS e1 e2 v2 σ κ :
-   to_val e2 = Some v2 →
-   head_step (App (Rec e1) e2) σ κ e1.[(Rec e1), e2/] σ []
+   head_step (App (Lam e1) e2) σ [] e1.[e2/] σ []
+(* | App_Rec_head_step e1 e2 v2 σ : *)
+   (* to_val e2 = Some v2 → *)
+   (* head_step (App (Rec e1) e2) σ [] e1.[(Rec e1), e2/] σ [] *)
+(* fix *)
+(* | Fix_head_step e σ : *)
+    (* head_step (Fix (Lam e)) σ [] e.[Fix (Lam e)/] σ [] *)
 (* binary operation *)
-| BinOpS op e1 e2 z1 z2 σ κ :
+| BinOp_head_step op e1 e2 z1 z2 σ :
    to_val e1 = Some (LitV $ LitInt z1) → to_val e2 = Some (LitV $ LitInt z2) →
-   head_step (BinOp op e1 e2) σ κ (of_val (bin_op_eval op z1 z2)) σ []
+   head_step (BinOp op e1 e2) σ [] (of_val (bin_op_eval op z1 z2)) σ []
 (* if *)
-| IfTrueS e1 e2 σ κ :
-   head_step (If (Lit $ LitBool true) e1 e2) σ κ e1 σ []
-| IfFalseS e1 e2 σ κ :
-   head_step (If (Lit $ LitBool false) e1 e2) σ κ e2 σ []
+| If_True_head_step e1 e2 σ :
+   head_step (If (Lit $ LitBool true) e1 e2) σ [] e1 σ []
+| If_False_head_step e1 e2 σ :
+   head_step (If (Lit $ LitBool false) e1 e2) σ [] e2 σ []
+(* seq *)
+| Seq_Unit_head_step e1 e2 σ :
+    to_val e1 = Some ()%Vₛₜ →
+    head_step (Seq e1 e2) σ [] e2 σ []
 (* Products *)
-| FstS e1 v1 e2 v2 σ κ :
+| Fst_Pair_head_step e1 v1 e2 v2 σ :
    to_val e1 = Some v1 → to_val e2 = Some v2 →
-   head_step (Fst (Pair e1 e2)) σ κ e1 σ []
-| SndS e1 v1 e2 v2 σ κ :
+   head_step (Fst (Pair e1 e2)) σ [] e1 σ []
+| Snd_Pair_head_step e1 v1 e2 v2 σ :
    to_val e1 = Some v1 → to_val e2 = Some v2 →
-   head_step (Snd (Pair e1 e2)) σ κ e2 σ []
+   head_step (Snd (Pair e1 e2)) σ [] e2 σ []
 (* Sums *)
-| CaseLS e0 v0 e1 e2 σ κ :
+| Case_InjL_head_step e0 v0 e1 e2 σ :
    to_val e0 = Some v0 →
-   head_step (Case (InjL e0) e1 e2) σ κ e1.[e0/] σ []
-| CaseRS e0 v0 e1 e2 σ κ :
+   head_step (Case (InjL e0) e1 e2) σ [] e1.[e0/] σ []
+| Case_InjR_head_step e0 v0 e1 e2 σ :
    to_val e0 = Some v0 →
-   head_step (Case (InjR e0) e1 e2) σ κ e2.[e0/] σ []
+   head_step (Case (InjR e0) e1 e2) σ [] e2.[e0/] σ []
 (* Recursive Types *)
-| Unfold_Fold e v σ κ :
+| Unfold_Fold_head_step e v σ :
    to_val e = Some v →
-   head_step (Unfold (Fold e)) σ κ e σ []
+   head_step (Unfold (Fold e)) σ [] e σ [].
 (* Polymorphic Types *)
-| TBeta e σ κ :
-   head_step (TApp (TLam e)) σ κ e σ [].
+(* | TBeta e σ : *)
+   (* head_step (TApp (TLam e)) σ [] e σ []. *)
 
 Instance fill_item_inj Ki : Inj (=) (=) (fill_item Ki).
 Proof. destruct Ki; intros ???; simplify_eq/=; auto with f_equal. Qed.

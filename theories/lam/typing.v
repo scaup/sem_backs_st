@@ -1,4 +1,4 @@
-From st.lam Require Export types lang.
+From st.lam Require Import types lang.
 
 Definition binop_res_type (op : bin_op) : type :=
   match op with
@@ -15,6 +15,8 @@ Inductive typed (Γ : list type) : expr → type → Prop :=
  | Int_typed z : Γ ⊢ₙₒ Lit (LitInt z) : TInt
  | BinOp_typed op e1 e2 :
      Γ ⊢ₙₒ e1 : TInt → Γ ⊢ₙₒ e2 : TInt → Γ ⊢ₙₒ BinOp op e1 e2 : binop_res_type op
+ | Seq_typed e1 e2 τ :
+     Γ ⊢ₙₒ e1 : TUnit → Γ ⊢ₙₒ e2 : τ → Γ ⊢ₙₒ Seq e1 e2 : τ
  | Pair_typed e1 e2 τ1 τ2 :
     Γ ⊢ₙₒ e1 : τ1 → Γ ⊢ₙₒ e2 : τ2 → Γ ⊢ₙₒ Pair e1 e2 : TProd τ1 τ2
  | Fst_typed e τ1 τ2 : Γ ⊢ₙₒ e : TProd τ1 τ2 → Γ ⊢ₙₒ Fst e : τ1
@@ -30,13 +32,15 @@ Inductive typed (Γ : list type) : expr → type → Prop :=
     τ1 :: Γ ⊢ₙₒ e2 : τ2 → Γ ⊢ₙₒ e1 : τ1 → Γ ⊢ₙₒ LetIn e1 e2 : τ2
  | Lam_typed e τ1 τ2 :
     τ1 :: Γ ⊢ₙₒ e : τ2 → Γ ⊢ₙₒ Lam e : TArrow τ1 τ2
- | Rec_typed e τ1 τ2 :
-    TArrow τ1 τ2 :: τ1 :: Γ ⊢ₙₒ e : τ2 → Γ ⊢ₙₒ Rec e : TArrow τ1 τ2
+ (* | Fix_typed e τ : *)
+    (* Γ ⊢ₙₒ e : TArrow τ τ → Γ ⊢ₙₒ Fix e : τ *)
+ (* | Rec_typed e τ1 τ2 : *)
+    (* TArrow τ1 τ2 :: τ1 :: Γ ⊢ₙₒ e : τ2 → Γ ⊢ₙₒ Rec e : TArrow τ1 τ2 *)
  | App_typed e1 e2 τ1 τ2 :
     Γ ⊢ₙₒ e1 : TArrow τ1 τ2 → Γ ⊢ₙₒ e2 : τ1 → Γ ⊢ₙₒ App e1 e2 : τ2
- | TLam_typed e τ :
-    subst (ren (+1)) <$> Γ ⊢ₙₒ e : τ → Γ ⊢ₙₒ TLam e : TForall τ
- | TApp_typed e τ τ' : Γ ⊢ₙₒ e : TForall τ → Γ ⊢ₙₒ TApp e : τ.[τ'/]
+ (* | TLam_typed e τ : *)
+    (* subst (ren (+1)) <$> Γ ⊢ₙₒ e : τ → Γ ⊢ₙₒ TLam e : TForall τ *)
+ (* | TApp_typed e τ τ' : Γ ⊢ₙₒ e : TForall τ → Γ ⊢ₙₒ TApp e : τ.[τ'/] *)
  | Fold_typed e τ : Γ ⊢ₙₒ e : τ.[TRec τ/] → Γ ⊢ₙₒ Fold e : TRec τ
  | Unfold_typed e τ : Γ ⊢ₙₒ e : TRec τ → Γ ⊢ₙₒ Unfold e : τ.[TRec τ/]
 where "Γ ⊢ₙₒ e : τ" := (typed Γ e τ%Tₙₒ).
@@ -75,13 +79,13 @@ Proof.
     + intros [|[|x]] H2; [by cbv| |].
       asimpl; rewrite H1; auto with lia.
       asimpl; rewrite H1; auto with lia.
-  - unfold upn in *.
-    change (e.[up (up (upn m (ren (+1))))]) with
-    (e.[iter (S (S m)) up (ren (+1))]) in *.
-    apply (IHe (S (S m))).
-    + inversion Hmc; match goal with H : _ |- _ => (by rewrite H) end.
-    + intros [|[|x]] H2; [by cbv|by cbv |].
-      asimpl; rewrite H1; auto with lia.
+  (* - unfold upn in *. *)
+  (*   change (e.[up (up (upn m (ren (+1))))]) with *)
+  (*   (e.[iter (S (S m)) up (ren (+1))]) in *. *)
+  (*   apply (IHe (S (S m))). *)
+  (*   + inversion Hmc; match goal with H : _ |- _ => (by rewrite H) end. *)
+  (*   + intros [|[|x]] H2; [by cbv|by cbv |]. *)
+  (*     asimpl; rewrite H1; auto with lia. *)
   - change (e1.[up (upn m (ren (+1)))]) with
     (e1.[iter (S m) up (ren (+1))]) in *.
     apply (IHe0 (S m)).
@@ -114,22 +118,22 @@ Proof.
   - apply H1. rewrite iter_up in Hmc. destruct lt_dec; try lia.
     asimpl in *. cbv in X. replace (m + (X - m)) with X in Hmc by lia.
     inversion Hmc; lia.
-  - unfold upn in *.
-    apply (IHe (S m)).
-    + inversion Hmc; match goal with H : _ |- _ => (by rewrite H) end.
-    + intros [|[|x]] H2; [by cbv| |].
-      asimpl; rewrite H1; auto with lia.
-      asimpl; rewrite H1; auto with lia.
+  (* - unfold upn in *. *)
+  (*   apply (IHe (S m)). *)
+  (*   + inversion Hmc; match goal with H : _ |- _ => (by rewrite H) end. *)
+  (*   + intros [|[|x]] H2; [by cbv| |]. *)
+  (*     asimpl; rewrite H1; auto with lia. *)
+  (*     asimpl; rewrite H1; auto with lia. *)
 Qed.
 
 Lemma subst_list_cons_closed_S_n_type (t : type) (ts : list type)
         (tn : type) (Ctn : Closed_n (S (length ts)) tn) :
-  tn.[subst_list (t :: ts)] = tn.[up (subst_list ts)].[t/].
+  tn.[subst_list_old (t :: ts)] = tn.[up (subst_list_old ts)].[t/].
 Proof.
   rewrite subst_comp. apply n_closed_invariant_type with (n := S (length ts)).
   apply Ctn.
   intros x px.
-  rewrite /subst_list.
+  rewrite /subst_list_old.
   destruct x. by asimpl.
   asimpl. destruct (ts !! x) eqn:eq.
   - simpl. by rewrite eq.
@@ -144,8 +148,8 @@ Lemma typed_n_closed Γ τ e : Γ ⊢ₙₒ e : τ → (∀ f, e.[upn (length Γ
 Proof.
   intros H. induction H => f; asimpl; simpl in *; auto with f_equal.
   - apply lookup_lt_Some in H. rewrite iter_up. destruct lt_dec; auto with lia.
-  - f_equal. apply IHtyped.
-  - by f_equal; rewrite map_length in IHtyped.
+  (* - f_equal. apply IHtyped. *)
+  (* - by f_equal; rewrite map_length in IHtyped. *)
 Qed.
 
 Lemma n_closed_subst_head_simpl n e w ws :
@@ -235,18 +239,34 @@ Proof.
   - econstructor; eauto. by apply (IHtyped2 (_::_)). by apply (IHtyped3 (_::_)).
   - econstructor; eauto. by apply (IHtyped1 (_::_)).
   - econstructor; eauto. by apply (IHtyped (_::_)).
-  - constructor. by apply (IHtyped (_ :: _ :: _)).
-  - constructor.
-    specialize (IHtyped
-      (subst (ren (+1)) <$> Γ1) (subst (ren (+1)) <$> Γ2) (subst (ren (+1)) <$> ξ)).
-    asimpl in *. rewrite ?map_length in IHtyped.
-    repeat rewrite fmap_app. apply IHtyped.
-    by repeat rewrite fmap_app.
+  (* - constructor. by apply (IHtyped (_ :: _ :: _)). *)
+  (* - constructor. *)
+  (*   specialize (IHtyped *)
+  (*     (subst (ren (+1)) <$> Γ1) (subst (ren (+1)) <$> Γ2) (subst (ren (+1)) <$> ξ)). *)
+  (*   asimpl in *. rewrite ?map_length in IHtyped. *)
+  (*   repeat rewrite fmap_app. apply IHtyped. *)
+  (*   by repeat rewrite fmap_app. *)
 Qed.
 
 Lemma context_weakening ξ Γ e τ :
   Γ ⊢ₙₒ e : τ → ξ ++ Γ ⊢ₙₒ e.[(ren (+ (length ξ)))] : τ.
 Proof. eapply (context_gen_weakening _ []). Qed.
+
+Lemma context_weakening1 τ1 Γ e τ :
+  Γ ⊢ₙₒ e : τ → (τ1 :: Γ) ⊢ₙₒ e.[(ren (+ 1))] : τ.
+Proof. change (τ1 :: Γ) with ([τ1] ++ Γ). apply context_weakening. Qed.
+
+Lemma context_weakening2 τ1 τ2 Γ e τ :
+  Γ ⊢ₙₒ e : τ → (τ1 :: τ2 :: Γ) ⊢ₙₒ e.[(ren (+ 2))] : τ.
+Proof. change (τ1 :: τ2 :: Γ) with ([τ1; τ2] ++ Γ). apply context_weakening. Qed.
+
+Lemma context_weakening3 τ1 τ2 τ3 Γ e τ :
+  Γ ⊢ₙₒ e : τ → (τ1 :: τ2 :: τ3 :: Γ) ⊢ₙₒ e.[(ren (+ 3))] : τ.
+Proof. change (τ1 :: τ2 :: τ3 :: Γ) with ([τ1; τ2; τ3] ++ Γ). apply context_weakening. Qed.
+
+Lemma context_weakening4 τ1 τ2 τ3 τ4 Γ e τ :
+  Γ ⊢ₙₒ e : τ → (τ1 :: τ2 :: τ3 :: τ4 :: Γ) ⊢ₙₒ e.[(ren (+ 4))] : τ.
+Proof. change (τ1 :: τ2 :: τ3 :: τ4 :: Γ) with ([τ1; τ2; τ3; τ4] ++ Γ). apply context_weakening. Qed.
 
 Lemma context_gen_strengthening ξ Γ' Γ e τ :
   Γ' ++ ξ ++ Γ ⊢ₙₒ e.[upn (length Γ') (ren (+ (length ξ)))] : τ →
@@ -273,14 +293,14 @@ Proof.
   - econstructor; eauto. by eapply (IHHt2 (_::_)). by eapply (IHHt3 (_::_)).
   - econstructor; eauto. by eapply (IHHt1 (_::_)).
   - econstructor; eauto. by eapply (IHHt (_::_)).
-  - econstructor; eauto. by eapply (IHHt (_ :: _::_)).
-  - constructor.
-    specialize (IHHt
-      (subst (ren (+1)) <$> Γ1) (subst (ren (+1)) <$> Γ2)
-      (subst (ren (+1)) <$> ξ)).
-    rewrite !map_length in IHHt.
-    repeat rewrite fmap_app. apply IHHt; auto.
-    by repeat rewrite fmap_app.
+  (* - econstructor; eauto. by eapply (IHHt (_ :: _::_)). *)
+  (* - constructor. *)
+  (*   specialize (IHHt *)
+  (*     (subst (ren (+1)) <$> Γ1) (subst (ren (+1)) <$> Γ2) *)
+  (*     (subst (ren (+1)) <$> ξ)). *)
+  (*   rewrite !map_length in IHHt. *)
+  (*   repeat rewrite fmap_app. apply IHHt; auto. *)
+  (*   by repeat rewrite fmap_app. *)
 Qed.
 
 Lemma context_strengthening ξ Γ e τ :
@@ -379,14 +399,14 @@ Proof.
     + apply (IHHt2). by simpl; repeat f_equal.
   - econstructor.
     + apply (IHHt (_ :: _)). by simpl; repeat f_equal.
-  - econstructor. apply (IHHt (_ :: _ :: _)). by simpl; repeat f_equal.
-  - constructor.
-    specialize (IHHt
-      (subst (ren (+1)) <$> Γ') (subst (ren (+1)) <$> ξ')
-      (subst (ren (+1)) <$> ξ) (subst (ren (+1)) <$> Γ1)).
-    asimpl in *. rewrite ?map_length in IHHt.
-    repeat rewrite fmap_app. eapply IHHt.
-    by rewrite HeqΞ; repeat rewrite fmap_app.
+  (* - econstructor. apply (IHHt (_ :: _ :: _)). by simpl; repeat f_equal. *)
+  (* - constructor. *)
+  (*   specialize (IHHt *)
+  (*     (subst (ren (+1)) <$> Γ') (subst (ren (+1)) <$> ξ') *)
+  (*     (subst (ren (+1)) <$> ξ) (subst (ren (+1)) <$> Γ1)). *)
+  (*   asimpl in *. rewrite ?map_length in IHHt. *)
+  (*   repeat rewrite fmap_app. eapply IHHt. *)
+  (*   by rewrite HeqΞ; repeat rewrite fmap_app. *)
 Qed.
 
 Lemma closed_context_weakening ξ Γ e τ :
@@ -412,16 +432,16 @@ Proof.
   - econstructor.
     by rewrite list_lookup_fmap H.
   - destruct op; asimpl; econstructor; eauto.
-  - asimpl. econstructor.
-    specialize (IHHt (S n) m).
-    asimpl in *.
-    rewrite -list_fmap_compose /compose in IHHt.
-    rewrite -list_fmap_compose /compose.
-    by rewrite -ren_upn_ren.
-  - specialize (IHHt n m). asimpl in IHHt.
-    replace (τ.[τ'/].[upn n (ren (+m))]) with
-    (τ.[upn (S n) (ren (+m))].[τ'.[upn n (ren (+m))]/]) by by asimpl.
-    by econstructor.
+  (* - asimpl. econstructor. *)
+  (*   specialize (IHHt (S n) m). *)
+  (*   asimpl in *. *)
+  (*   rewrite -list_fmap_compose /compose in IHHt. *)
+  (*   rewrite -list_fmap_compose /compose. *)
+  (*   by rewrite -ren_upn_ren. *)
+  (* - specialize (IHHt n m). asimpl in IHHt. *)
+  (*   replace (τ.[τ'/].[upn n (ren (+m))]) with *)
+  (*   (τ.[upn (S n) (ren (+m))].[τ'.[upn n (ren (+m))]/]) by by asimpl. *)
+  (*   by econstructor. *)
   - specialize (IHHt n m). asimpl in IHHt.
     econstructor.
     by asimpl in *.
@@ -472,13 +492,13 @@ Proof.
     eapply (IHHt1 (_ :: _)); eauto; by simpl; f_equal.
   - econstructor; eauto.
     eapply (IHHt (_ :: _)); eauto; by simpl; f_equal.
-  - econstructor. eapply (IHHt (_ :: _ :: _)); eauto; by simpl; repeat f_equal.
-  - constructor.
-    specialize (IHHt
-      (subst (ren (+1)) <$> Γ1) (subst (ren (+1)) <$> Γ2)).
-    asimpl in *. rewrite ?map_length in IHHt.
-    repeat rewrite fmap_app. eapply IHHt; eauto using context_rename.
-    by rewrite Heqξ; repeat rewrite fmap_app.
+  (* - econstructor. eapply (IHHt (_ :: _ :: _)); eauto; by simpl; repeat f_equal. *)
+  (* - constructor. *)
+  (*   specialize (IHHt *)
+  (*     (subst (ren (+1)) <$> Γ1) (subst (ren (+1)) <$> Γ2)). *)
+  (*   asimpl in *. rewrite ?map_length in IHHt. *)
+  (*   repeat rewrite fmap_app. eapply IHHt; eauto using context_rename. *)
+  (*   by rewrite Heqξ; repeat rewrite fmap_app. *)
 Qed.
 
 Lemma typed_subst Γ2 e1 τ1 e2 τ2 :

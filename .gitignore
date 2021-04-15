@@ -22,3 +22,7 @@ Makefile.coq.conf
 .Makefile.coq.d
 Makefile.package.*
 .Makefile.package.*
+
+
+theories/system_f
+theories/system_f_st

@@ -1,6 +1,5 @@
 From iris.program_logic Require Export language ectx_language ectxi_language.
-From st Require Export prelude.autosubst.
-From stdpp Require Export prelude.
+From st.prelude Require Export autosubst generic.
 
 (* Local Open Scope Z_scope. *)
 
@@ -14,14 +13,16 @@ Inductive bin_op : Set :=
 (** The syntax of expressions *)
 Inductive expr :=
 | Var (x : var)
-| LetIn (e : expr) (e : {bind 1 of expr})
+| LetIn (e1 : expr) (e2 : {bind 1 of expr})
 | Lam (e : {bind 1 of expr})
-| Rec (e : {bind 2 of expr})
+(* | Fix (e : expr) *)
+(* | Rec (e : {bind 2 of expr}) *)
 | App (e1 e2 : expr)
 (* Base Types *)
 | Lit (l : base_lit)
 | BinOp (op : bin_op) (e1 e2 : expr)
 | If (e0 e1 e2 : expr)
+| Seq (e1 e2 : expr)
 (* Products *)
 | Pair (e1 e2 : expr)
 | Fst (e : expr)
@@ -32,10 +33,10 @@ Inductive expr :=
 | Case (e0 : expr) (e1 : {bind expr}) (e2 : {bind expr})
 (* Recursive Types *)
 | Fold (e : expr)
-| Unfold (e : expr)
-(* Polymorphic Types *)
-| TLam (e : expr)
-| TApp (e : expr).
+| Unfold (e : expr).
+(** Polymorphic Types *)
+(* | TLam (e : expr) *)
+(* | TApp (e : expr). *)
 
 Coercion LitInt : Z >-> base_lit.
 Coercion LitBool : bool >-> base_lit.
@@ -56,16 +57,21 @@ Notation "e1 ≤ e2" := (BinOp LeOp e1%Eₙₒ e2%Eₙₒ) : expr_no_st_scope.
 Notation "e1 < e2" := (BinOp LtOp e1%Eₙₒ e2%Eₙₒ) : expr_no_st_scope.
 Notation "e1 = e2" := (BinOp EqOp e1%Eₙₒ e2%Eₙₒ) : expr_no_st_scope.
 
+Instance Var_Inj : Inj eq eq Var. intros x1 x2 eq. by inversion eq. Qed.
+
 Instance Ids_expr : Ids expr. derive. Defined.
 Instance Rename_expr : Rename expr. derive. Defined.
 Instance Subst_expr : Subst expr. derive. Defined.
 Instance SubstLemmas_expr : SubstLemmas expr. derive. Qed.
 
+Lemma Var_closed_n_lt (x : var) n (p : Closed_n n (Var x)) : x < n.
+Proof. apply ids_lt_Closed_n. apply p. Qed.
+
 (** Values for STLang *)
 Inductive val :=
 | LamV (e : {bind 1 of expr})
-| RecV (e : {bind 1 of expr})
-| TLamV (e : {bind 1 of expr})
+(* | RecV (e : {bind 2 of expr}) *)
+(* | TLamV (e : {bind 1 of expr}) *)
 | LitV (v : base_lit)
 | PairV (v1 v2 : val)
 | InjLV (v : val)
@@ -83,8 +89,8 @@ Notation "( v1 , v2 , .. , vn )" := (PairV .. (PairV v1 v2) .. vn) : val_no_st_s
 Fixpoint of_val (v : val) : expr :=
  match v with
  | LamV e => Lam e
- | RecV e => Rec e
- | TLamV e => TLam e
+ (* | RecV e => Rec e *)
+ (* | TLamV e => TLam e *)
  | LitV v => Lit v
  | PairV v1 v2 => Pair (of_val v1) (of_val v2)
  | InjLV v => InjL (of_val v)
@@ -92,11 +98,45 @@ Fixpoint of_val (v : val) : expr :=
  | FoldV v => Fold (of_val v)
  end.
 
+(* Notation "# v" := (of_val v%Vₙₒ) (at level 8, format "# v") : expr_no_st_scope. *)
+Coercion of_val : val >-> expr.
+
+Definition subst_list_val (vs : list val) : var → expr := subst_list (map of_val vs).
+
+Lemma subst_list_val_cons v vs : of_val v .: subst_list_val vs = subst_list_val (v :: vs).
+Proof. intros. by asimpl. Qed.
+
+(* Lemma var_subst_list_val_lt_length (vs : list val) (x : var) (p : x < length vs) : *)
+(*   (exists v : val, vs !! x = Some v ∧ (Var x).[subst_list_val vs] = v). *)
+(* Proof. *)
+(*   destruct (vs !! x) eqn:eq. exists v. split; auto. apply ids_subst_list_lookup. by rewrite list_lookup_fmap eq /=. *)
+(*   assert (length vs ≤ x). by apply lookup_ge_None. lia. *)
+(* Qed. *)
+Lemma Var_subst_list_closed_n_length (vs : list val) (x : var) (p : Closed_n (length vs) (Var x)) :
+  (exists v : val, vs !! x = Some v ∧ (Var x).[subst_list_val vs] = v).
+Proof.
+  destruct (vs !! x) eqn:eq. exists v. split; auto. apply ids_subst_list_lookup. by rewrite list_lookup_fmap eq /=.
+  assert (length vs ≤ x). by apply lookup_ge_None.
+  assert (x < length vs). by apply ids_lt_Closed_n. lia.
+Qed.
+
+Lemma Var_subst_list_val_lookup (x : var) (ts : list val) t (H : ts !! x = Some t) :
+  (ids x).[subst_list_val ts] = t.
+Proof. rewrite /subst_list_val. apply ids_subst_list_lookup. by rewrite list_lookup_fmap H. Qed.
+
+(* Lemma var_subst_list_val (vs : list val) (x : var) : *)
+(*   (exists v : val, vs !! x = Some v ∧ (Var x).[subst_list_val vs] = v) ∨ (vs !! x = None). *)
+(* Proof. *)
+(*   destruct (vs !! x) eqn:eq. *)
+(*   - left. exists v. split; auto. apply ids_subst_list_lookup. by rewrite list_lookup_fmap eq /=. *)
+(*   - by right. *)
+(* Qed. *)
+
 Fixpoint to_val (e : expr) : option val :=
  match e with
  | Lam e => Some (LamV e)
- | Rec e => Some (RecV e)
- | TLam e => Some (TLamV e)
+ (* | Rec e => Some (RecV e) *)
+ (* | TLam e => Some (TLamV e) *)
  | Lit e => Some (LitV e)
  | Pair e1 e2 => v1 ← to_val e1; v2 ← to_val e2; Some (PairV v1 v2)
  | InjL e => InjLV <$> to_val e
@@ -104,6 +144,30 @@ Fixpoint to_val (e : expr) : option val :=
  | Fold e => v ← to_val e; Some (FoldV v)
  | _ => None
  end.
+
+Fixpoint val_subst (v : val) (σ : var → expr) : val :=
+  match v with
+  | LamV e => LamV (e.[up σ])
+  | LitV v => LitV v
+  | PairV v1 v2 => PairV (val_subst v1 σ) (val_subst v2 σ)
+  | InjLV v => InjLV (val_subst v σ)
+  | InjRV v => InjRV (val_subst v σ)
+  | FoldV v => FoldV (val_subst v σ)
+  end.
+
+Notation "v .{ sigma }" := (val_subst v sigma)
+  (at level 2, sigma at level 200, left associativity,
+   format "v .{ sigma }" ).
+
+Notation "v .{ t /}" := (val_subst v (t .: ids))
+  (at level 2, t at level 200, left associativity,
+   format "v .{ t /}") : subst_scope.
+
+Lemma val_subst_valid (v : val) (σ : var → expr) : (of_val v).[σ] = (val_subst v σ).
+Proof. induction v; asimpl; try done; (by rewrite IHv1 IHv2) || by rewrite IHv. Qed.
+
+Lemma val_subst_comp (v : val) (σ σ' : var → expr) : v.{σ}.{σ'} = v.{σ >> σ'}.
+Proof. induction v; asimpl; try done; (by rewrite IHv1 IHv2) || by rewrite IHv. Qed.
 
 Lemma to_of_val v : to_val (of_val v) = Some v.
 Proof.
@@ -130,8 +194,8 @@ Proof.
    abstract naive_solver.
 Defined.
 
-Instance expr_inhabited : Inhabited expr := populate (Lit LitUnit).
-Instance val_inhabited : Inhabited val := populate (LitV LitUnit).
+(* Instance expr_inhabited : Inhabited expr := populate (Lit LitUnit). *)
+(* Instance val_inhabited : Inhabited val := populate (LitV LitUnit). *)
 (* Canonical Structure stateC := leibnizO state. *)
 (* Canonical Structure valC := leibnizO val. *)
 (* Canonical Structure eff_valC := leibnizO eff_val. *)
@@ -139,11 +203,11 @@ Instance val_inhabited : Inhabited val := populate (LitV LitUnit).
 
 (** Evaluation contexts *)
 Inductive ectx_item :=
-| LetInLCtx (e2 : expr)
-| LetInRCtx (v1 : val)
+(* | FixCtx *)
+| LetInCtx (e2 : expr)
 | AppLCtx (e2 : expr)
 | AppRCtx (v1 : val)
-| TAppCtx
+(* | TAppCtx *)
 | PairLCtx (e2 : expr)
 | PairRCtx (v1 : val)
 | FstCtx
@@ -154,16 +218,17 @@ Inductive ectx_item :=
 | IfCtx (e2 : expr) (e3 : expr)
 | BinOpLCtx (op : bin_op) (e2 : expr)
 | BinOpRCtx (op : bin_op) (v1 : val)
+| SeqCtx (e2 : expr)
 | FoldCtx
 | UnfoldCtx.
 
 Definition fill_item (Ki : ectx_item) (e : expr) : expr :=
  match Ki with
- | LetInLCtx e2 => LetIn e e2
- | LetInRCtx v1 => LetIn (of_val v1) e
+ (* | FixCtx => Fix e *)
+ | LetInCtx e2 => LetIn e e2
  | AppLCtx e2 => App e e2
  | AppRCtx v1 => App (of_val v1) e
- | TAppCtx => TApp e
+ (* | TAppCtx => TApp e *)
  | PairLCtx e2 => Pair e e2
  | PairRCtx v1 => Pair (of_val v1) e
  | FstCtx => Fst e
@@ -174,6 +239,7 @@ Definition fill_item (Ki : ectx_item) (e : expr) : expr :=
  | IfCtx e1 e2 => If e e1 e2
  | BinOpLCtx op e2 => BinOp op e e2
  | BinOpRCtx op v1 => BinOp op (of_val v1) e
+ | SeqCtx e2 => Seq e e2
  | FoldCtx => Fold e
  | UnfoldCtx => Unfold e
  end.
@@ -193,46 +259,52 @@ Definition state : Type := ().
 
 Inductive head_step : expr → state → list Empty_set → expr → state → list expr → Prop :=
 (* β *)
-  BetaLetIn e1 v1 e2 v2 σ κ :
+  LetIn_head_step e1 v1 e2 σ :
    to_val e1 = Some v1 →
+   head_step (LetIn e1 e2) σ [] e2.[e1/] σ []
+| App_Lam_head_step e1 e2 v2 σ :
    to_val e2 = Some v2 →
-   head_step (LetIn e1 e2) σ κ e2.[e1/] σ []
-| BetaLam e1 e2 v2 σ κ :
-   to_val e2 = Some v2 →
-   head_step (App (Lam e1) e2) σ κ e1.[e2/] σ []
-| BetaS e1 e2 v2 σ κ :
-   to_val e2 = Some v2 →
-   head_step (App (Rec e1) e2) σ κ e1.[(Rec e1), e2/] σ []
+   head_step (App (Lam e1) e2) σ [] e1.[e2/] σ []
+(* | App_Rec_head_step e1 e2 v2 σ : *)
+   (* to_val e2 = Some v2 → *)
+   (* head_step (App (Rec e1) e2) σ [] e1.[(Rec e1), e2/] σ [] *)
+(* fix *)
+(* | Fix_head_step e σ : *)
+    (* head_step (Fix (Lam e)) σ [] e.[Fix (Lam e)/] σ [] *)
 (* binary operation *)
-| BinOpS op e1 e2 z1 z2 σ κ :
+| BinOp_head_step op e1 e2 z1 z2 σ :
    to_val e1 = Some (LitV $ LitInt z1) → to_val e2 = Some (LitV $ LitInt z2) →
-   head_step (BinOp op e1 e2) σ κ (of_val (bin_op_eval op z1 z2)) σ []
+   head_step (BinOp op e1 e2) σ [] (of_val (bin_op_eval op z1 z2)) σ []
 (* if *)
-| IfTrueS e1 e2 σ κ :
-   head_step (If (Lit $ LitBool true) e1 e2) σ κ e1 σ []
-| IfFalseS e1 e2 σ κ :
-   head_step (If (Lit $ LitBool false) e1 e2) σ κ e2 σ []
+| If_True_head_step e1 e2 σ :
+   head_step (If (Lit $ LitBool true) e1 e2) σ [] e1 σ []
+| If_False_head_step e1 e2 σ :
+   head_step (If (Lit $ LitBool false) e1 e2) σ [] e2 σ []
+(* seq *)
+| Seq_Unit_head_step e1 e2 σ :
+    to_val e1 = Some ()%Vₙₒ →
+    head_step (Seq e1 e2) σ [] e2 σ []
 (* Products *)
-| FstS e1 v1 e2 v2 σ κ :
+| Fst_Pair_head_step e1 v1 e2 v2 σ :
    to_val e1 = Some v1 → to_val e2 = Some v2 →
-   head_step (Fst (Pair e1 e2)) σ κ e1 σ []
-| SndS e1 v1 e2 v2 σ κ :
+   head_step (Fst (Pair e1 e2)) σ [] e1 σ []
+| Snd_Pair_head_step e1 v1 e2 v2 σ :
    to_val e1 = Some v1 → to_val e2 = Some v2 →
-   head_step (Snd (Pair e1 e2)) σ κ e2 σ []
+   head_step (Snd (Pair e1 e2)) σ [] e2 σ []
 (* Sums *)
-| CaseLS e0 v0 e1 e2 σ κ :
+| Case_InjL_head_step e0 v0 e1 e2 σ :
    to_val e0 = Some v0 →
-   head_step (Case (InjL e0) e1 e2) σ κ e1.[e0/] σ []
-| CaseRS e0 v0 e1 e2 σ κ :
+   head_step (Case (InjL e0) e1 e2) σ [] e1.[e0/] σ []
+| Case_InjR_head_step e0 v0 e1 e2 σ :
    to_val e0 = Some v0 →
-   head_step (Case (InjR e0) e1 e2) σ κ e2.[e0/] σ []
+   head_step (Case (InjR e0) e1 e2) σ [] e2.[e0/] σ []
 (* Recursive Types *)
-| Unfold_Fold e v σ κ :
+| Unfold_Fold_head_step e v σ :
    to_val e = Some v →
-   head_step (Unfold (Fold e)) σ κ e σ []
+   head_step (Unfold (Fold e)) σ [] e σ [].
 (* Polymorphic Types *)
-| TBeta e σ κ :
-   head_step (TApp (TLam e)) σ κ e σ [].
+(* | TBeta e σ : *)
+   (* head_step (TApp (TLam e)) σ [] e σ []. *)
 
 Instance fill_item_inj Ki : Inj (=) (=) (fill_item Ki).
 Proof. destruct Ki; intros ???; simplify_eq/=; auto with f_equal. Qed.
@@ -277,5 +349,92 @@ Proof.
     congruence.
 Qed.
 
-Arguments val_stuck {_ _ _ _ _} _.
-Arguments fill_val {_ _} _.
+(* Arguments val_stuck {_ _ _ _ _} _. *)
+(* Arguments fill_val {_ _} _. *)
+
+(* Wrapper around prim_step *)
+
+Definition lam_step (e1 e2 : expr) : Prop := prim_step e1 tt [] e2 tt [].
+
+(* We do not use forks, nor prophecy variables. *)
+
+Lemma head_step_no_forks e σ κ e' σ' efs : head_step e σ κ e' σ' efs → efs = [].
+Proof. intros H. by inversion H. Qed.
+
+Lemma prim_step_no_forks (e : expr) σ κ e' σ' efs : prim_step e σ κ e' σ' efs → efs = [].
+Proof. intros H. inversion H. by eapply head_step_no_forks. Qed.
+
+Lemma head_step_no_obs e σ κ e' σ' efs : head_step e σ κ e' σ' efs → κ = [].
+Proof. intros H. by inversion H. Qed.
+
+Lemma prim_step_no_obs (e : expr) σ κ e' σ' efs : prim_step e σ κ e' σ' efs → κ = [].
+Proof. intros H. inversion H. by eapply head_step_no_obs. Qed.
+
+(* Our language is deterministic *)
+
+Lemma head_step_det e e1 σ1 κ1 σ1' efs1 e2 σ2 κ2 σ2' efs2 : head_step e σ1 κ1 e1 σ1' efs1 → head_step e σ2 κ2 e2 σ2' efs2 → e1 = e2.
+Proof. intros H1 H2. inversion H1; inversion H2; ((by simplify_eq) || (try done) || simplify_eq; inversion G2). Qed.
+
+Lemma prim_step_det (e e1 e2 : expr) σ κ : prim_step e σ κ e1 σ [] → prim_step e σ κ e2 σ [] → e1 = e2.
+Proof.
+  intros H1 H2.
+  inversion H1. inversion H2. simplify_eq. simpl in *.
+  assert (K = K0) as <-.
+  { destruct (step_by_val K K0 _ _ σ κ e2'0 σ [] H4) as [Kred eq] ; try done; try by eapply val_stuck.
+    assert (H4' : fill K0 e1'0 = fill K e1'); first done.
+    destruct (step_by_val K0 K _ _ σ κ e2' σ [] H4') as [Kred' eq'] ; try done; try by eapply val_stuck.
+    rewrite eq in eq'. simpl in *. assert (length K = length (Kred' ++ Kred ++ K)). simpl in *. by rewrite -eq'.
+    do 2 rewrite app_length in H. assert (Kred = []) as ->. apply length_zero_iff_nil. lia. by rewrite eq. }
+  f_equal. assert (e1' = e1'0) as ->. apply (fill_inj K _ _ H4). by eapply head_step_det.
+Qed.
+
+(* Our language is pure *)
+
+Lemma prim_step_pure (e1 e2 : expr) σ1 σ2 κ efs : prim_step e1 σ1 κ e2 σ2 efs → pure_step e1 e2.
+Proof.
+  intros Hprim.
+  assert (efs = []) as ->. by eapply prim_step_no_forks.
+  assert (κ = []) as ->. by eapply prim_step_no_obs.
+  destruct σ1, σ2.
+  split.
+  intros σ. destruct σ. rewrite /reducible_no_obs. by exists e2, tt, [].
+  intros.
+  assert (efs = []) as ->. by eapply prim_step_no_forks.
+  assert (κ = []) as ->. by eapply prim_step_no_obs.
+  destruct σ1, σ2. by erewrite (prim_step_det _ _ _ _ _ H).
+Qed.
+
+(* Wrappers around lemmas *)
+
+Lemma lam_pure e1 e2 : lam_step e1 e2 <-> pure_step e1 e2.
+Proof.
+  split. apply prim_step_pure. intro H. inversion H.
+  destruct (pure_step_safe tt) as [e2' [σ [efs Hp]]].
+  destruct σ. by destruct (pure_step_det _ _ _ _ _ Hp) as [a [b [-> ->]]].
+Qed.
+
+Lemma lam_step_ctx K `{!LanguageCtx K} e1 e2 : lam_step e1 e2 → lam_step (K e1) (K e2).
+Proof. intro. apply lam_pure. apply pure_step_ctx. auto. by apply lam_pure. Qed.
+
+Lemma rtc_lam_step_ctx K `{!LanguageCtx K} e1 e2 : rtc lam_step e1 e2 → rtc lam_step (K e1) (K e2).
+Proof. eauto using rtc_congruence, lam_step_ctx. Qed.
+
+Lemma nsteps_lam_step_ctx K `{!LanguageCtx K} n e1 e2 : nsteps lam_step n e1 e2 → nsteps lam_step n (K e1) (K e2).
+Proof. eauto using nsteps_congruence, lam_step_ctx. Qed.
+
+Lemma nsteps_PureExec (e1 e2 : expr) n : nsteps lam_step n e1 e2 <-> PureExec True n e1 e2.
+Proof.
+  split. intros s t. eapply nsteps_congruence with (f := id). by apply lam_pure. auto.
+  intro H. eapply nsteps_congruence with (f := id). apply lam_pure. apply pure_exec. auto.
+Qed.
+
+Lemma rtc_PureExec (e1 e2 : expr) : rtc lam_step e1 e2 <-> ∃ n, PureExec True n e1 e2.
+Proof.
+  split.
+  intro H. assert (H' : rtc pure_step e1 e2).
+  eapply rtc_subrel. by apply lam_pure. auto. destruct (rtc_nsteps _ _ H') as [n H'']. exists n. intros _. done.
+  intro d. destruct d as [n H]. eapply nsteps_rtc. by apply nsteps_PureExec.
+Qed.
+
+Lemma step_PureExec (e1 e2 : expr) : lam_step e1 e2 → PureExec True 1 e1 e2.
+Proof. intros s t. apply nsteps_once. by apply lam_pure. Qed.
