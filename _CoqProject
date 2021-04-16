@@ -36,7 +36,7 @@ theories/backtranslations/un_syn/logrel/syn_le_un/fundamental.v
 theories/lam/lib/guard_assert.v
 
 
-theories/backtranslations/sem_syn/connective.v
+theories/backtranslations/sem_syn/connective/un_le_syn.v
 
 # We sometimes want to locally override notation, and there is no good way to do that with scopes.
 # -arg -w -arg -notation-overridden

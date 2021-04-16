@@ -1,5 +1,5 @@
 From st.lam Require Import types lang typing tactics.
-From st.lam.lib Require Import omega fixlam dummy universe.base.
+From st.lam.lib Require Import omega fixlam universe.base.
 
 Opaque Ω.
 

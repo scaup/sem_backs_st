@@ -3,7 +3,7 @@ From iris.proofmode Require Import tactics.
 From iris_string_ident Require Import ltac2_string_ident.
 From st.prelude Require Import autosubst.
 From st.lam Require Import types lang typing tactics logrel.definitions logrel.generic.lift.
-From st.lam.lib Require Import fixlam universe.embed_project_two guard_assert_two universe.base.
+From st.lam.lib Require Import fixlam universe.embed_project guard_assert universe.base.
 From st.backtranslations.un_syn Require Import logrel.definitions logrel.un_le_syn.fundamental.
 
 (* Defines connective lemma between the untyped and typed logic relations (the (untyped ≤ syntactically typed)-refinement) *)
@@ -19,16 +19,10 @@ Section connective_un_le_syn.
   Notation exprel_typed := (exprel_typed MaybeStuck).
 
   Definition ap_Connective (τ : type) (asr prj : val) : iProp Σ :=
-    ∀ (e e' : expr), (exprel e e' -∗ exprel_typed τ (asr e) (prj e')).
+    ∀ (v v' : val), (valrel v v' -∗ exprel_typed τ (asr v) (prj v')).
 
   Definition ge_Connective (τ : type) (grd emb : val) : iProp Σ :=
-    ∀ (e e' : expr), (exprel_typed τ e e' -∗ exprel (grd e) (emb e')).
-
-  Lemma ge_Connective_val (τ : type) (grd emb : val) : (∀ (v v' : val), valrel_typed τ v v' -∗ exprel (grd v) (emb v')) ⊢ ge_Connective τ grd emb.
-  Proof. iIntros "H" (e e') "Hee'". iApply (lift_bind _ _ _ [AppRCtx _] [AppRCtx _]). iFrame "Hee'". iIntros (v v') "HH". by iApply "H". Qed.
-
-  Lemma ap_Connective_val (τ : type) (asr prj : val) : (∀ (v v' : val), valrel v v' -∗ exprel_typed τ (asr v) (prj v')) ⊢ ap_Connective τ asr prj.
-  Proof. iIntros "H" (e e') "Hee'". iApply (lift_bind _ _ _ [AppRCtx _] [AppRCtx _]). iFrame "Hee'". iIntros (v v') "HH". by iApply "H". Qed.
+    ∀ (v v' : val), (valrel_typed τ v v' -∗ exprel (grd v) (emb v')).
 
   Fixpoint big_sepL3 {PROP : bi} {A B C}
       (Φ : A → B → C → PROP) (l1 : list A) (l2 : list B) (l3 : list C) : PROP :=
@@ -88,8 +82,7 @@ Section connective_un_le_syn.
     - admit.
     - specialize (IHτ1 τs ltac:(closed_solver) gas eps). specialize (IHτ2 τs ltac:(closed_solver) gas eps).
       iIntros "#H". iSplit.
-      + simpl. iApply ge_Connective_val.
-        iIntros (v v') "#Hvv'". iEval (rewrite valrel_typed_TArrow_unfold) in "Hvv'".
+      + iIntros (v v') "#Hvv'". iEval (rewrite valrel_typed_TArrow_unfold) in "Hvv'".
         (* step impl spec *)
         iEval (repeat rewrite -val_subst_valid).
         iApply lift_step_later. auto_lam_step. iEval simplify_custom.
@@ -102,16 +95,20 @@ Section connective_un_le_syn.
         iExists _. iSplitL "".  auto. iEval simpl. iExists _, _. iSplitL "". auto. iSplitL "". auto.
         (* *)
         repeat iModIntro. iIntros (w w') "#Hww'". fold valrel. asimpl. iEval repeat rewrite val_subst_valid.
+        iEval repeat rewrite val_subst_comp. iEval asimpl.
         (* applying IHτ1 *)
         iApply (lift_bind  _ _ _ [AppRCtx _ ; AppRCtx _] [AppRCtx _ ; AppRCtx _]).
-        iSplitL. iApply (IHτ1 with "H"). by iApply lift_val.
+        iSplitL.
+        iApply (IHτ1 with "H"); auto.
         (* *)
         iIntros (x x') "#Hxx'/=".
         (* using IHτ2 *)
+        iApply (lift_bind  _ _ _ [AppRCtx _] [AppRCtx _]).
+        iSplitL. iApply "Hvv'". auto.
+        iIntros (y y') "#Hyy'".  iEval simpl.
         iApply (IHτ2 with "H").
-        by iApply "Hvv'".
-      + simpl. iApply ap_Connective_val.
-        iIntros (v v') "#Hvv'".
+        by iApply "Hyy'".
+      + iIntros (v v') "#Hvv'".
         (* step impl spec *)
         iEval (repeat rewrite -val_subst_valid).
         iApply lift_step_later. auto_lam_step. iEval simplify_custom. rewrite extract_Closed.
@@ -139,23 +136,23 @@ Section connective_un_le_syn.
         iNext. iIntros (x x') "#Hxx'". iEval simpl. iDestruct "Hxx'" as (e e') "(-> & -> & Hee')".
         (* IH1 *)
         iApply (lift_bind _ _ _ [AppRCtx _; AppRCtx _] [AppRCtx _; AppRCtx _]).
-        iSplitL. iApply IHτ1; auto. by iApply lift_val.
+        iSplitL. iApply IHτ1; auto.
         (*  *)
         iIntros (x x') "#Hxx'". simpl.
-        (* steps *)
+        iApply (lift_bind  _ _ _ [AppRCtx _] [AppRCtx _]).
+        iSplitL.
         iApply lift_step_later. auto_lam_step. simplify_custom.
         iApply lift_step. auto_lam_step. simplify_custom.
-        (* ih2 *)
-        iApply IHτ2; auto. iNext. by iApply "Hee'".
+        by iApply "Hee'".
+        simpl.
+        iIntros (y y') "#Hyy'". iApply IHτ2; auto.
     - (* TRec *)
       specialize (IHτb (TRec τb.[up (subst_list τs)] :: τs) ltac:(closed_solver)).
       iIntros "#H".
       (* lob induction *)
       iLöb as "IHLob".
       iSplit.
-      + (* related values instead of expressions *)
-        iApply ge_Connective_val.
-        iIntros (v v') "#Hvv'".
+      + iIntros (v v') "#Hvv'".
         (* destruct value relation *)
         rewrite valrel_typed_unfold. iDestruct "Hvv'" as (w w') "(-> & -> & Hww')". fold (valrel_typed).
         (* step on impl and spec side *)
@@ -220,16 +217,14 @@ Section connective_un_le_syn.
         iEval (repeat rewrite val_subst_comp).
         iEval (asimpl). auto.
         auto.
-        iApply lift_val. iEval asimpl. iEval (asimpl) in "Hww'". auto.
+        iEval asimpl. iEval (asimpl) in "Hww'". auto.
         (* *)
         iIntros (x x') "Hxx'".
         iEval simpl. iApply lift_step.
         apply (inject_step _ (FoldV x')). auto. change (Fold x) with (of_val $ FoldV x). iApply lift_val.
         iEval rewrite valrel_unfold. iExists TCRec. iExists _. repeat iSplit; auto. rewrite /canon_tc_lift.
         iExists _, _; auto.
-      + (* related values instead of expressions *)
-        iApply ap_Connective_val.
-        iIntros (v v') "#Hvv'".
+      + iIntros (v v') "#Hvv'".
         (* step on impl and spec side *)
         iApply lift_step_later. auto_lam_step.
         iApply lift_step. auto_lam_step.
@@ -331,7 +326,7 @@ Section connective_un_le_syn.
         iEval (repeat rewrite val_subst_comp).
         iEval (asimpl). auto.
         auto.
-        iApply lift_val. iEval asimpl. iEval (asimpl) in "Hww'". auto.
+        iEval asimpl. iEval (asimpl) in "Hww'". auto.
         iNext.
         iIntros (x x') "#Hxx'". iEval simpl.
         change (Fold x) with (of_val $ FoldV x).
@@ -363,33 +358,22 @@ Section connective_un_le_syn.
         assert (X < length τs). by eapply lookup_lt_Some. lia.
   Admitted.
 
-  Lemma guard_embed_connective (τ : type) (pCτ : Closed τ) (e e' : expr) :
-    exprel_typed τ e e' ⊢ exprel (ga_pair Guard τ e) (ep_pair Embed τ e').
+  Lemma guard_embed_connective (τ : type) (pCτ : Closed τ) (v v' : val) :
+    valrel_typed τ v v' ⊢ exprel (ga_pair Guard τ v) (ep_pair Embed τ v').
   Proof.
-     cut (exprel_typed τ.[subst_list []] e e' ⊢ exprel ((ga_pair Guard τ.[subst_list []]).{subst_list_val [] } e) ((ep_pair Embed τ.[subst_list []]).{subst_list_val [] } e')).
-     rewrite pCτ. asimpl. destruct τ; by asimpl.
-     iDestruct (connective_ep_ga τ [] pCτ [] []) as "HHH/=".
-     rewrite /ge_Connective. asimpl. iIntros "Hee'". iApply "HHH"; auto.
+    cut (valrel_typed τ.[subst_list []] v v' ⊢ exprel ((ga_pair Guard τ.[subst_list []]).{subst_list_val [] } v) ((ep_pair Embed τ.[subst_list []]).{subst_list_val [] } v')).
+    rewrite pCτ. asimpl. destruct τ; by asimpl.
+    iDestruct (connective_ep_ga τ [] pCτ [] []) as "HHH/=".
+    rewrite /ge_Connective. asimpl. iIntros "Hee'". iApply "HHH"; auto.
   Qed.
 
-  Lemma assert_project_connective (τ : type) (pCτ : Closed τ) (e e' : expr) :
-    exprel e e' ⊢ exprel_typed τ (ga_pair Assert τ e) (ep_pair Project τ e').
+  Lemma assert_project_connective (τ : type) (pCτ : Closed τ) (v v' : val) :
+    valrel v v' ⊢ exprel_typed τ (ga_pair Assert τ v) (ep_pair Project τ v').
   Proof.
-     cut (exprel e e' ⊢ exprel_typed τ.[subst_list []] ((ga_pair Assert τ.[subst_list []]).{subst_list_val [] } e) ((ep_pair Project τ.[subst_list []]).{subst_list_val [] } e')).
+     cut (valrel v v' ⊢ exprel_typed τ.[subst_list []] ((ga_pair Assert τ.[subst_list []]).{subst_list_val [] } v) ((ep_pair Project τ.[subst_list []]).{subst_list_val [] } v')).
      rewrite pCτ. asimpl. destruct τ; by asimpl.
      iDestruct (connective_ep_ga τ [] pCτ [] []) as "HHH/=".
      rewrite /ap_Connective. asimpl. iIntros "Hee'". iApply "HHH"; auto.
   Qed.
 
 End connective_un_le_syn.
-
-
-(* Defines connective lemma between the untyped and typed logic relations (the (syntactically typed ≤ untyped)-refinement) *)
-(* Of the two refinements, this is the harder one; we need the additional guards/asserts *)
-Section connective_syn_le_un.
-
-  Instance rfn' : refinement := syn_le_un.
-
-  Print Instances refinement.
-
-End connective_syn_le_un.

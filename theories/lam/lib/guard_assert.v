@@ -1,6 +1,6 @@
 From st.prelude Require Import autosubst.
 From st.lam Require Import types lang typing tactics.
-From st.lam.lib Require Import fixlam omega universe.base dummy.
+From st.lam.lib Require Import fixlam omega universe.base.
 
 Inductive action :=
   | Guard

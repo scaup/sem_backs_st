@@ -1,5 +1,5 @@
 From st.lam Require Import types lang typing tactics.
-From st.lam.lib Require Import omega fixlam dummy.
+From st.lam.lib Require Import omega fixlam.
 
 (* Local Open Scope Eₙₒ. *)
 (* Local Open Scope Tₙₒ. *)
