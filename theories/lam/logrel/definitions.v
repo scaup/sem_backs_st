@@ -47,6 +47,13 @@ Section definition.
   Proof. auto. Qed.
   Lemma valrel_typed_gen_pre_gen' Ψ τ : valrel_typed_gen_pre Ψ τ ≡ valrel_typed_gen Ψ τ.
   Proof. intro. intro. auto. Qed.
+
+  Lemma valrel_typed_TUnit_unfold v v' : valrel_typed TUnit v v' ≡ (⌜ v = (()%Vₙₒ : valO) ⌝ ∧ ⌜ v' = (()%Vₙₒ : valO) ⌝)%I.
+  Proof. by rewrite valrel_typed_unfold. Qed.
+  Lemma valrel_typed_TBool_unfold v v' : valrel_typed TBool v v' ≡ (∃ b : bool, ⌜ v = b ⌝ ∧ ⌜ v' = b ⌝)%I.
+  Proof. by rewrite valrel_typed_unfold. Qed.
+  Lemma valrel_typed_TInt_unfold v v' : valrel_typed TInt v v' ≡ (∃ z : Z, ⌜ v = z ⌝ ∧ ⌜ v' = z ⌝)%I.
+  Proof. by rewrite valrel_typed_unfold. Qed.
   Lemma valrel_typed_TArrow_unfold τ1 τ2 v v' : valrel_typed (TArrow τ1 τ2) v v' ≡ (□ (∀ w w', valrel_typed τ1 w w' -∗ lift s (valrel_typed τ2) (v w) (v' w')))%I.
   Proof.
     rewrite valrel_typed_unfold. rewrite /valrel_typed_gen. simpl.
@@ -81,5 +88,14 @@ Section definition.
   Definition exprel_typed : typeO -n> exprO -n> exprO -n> iPropO Σ := λne τ eᵢ eₛ, lift s (valrel_typed τ) eᵢ eₛ.
 
 End definition.
+
+Ltac unfold_valrel_typed :=
+  (rewrite valrel_typed_TUnit_unfold) ||
+  (rewrite valrel_typed_TBool_unfold) ||
+  (rewrite valrel_typed_TInt_unfold) ||
+  (rewrite valrel_typed_TArrow_unfold) ||
+  (rewrite valrel_typed_TSum_unfold) ||
+  (rewrite valrel_typed_TProd_unfold) ||
+  (rewrite valrel_typed_TRec_unfold).
 
 Ltac simpl_valrel_typed := fold (valrel_typed_gen_pre); repeat rewrite valrel_typed_gen_pre_gen -valrel_typed_unfold; fold (valrel_typed).

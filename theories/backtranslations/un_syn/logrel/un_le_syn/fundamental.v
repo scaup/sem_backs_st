@@ -1,6 +1,6 @@
 From iris Require Import program_logic.weakestpre.
 From iris.proofmode Require Import tactics.
-From st.lam Require Import lang wkpre generic.lift types lib.universe.base tactics lib.universe.eval.
+From st.lam Require Import lang wkpre generic.lift types lib.universe.base tactics lib.universe.paths.
 From st.backtranslations.un_syn Require Import logrel.definitions expressions.
 
 Section un_le_syn.
