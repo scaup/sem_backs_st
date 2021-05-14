@@ -3,7 +3,7 @@ From iris.proofmode Require Import tactics.
 From iris_string_ident Require Import ltac2_string_ident.
 From st.prelude Require Import autosubst big_op_three.
 From st.lam Require Import types lang typing tactics logrel.definitions logrel.generic.lift.
-From st.lam.lib Require Import fixlam universe.embed_project guard_assertO universe.base.
+From st.lam.lib Require Import fixlam universe.embed_project guard_assert_approx universe.base.
 From st.backtranslations.un_syn Require Import logrel.definitions logrel.un_le_syn.fundamental.
 From st.backtranslations.sem_syn Require Import expl_idx.
 

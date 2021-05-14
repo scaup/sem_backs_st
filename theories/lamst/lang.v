@@ -1,6 +1,7 @@
 From iris.program_logic Require Import language ectx_language ectxi_language.
 From st.prelude Require Export autosubst generic.
 From stdpp Require Import gmap prelude.
+From st.lam Require lang.
 
 Local Open Scope Z_scope.
 
@@ -13,8 +14,8 @@ Instance loc_dec_eq (l l' : loc) : Decision (l = l') := _.
 Inductive base_lit : Set :=
 | LitInt (n : Z) | LitBool (b : bool) | LitUnit | LitLoc (l : loc).
 
-Inductive bin_op : Set :=
-| PlusOp | MinusOp | LeOp | LtOp | EqOp.
+(* Inductive bin_op : Set := *)
+(* | PlusOp | MinusOp | LeOp | LtOp | EqOp. *)
 
 (** The syntax of expressions *)
 Inductive expr :=
@@ -26,7 +27,7 @@ Inductive expr :=
 | App (e1 e2 : expr)
 (* Base Types *)
 | Lit (l : base_lit)
-| BinOp (op : bin_op) (e1 e2 : expr)
+| BinOp (op : lang.bin_op) (e1 e2 : expr)
 | If (e0 e1 e2 : expr)
 | Seq (e1 e2 : expr)
 (* Products *)
@@ -212,8 +213,8 @@ Qed.
 
 Instance base_lit_eq_dec : EqDecision base_lit.
 Proof. solve_decision. Defined.
-Instance bin_op_eq_dec : EqDecision bin_op.
-Proof. solve_decision. Defined.
+(* Instance bin_op_eq_dec : EqDecision lang.bin_op. *)
+(* Proof. solve_decision. Defined. *)
 Instance expr_eq_dec : EqDecision expr.
 Proof. solve_decision. Defined.
 Instance val_eq_dec : EqDecision val.
@@ -307,8 +308,8 @@ Inductive ectx_item :=
 | InjRCtx
 | CaseCtx (e1 : {bind expr}) (e2 : {bind expr})
 | IfCtx (e2 : expr) (e3 : expr)
-| BinOpLCtx (op : bin_op) (e2 : expr)
-| BinOpRCtx (op : bin_op) (v1 : val)
+| BinOpLCtx (op : lang.bin_op) (e2 : expr)
+| BinOpRCtx (op : lang.bin_op) (v1 : val)
 | SeqCtx (e2 : expr)
 | FoldCtx
 | UnfoldCtx
@@ -357,13 +358,13 @@ Definition fill_item (Ki : ectx_item) (e : expr) : expr :=
 
 (** The stepping relation *)
 
-Definition bin_op_eval (op : bin_op) (z1 z2 : Z) : val :=
+Definition bin_op_eval (op : lang.bin_op) (z1 z2 : Z) : val :=
  match op with
- | PlusOp => LitV $ LitInt (z1 + z2)
- | MinusOp => LitV $ LitInt (z1 - z2)
- | LeOp => LitV $ LitBool $ bool_decide (z1 ≤ z2)
- | LtOp => LitV $ LitBool $ bool_decide (z1 < z2)
- | EqOp => LitV $ LitBool $ bool_decide (z1 = z2)
+ | lang.PlusOp => LitV $ LitInt (z1 + z2)
+ | lang.MinusOp => LitV $ LitInt (z1 - z2)
+ | lang.LeOp => LitV $ LitBool $ bool_decide (z1 ≤ z2)
+ | lang.LtOp => LitV $ LitBool $ bool_decide (z1 < z2)
+ | lang.EqOp => LitV $ LitBool $ bool_decide (z1 = z2)
  end.
 
 (** Reduction relation for STLang: *)
@@ -762,3 +763,109 @@ Arguments fill_val {_ _} _.
 (*   apply head_prim_step. *)
 (*   simpl in *. by apply det_head_step_head_step. *)
 (* Qed. *)
+
+
+(* Wrapper around prim_step *)
+
+Definition lamst_step (p1 p2 : state * expr) : Prop :=
+  match (p1 , p2) with
+  | ((σ1, e1), (σ2, e2)) => @prim_step lamst_ectx_lang e1 σ1 [] e2 σ2 []
+  end.
+
+Lemma head_step_no_forks e σ κ e' σ' efs : head_step e σ κ e' σ' efs → efs = [].
+Proof. intros H. by inversion H. Qed.
+
+Lemma prim_step_no_forks (e : expr) σ κ e' σ' efs : @prim_step lamst_ectx_lang e σ κ e' σ' efs → efs = [].
+Proof. intros H. inversion H. by eapply head_step_no_forks. Qed.
+
+Lemma head_step_no_obs e σ κ e' σ' efs : head_step e σ κ e' σ' efs → κ = [].
+Proof. intros H. by inversion H. Qed.
+
+Lemma prim_step_no_obs (e : expr) σ κ e' σ' efs : @prim_step lamst_ectx_lang e σ κ e' σ' efs → κ = [].
+Proof. intros H. inversion H. by eapply head_step_no_obs. Qed.
+
+Lemma prim_to_lamst_step σ1 e1 σ2 e2 κ efs : @prim_step lamst_ectx_lang e1 σ1 κ e2 σ2 efs → lamst_step (σ1, e1) (σ2, e2).
+Proof.
+  intros Hprim.
+  assert (efs = []) as ->. by eapply prim_step_no_forks.
+  assert (κ = []) as ->. by eapply prim_step_no_obs.
+  apply Hprim.
+Qed.
+
+Lemma prim_lamst σ1 e1 σ2 e2 : @prim_step lamst_ectx_lang e1 σ1 [] e2 σ2 [] <-> lamst_step (σ1, e1) (σ2, e2).
+Proof.
+  split. apply prim_to_lamst_step. auto.
+Qed.
+
+(* (* Our language is deterministic *) *)
+
+(* Lemma head_step_det e e1 σ1 κ1 σ1' efs1 e2 σ2 κ2 σ2' efs2 : head_step e σ1 κ1 e1 σ1' efs1 → head_step e σ2 κ2 e2 σ2' efs2 → e1 = e2. *)
+(* Proof. intros H1 H2. inversion H1; inversion H2; ((by simplify_eq) || (try done) || simplify_eq; inversion G2). Qed. *)
+
+(* Lemma prim_step_det (e e1 e2 : expr) σ κ : prim_step e σ κ e1 σ [] → prim_step e σ κ e2 σ [] → e1 = e2. *)
+(* Proof. *)
+(*   intros H1 H2. *)
+(*   inversion H1. inversion H2. simplify_eq. simpl in *. *)
+(*   assert (K = K0) as <-. *)
+(*   { destruct (step_by_val K K0 _ _ σ κ e2'0 σ [] H4) as [Kred eq] ; try done; try by eapply val_stuck. *)
+(*     assert (H4' : fill K0 e1'0 = fill K e1'); first done. *)
+(*     destruct (step_by_val K0 K _ _ σ κ e2' σ [] H4') as [Kred' eq'] ; try done; try by eapply val_stuck. *)
+(*     rewrite eq in eq'. simpl in *. assert (length K = length (Kred' ++ Kred ++ K)). simpl in *. by rewrite -eq'. *)
+(*     do 2 rewrite app_length in H. assert (Kred = []) as ->. apply length_zero_iff_nil. lia. by rewrite eq. } *)
+(*   f_equal. assert (e1' = e1'0) as ->. apply (fill_inj K _ _ H4). by eapply head_step_det. *)
+(* Qed. *)
+
+(* (* Our language is pure *) *)
+
+(* Lemma prim_step_pure (e1 e2 : expr) σ1 σ2 κ efs : prim_step e1 σ1 κ e2 σ2 efs → pure_step e1 e2. *)
+(* Proof. *)
+(*   intros Hprim. *)
+(*   assert (efs = []) as ->. by eapply prim_step_no_forks. *)
+(*   assert (κ = []) as ->. by eapply prim_step_no_obs. *)
+(*   destruct σ1, σ2. *)
+(*   split. *)
+(*   intros σ. destruct σ. rewrite /reducible_no_obs. by exists e2, tt, []. *)
+(*   intros. *)
+(*   assert (efs = []) as ->. by eapply prim_step_no_forks. *)
+(*   assert (κ = []) as ->. by eapply prim_step_no_obs. *)
+(*   destruct σ1, σ2. by erewrite (prim_step_det _ _ _ _ _ H). *)
+(* Qed. *)
+
+(* Wrappers around lemmas *)
+
+(* Lemma lam_st_pure e1 e2 : lam_st_step e1 e2 <-> pure_step e1 e2. *)
+(* Proof. *)
+(*   split. apply prim_step_pure. intro H. inversion H. *)
+(*   destruct (pure_step_safe tt) as [e2' [σ [efs Hp]]]. *)
+(*   destruct σ. by destruct (pure_step_det _ _ _ _ _ Hp) as [a [b [-> ->]]]. *)
+(* Qed. *)
+
+(* Lemma lamst_step_ctx K `{!LanguageCtx K} σ1 e1 σ2 e2 : lamst_step (σ1, e1) (σ2, e2) → lamst_step (σ1, K e1) (σ2, K e2). *)
+(* Proof. intro. apply lam_st_pure. apply pure_step_ctx. auto. by apply lam_st_pure. Qed. *)
+
+(* Lemma rtc_lam_st_step_ctx K `{!LanguageCtx K} e1 e2 : rtc lam_st_step e1 e2 → rtc lam_st_step (K e1) (K e2). *)
+(* Proof. eauto using rtc_congruence, lam_st_step_ctx. Qed. *)
+
+(* Lemma nsteps_lam_st_step_ctx K `{!LanguageCtx K} n e1 e2 : nsteps lam_st_step n e1 e2 → nsteps lam_st_step n (K e1) (K e2). *)
+(* Proof. eauto using nsteps_congruence, lam_st_step_ctx. Qed. *)
+
+(* Lemma nsteps_PureExec (e1 e2 : expr) n : nsteps lam_st_step n e1 e2 <-> PureExec True n e1 e2. *)
+(* Proof. *)
+(*   split. intros s t. eapply nsteps_congruence with (f := id). by apply lam_st_pure. auto. *)
+(*   intro H. eapply nsteps_congruence with (f := id). apply lam_st_pure. apply pure_exec. auto. *)
+(* Qed. *)
+
+(* Lemma rtc_PureExec (e1 e2 : expr) : rtc lam_st_step e1 e2 <-> ∃ n, PureExec True n e1 e2. *)
+(* Proof. *)
+(*   split. *)
+(*   intro H. assert (H' : rtc pure_step e1 e2). *)
+(*   eapply rtc_subrel. by apply lam_st_pure. auto. destruct (rtc_nsteps _ _ H') as [n H'']. exists n. intros _. done. *)
+(*   intro d. destruct d as [n H]. eapply nsteps_rtc. by apply nsteps_PureExec. *)
+(* Qed. *)
+
+(* Lemma step_PureExec (e1 e2 : expr) : lam_st_step e1 e2 → PureExec True 1 e1 e2. *)
+(* Proof. intros s t. apply nsteps_once. by apply lam_st_pure. Qed. *)
+
+Canonical Structure valO := valO lamst_lang.
+Canonical Structure exprO := exprO lamst_lang.
+

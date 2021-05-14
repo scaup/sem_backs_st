@@ -7,16 +7,14 @@ theories/prelude/generic.v
 theories/prelude/big_op_three.v
 
 theories/lam/lang.v
-theories/lamst/lang.v
+
 
 theories/lam/wkpre.v
 theories/lam/tactics.v
 
 theories/lam/types.v
-theories/lamst/types.v
 
 theories/lam/typing.v
-theories/lamst/typing.v
 
 theories/lam/lib/omega.v
 theories/lam/lib/fixlam.v
@@ -39,6 +37,22 @@ theories/lam/lib/guard_assert_approx.v
 
 theories/backtranslations/sem_syn/connective/un_le_syn.v
 theories/backtranslations/sem_syn/expl_idx.v
+
+
+theories/lamst/lang.v
+theories/lamst/types.v
+theories/lamst/typing.v
+
+theories/backtranslations/st_sem/heap.v
+theories/backtranslations/st_sem/list_gmap.v
+theories/backtranslations/st_sem/ghost.v
+theories/backtranslations/st_sem/expressions.v
+
+theories/backtranslations/st_sem/well_defined/logrel/definition.v
+theories/embedding/types.v
+theories/backtranslations/st_sem/well_defined/logrel/matches_sem.v
+
+# theories/backtranslations/st_sem/well_defined/logrel/compat_lemmas.v
 
 # We sometimes want to locally override notation, and there is no good way to do that with scopes.
 # -arg -w -arg -notation-overridden

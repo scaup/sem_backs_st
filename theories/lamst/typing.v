@@ -1,9 +1,9 @@
 From st.lamst Require Import types lang.
 
-Definition binop_res_type (op : bin_op) : type :=
+Definition binop_res_type (op : lang.bin_op) : type :=
   match op with
-  | PlusOp => TInt | MinusOp => TInt
-  | EqOp => TBool | LeOp => TBool | LtOp => TBool
+  | lang.PlusOp => TInt | lang.MinusOp => TInt
+  | lang.EqOp => TBool | lang.LeOp => TBool | lang.LtOp => TBool
   end.
 
 Reserved Notation "Γ ⊢ₛₜ e : τ" (at level 74, e, τ at next level).

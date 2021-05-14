@@ -1,6 +1,7 @@
 From iris Require Import program_logic.weakestpre.
 From iris.proofmode Require Import tactics.
 From st.lam Require Import lang types wkpre generic.lift.
+From st.prelude Require Import big_op_three.
 
 Canonical Structure typeO := leibnizO type.
 
@@ -68,6 +69,8 @@ Section definition.
   Proof. rewrite valrel_typed_unfold. simpl. repeat f_equiv; rewrite valrel_typed_gen_pre_gen'; rewrite -valrel_typed_unfold'; auto. Qed.
   Lemma valrel_typed_TRec_unfold τ v v' : valrel_typed (TRec τ) v v' ≡ (∃ w w', ⌜ v = FoldV w ⌝ ∧ ⌜ v' = FoldV w' ⌝ ∧ ▷ (valrel_typed τ.[TRec τ/] w w'))%I.
   Proof. rewrite valrel_typed_unfold. simpl. repeat f_equiv; rewrite valrel_typed_gen_pre_gen'; rewrite -valrel_typed_unfold'; auto. Qed.
+  Lemma valrel_typed_TVar_unfold X v v' : valrel_typed (TVar X) v v' ≡ False%I.
+  Proof. rewrite valrel_typed_unfold. by simpl. Qed.
 
   Ltac simpl_valrel_typed := fold (valrel_typed_gen_pre); repeat rewrite valrel_typed_gen_pre_gen -valrel_typed_unfold; fold (valrel_typed).
 
@@ -86,6 +89,10 @@ Section definition.
   Qed.
 
   Definition exprel_typed : typeO -n> exprO -n> exprO -n> iPropO Σ := λne τ eᵢ eₛ, lift s (valrel_typed τ) eᵢ eₛ.
+
+  Definition open_exprel_typed (Γ : list type) (e e' : expr) (τ : type) :=
+    ∀ (vs vs' : list val), big_sepL3 (fun τ v v' => valrel_typed τ v v') Γ vs vs' ⊢
+                                     exprel_typed τ e.[subst_list_val vs] e'.[subst_list_val vs'].
 
 End definition.
 

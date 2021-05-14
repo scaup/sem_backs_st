@@ -36,6 +36,10 @@ Section lift.
     by apply (rtc_lam_step_ctx (fill Kₛ)).
   Qed.
 
+  Lemma lift_bind' (Φ Ψ : valO -n> valO -n> iPropO Σ) (Kᵢ Kₛ : ectx lam_ectx_lang) (eᵢ eₛ : expr) :
+    ⊢ lift Φ eᵢ eₛ -∗ (∀ vᵢ vₛ, Φ vᵢ vₛ -∗ lift Ψ (fill Kᵢ (of_val vᵢ)) (fill Kₛ (of_val vₛ))) -∗ lift Ψ (fill Kᵢ eᵢ) (fill Kₛ eₛ).
+  Proof. iIntros "HΦeN H". rewrite /lift. iApply lift_bind. iFrame "HΦeN". auto. Qed.
+
   Hint Extern 5 (IntoVal _ _) => eapply of_to_val; fast_done : typeclass_instances.
   Hint Extern 10 (IntoVal _ _) =>
     rewrite /IntoVal; eapply of_to_val; rewrite /= !to_of_val /=; solve [ eauto ] : typeclass_instances.
@@ -43,7 +47,7 @@ Section lift.
   Lemma lift_val (Ψ : valO -n> valO -n> iPropO Σ) (vᵢ vₛ : val) : (Ψ vᵢ vₛ) ⊢ lift Ψ vᵢ vₛ.
   Proof. iIntros "Hv". rewrite /lift. iApply wp_value. iExists vₛ. auto. Qed.
 
-  (* lemmas for impl side; lets only have _later lemmas for lift; applying iNext is easy enough *)
+  (* lemmas for impl side; lets only have _later lemmas for lift *)
 
   Lemma lift_nsteps_later Φ e e' eₛ n (H : nsteps lam_step n e e') : ▷^n lift Φ e' eₛ ⊢ lift Φ e eₛ.
   Proof. by iApply wp_nsteps_later. Qed.
@@ -53,6 +57,11 @@ Section lift.
 
   Lemma lift_step_later Φ e e' eₛ (H : lam_step e e') : ▷ lift Φ e' eₛ ⊢ lift Φ e eₛ.
   Proof. by iApply wp_step_later. Qed.
+
+  (* lemmas for impl side; no_later *)
+
+  Lemma lift_rtc_steps_impl Φ e e' eₛ (H : rtc lam_step e e') : lift Φ e' eₛ ⊢ lift Φ e eₛ.
+  Proof. by iApply wp_rtc_steps. Qed.
 
   (* lemmas for spec sideᵢ *)
 
@@ -65,6 +74,29 @@ Section lift.
 
   Lemma lift_step Φ eᵢ e e' (H : lam_step e e') : lift Φ eᵢ e' ⊢ lift Φ eᵢ e.
   Proof. iApply lift_rtc_steps. by apply rtc_once. Qed.
+
+  Lemma lift_impl (Φ Ψ : valO -n> valO -n> iPropO Σ) (H : ∀ v v', Φ v v' ⊢ Ψ v v') :
+    ∀ e e', lift Φ e e' ⊢ lift Ψ e e'.
+  Proof.
+    iIntros (e e') "Hee'". rewrite /lift.
+    iApply (wp_wand with "Hee'"). iIntros (v) "Hdes".
+    iDestruct "Hdes" as (v') "[%He'v' HΦ]".
+    iExists v'. iSplit. auto. by iApply H.
+  Qed.
+
+  Lemma lift_equiv (Φ Ψ : valO -n> valO -n> iPropO Σ) (H : ∀ v v', Φ v v' ⊣⊢ Ψ v v') :
+    ∀ e e', lift Φ e e' ⊣⊢ lift Ψ e e'.
+  Proof. iIntros (e e'). iSplit; iApply lift_impl; iIntros (v v') "Hvv'"; by iApply H. Qed.
+
+  Lemma lift_wand (Φ Ψ : valO -n> valO -n> iPropO Σ) e e' :
+    ⊢ (∀ v v', Φ v v' -∗ Ψ v v') -∗ lift Φ e e' -∗ lift Ψ e e'.
+  Proof.
+    iIntros "H Hee'". rewrite /lift.
+    iApply (wp_wand with "Hee'"). iIntros (v) "Hdes".
+    iDestruct "Hdes" as (v') "[%He'v' HΦ]".
+    iExists v'. iSplit. auto. by iApply "H".
+  Qed.
+
 
 End lift.
 

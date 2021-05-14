@@ -306,6 +306,10 @@ Inductive head_step : expr → state → list Empty_set → expr → state → l
 (* | TBeta e σ : *)
    (* head_step (TApp (TLam e)) σ [] e σ []. *)
 
+Lemma App_Lam_head_step' (e' e1 e2 : expr) v2 (eq : e1.[e2/] = e') σ (H : to_val e2 = Some v2) :
+  head_step (Lam e1 e2) σ [] e' σ [].
+Proof. rewrite -eq. by eapply App_Lam_head_step. Qed.
+
 Instance fill_item_inj Ki : Inj (=) (=) (fill_item Ki).
 Proof. destruct Ki; intros ???; simplify_eq/=; auto with f_equal. Qed.
 Lemma fill_item_val Ki e :

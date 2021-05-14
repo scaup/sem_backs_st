@@ -23,8 +23,8 @@ Instance SubstLemmas_typer : SubstLemmas type. derive. Qed.
 
 Declare Scope types_st_scope.
 
-Infix "×" := TProd (at level 99) : types_st_scope.
+Infix "×" := TProd (at level 49) : types_st_scope.
 Infix "+" := TSum : types_st_scope.
-Infix "⟶" := TArrow (at level 100) : types_st_scope.
+Infix "⟶" := TArrow (at level 51,right associativity) : types_st_scope.
 
 Delimit Scope types_st_scope with Tₛₜ.
