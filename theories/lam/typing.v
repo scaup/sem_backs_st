@@ -268,6 +268,10 @@ Lemma context_weakening4 τ1 τ2 τ3 τ4 Γ e τ :
   Γ ⊢ₙₒ e : τ → (τ1 :: τ2 :: τ3 :: τ4 :: Γ) ⊢ₙₒ e.[(ren (+ 4))] : τ.
 Proof. change (τ1 :: τ2 :: τ3 :: τ4 :: Γ) with ([τ1; τ2; τ3; τ4] ++ Γ). apply context_weakening. Qed.
 
+Lemma context_weakening5 τ1 τ2 τ3 τ4 τ5 Γ e τ :
+  Γ ⊢ₙₒ e : τ → (τ1 :: τ2 :: τ3 :: τ4 :: τ5 :: Γ) ⊢ₙₒ e.[(ren (+ 5))] : τ.
+Proof. change (τ1 :: τ2 :: τ3 :: τ4 :: τ5 :: Γ) with ([τ1; τ2; τ3; τ4; τ5] ++ Γ). apply context_weakening. Qed.
+
 Lemma context_gen_strengthening ξ Γ' Γ e τ :
   Γ' ++ ξ ++ Γ ⊢ₙₒ e.[upn (length Γ') (ren (+ (length ξ)))] : τ →
   Γ' ++ Γ ⊢ₙₒ e : τ.
