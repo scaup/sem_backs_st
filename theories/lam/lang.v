@@ -194,6 +194,7 @@ Proof.
    abstract naive_solver.
 Defined.
 
+Global Instance val_inhabited : Inhabited val := populate ()%Vₙₒ.
 (* Instance expr_inhabited : Inhabited expr := populate (Lit LitUnit). *)
 (* Instance val_inhabited : Inhabited val := populate (LitV LitUnit). *)
 (* Canonical Structure stateC := leibnizO state. *)
@@ -353,6 +354,9 @@ Proof.
     congruence.
 Qed.
 
+Canonical Structure valO := valO lam_lang.
+Canonical Structure exprO := exprO lam_lang.
+
 (* Arguments val_stuck {_ _ _ _ _} _. *)
 (* Arguments fill_val {_ _} _. *)
 
@@ -442,3 +446,6 @@ Qed.
 
 Lemma step_PureExec (e1 e2 : expr) : lam_step e1 e2 → PureExec True 1 e1 e2.
 Proof. intros s t. apply nsteps_once. by apply lam_pure. Qed.
+
+Definition lam_halts (e : lam.lang.expr) : Prop :=
+  ∃ (v : lam.lang.val), rtc lam_step e (lam.lang.of_val v).

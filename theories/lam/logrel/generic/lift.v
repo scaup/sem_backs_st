@@ -3,9 +3,6 @@ From st.lam Require Import lang wkpre.
 From iris.proofmode Require Import tactics.
 From iris_string_ident Require Import ltac2_string_ident.
 
-Canonical Structure valO := valO lam_lang.
-Canonical Structure exprO := exprO lam_lang.
-
 Section lift.
 
   Context `{Σ : !gFunctors}.

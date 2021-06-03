@@ -1,7 +1,7 @@
 From iris Require Import program_logic.weakestpre.
 From iris.proofmode Require Import tactics.
 From st.lam Require Import types lang wkpre generic.lift logrel.definitions.
-From st.backtranslations.st_sem Require Import ghost heap.
+From st.backtranslations.st_sem Require Import ghost heap_emul.base.
 From st.backtranslations.st_sem.well_defined.logrel Require Import definition.
 From st Require Import embedding.types.
 From st Require Import prelude.big_op_three.

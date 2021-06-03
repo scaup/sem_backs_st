@@ -28,20 +28,30 @@ Section ghost.
     rewrite -list_gmap_lookup. by apply lookup_ge_None.
   Qed.
 
-  Lemma ghost_write γ vs v i (Hi : vs !! i = Some v) v' :
-    auth_list γ vs ∗ i ↪[ γ ] v -∗ |==> auth_list γ (<[ i := v' ]> vs) ∗ i ↪[ γ ] v'.
+  Lemma ghost_alloc_persist γ vs v :
+    auth_list γ vs -∗ |==> auth_list γ (vs ++ [v]) ∗ length vs ↪[ γ ]□ v.
   Proof.
-    iIntros "[Hvs Hiv]".
-    rewrite !/auth_list (list_gmap_insert _ _ _ _ Hi).
-    iApply (ghost_map_update with "Hvs Hiv").
+    iIntros "Hvs".
+    rewrite !/auth_list list_gmap_snoc.
+    iApply (ghost_map_insert_persist with "Hvs").
+    rewrite -list_gmap_lookup. by apply lookup_ge_None.
   Qed.
 
   Lemma ghost_read γ vs i v :
-    auth_list γ vs ∗ i ↪[ γ ] v -∗ ⌜ vs !! i = Some v ⌝.
+    ⊢ auth_list γ vs -∗ i ↪[ γ ] v -∗ ⌜ vs !! i = Some v ⌝.
   Proof.
-    iIntros "[Hvs Hiv]".
+    iIntros "Hvs Hiv".
     rewrite /auth_list list_gmap_lookup.
     iApply (ghost_map_lookup with "Hvs Hiv").
+  Qed.
+
+  Lemma ghost_write γ vs v i v' :
+    ⊢ auth_list γ vs -∗ i ↪[ γ ] v -∗ |==> auth_list γ (<[ i := v' ]> vs) ∗ i ↪[ γ ] v'.
+  Proof.
+    iIntros "Hvs Hiv".
+    iDestruct (ghost_read with "Hvs Hiv") as %eq.
+    rewrite !/auth_list (list_gmap_insert _ _ _ _ eq).
+    iApply (ghost_map_update with "Hvs Hiv").
   Qed.
 
 End ghost.

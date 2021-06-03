@@ -28,3 +28,7 @@ Infix "+" := TSum : types_st_scope.
 Infix "⟶" := TArrow (at level 51,right associativity) : types_st_scope.
 
 Delimit Scope types_st_scope with Tₛₜ.
+
+From iris.algebra Require Import ofe.
+
+Canonical Structure typeO := leibnizO type.

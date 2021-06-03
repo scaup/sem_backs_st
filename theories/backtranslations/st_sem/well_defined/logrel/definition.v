@@ -3,10 +3,8 @@ From iris.proofmode Require Import tactics.
 From st.lamst Require Import types.
 From st.lam Require Import lang wkpre generic.lift.
 From iris.base_logic.lib Require Import invariants.
-From st.backtranslations.st_sem Require Import ghost heap.
+From st.backtranslations.st_sem Require Import ghost heap_emul.base.
 From st.prelude Require Import big_op_three.
-
-Canonical Structure typeO := leibnizO type. (* indexed by ST types *)
 
 Section value_relation.
 
@@ -16,6 +14,7 @@ Section value_relation.
 
   Context (Δ : list gname).
 
+  (* Fixpoint valrel_typed_gen_pre (Ψ : type -d> val -d> val -d> iPropO Σ) (τ : type) : val -d> val -d> iPropO Σ := λ v v', *)
   Fixpoint valrel_typed_gen_pre (Ψ : typeO -n> valO -n> valO -n> iPropO Σ) (τ : typeO) : valO -n> valO -n> iPropO Σ := λne v v',
     (match τ with
      | TUnit => ⌜ v = (()%Vₙₒ : valO) ⌝ ∧ ⌜ v' = (()%Vₙₒ : valO) ⌝

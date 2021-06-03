@@ -2,21 +2,16 @@ From iris.program_logic Require Import language ectxi_language ectx_language lif
 From iris Require Import program_logic.weakestpre.
 From iris.proofmode Require Import tactics.
 From st.lam Require Import lang tactics.
+From st.prelude Require Import at_least_one.
 
 Section wkpre_lemmas.
 
   Context `{Σ : !gFunctors}.
-  (* Context `{invG_inst : invG Σ}. *)
   Context `{irisG_inst : !irisG lam_lang Σ}.
 
-  (* Instance irisG_inst {invG_inst : invG Σ} : irisG lam_lang Σ := *)
-  (*   { iris_invG := invG_inst; *)
-  (*     state_interp := fun σ n κ m => True%I ; *)
-  (*     fork_post := fun v => False%I ; *)
-  (*     num_laters_per_step := id ; *)
-  (*     state_interp_mono σ ns κs nt := ltac:(auto) *)
-  (*   }. *)
-
+  Lemma wp_bind' (K : list ectx_item) s E e Φ :
+    WP e @ s; E {{ v, WP fill K (of_val v) @ s; E {{ Φ }} }} ⊢ WP fill K e @ s; E {{ Φ }}.
+  Proof. iApply wp_bind. Qed.
 
   (* Steps with later *)
   Lemma wp_nsteps_later {s : stuckness} {E : coPset} e1 e2 n Φ (H : nsteps lam_step n e1 e2) :
@@ -31,12 +26,23 @@ Section wkpre_lemmas.
     ▷^n WP e2 @ s ; E {{Φ}} ⊢ WP e1 @ s ; E {{Φ}}.
   Proof. iIntros "He2". iApply wp_pure_step_later. auto. auto. Qed.
 
-  (* Steps w/o later too many lemmas *)
   Lemma wp_rtc_steps {s : stuckness} {E : coPset} e1 e2 Φ (H : rtc lam_step e1 e2) :
     WP e2 @ s ; E {{Φ}} ⊢ WP e1 @ s ; E {{Φ}}.
   Proof.
     destruct (iffLR (rtc_PureExec _ _) H) as [n H'].
     iIntros "H". iApply wp_pure_step_later. auto. auto.
+  Qed.
+
+  Lemma wp_at_least_one_later {s : stuckness} {E : coPset} e1 e2 Φ (H : at_least_one lam_step e1 e2) :
+    ▷ WP e2 @ s ; E {{Φ}} ⊢ WP e1 @ s ; E {{Φ}}.
+  Proof. destruct (at_least_one_split_l _ _ _ H) as [y [H' H'']]. iIntros "He2". iApply wp_step_later. eauto. by iApply wp_rtc_steps. Qed.
+
+  Lemma wp_at_least_one_step_fupd {s : stuckness} {E E' : coPset} Φ (e1 e2 : expr) :
+    at_least_one lam_step e1 e2 → (|={E}[E']▷=> WP e2 @ s; E {{ v, Φ v }}) -∗ WP e1 @ s; E {{ v, Φ v }}.
+  Proof.
+    iIntros (Hone) "H". destruct (at_least_one_split_l _ _ _ Hone) as [y [H H']].
+    iApply wp_pure_step_fupd. by apply step_PureExec. auto. simpl. iMod "H". iModIntro. iNext. iMod "H". iModIntro.
+    by iApply wp_rtc_steps.
   Qed.
 
   (* things with stuckness *)

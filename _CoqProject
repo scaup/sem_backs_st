@@ -1,10 +1,13 @@
 # Search paths for all packages. They must all match the regex
 # `-Q $PACKAGE[/ ]` so that we can filter out the right ones for each package.
 -Q theories st
+-arg -w -arg -ambiguous-paths
+-arg -w -arg -redundant-canonical-projection
 
 theories/prelude/autosubst.v
 theories/prelude/generic.v
 theories/prelude/big_op_three.v
+theories/prelude/at_least_one.v
 
 theories/lam/lang.v
 
@@ -32,27 +35,50 @@ theories/backtranslations/un_syn/logrel/definitions.v
 theories/backtranslations/un_syn/logrel/un_le_syn/fundamental.v
 theories/backtranslations/un_syn/logrel/syn_le_un/fundamental.v
 
-theories/lam/lib/guard_assert.v
-theories/lam/lib/guard_assert_approx.v
+# theories/lam/lib/guard_assert.v
+# theories/lam/lib/guard_assert_approx.v
 
-theories/backtranslations/sem_syn/connective/un_le_syn.v
-theories/backtranslations/sem_syn/expl_idx.v
+# theories/backtranslations/sem_syn/connective/un_le_syn.v
+# theories/backtranslations/sem_syn/expl_idx.v
 
+
+# B-part
 
 theories/lamst/lang.v
 theories/lamst/types.v
 theories/lamst/typing.v
 
-theories/backtranslations/st_sem/heap.v
 theories/backtranslations/st_sem/list_gmap.v
 theories/backtranslations/st_sem/ghost.v
-theories/backtranslations/st_sem/expressions.v
 
+theories/backtranslations/st_sem/heap_emul/base.v
+theories/backtranslations/st_sem/heap_emul/spec.v
+theories/backtranslations/st_sem/expressions.v
 theories/backtranslations/st_sem/well_defined/logrel/definition.v
-theories/embedding/types.v
 theories/backtranslations/st_sem/well_defined/logrel/matches_sem.v
 
-# theories/backtranslations/st_sem/well_defined/logrel/compat_lemmas.v
+theories/embedding/types.v
+theories/backtranslations/st_sem/well_defined/logrel/compat_lemmas.v
+
+theories/lamst/wkpre.v
+
+theories/backtranslations/st_sem/correctness/help.v
+
+theories/backtranslations/st_sem/correctness/st_le_sem/logrel/lift.v
+theories/backtranslations/st_sem/correctness/st_le_sem/logrel/definition.v
+theories/backtranslations/st_sem/correctness/st_le_sem/logrel/adequacy.v
+
+theories/backtranslations/st_sem/correctness/st_le_sem/logrel/compat_help.v
+theories/backtranslations/st_sem/correctness/st_le_sem/logrel/compat_lemmas.v
+theories/backtranslations/st_sem/correctness/st_le_sem/logrel/fundamental.v
+
+theories/backtranslations/st_sem/correctness/sem_le_st/logrel/lift.v
+theories/backtranslations/st_sem/correctness/sem_le_st/logrel/definition.v
+theories/backtranslations/st_sem/correctness/sem_le_st/logrel/adequacy.v
+
+theories/backtranslations/st_sem/correctness/sem_le_st/logrel/compat_help.v
+theories/backtranslations/st_sem/correctness/sem_le_st/logrel/compat_lemmas.v
+theories/backtranslations/st_sem/correctness/sem_le_st/logrel/fundamental.v
 
 # We sometimes want to locally override notation, and there is no good way to do that with scopes.
 # -arg -w -arg -notation-overridden
