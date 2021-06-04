@@ -3,6 +3,18 @@ From iris.proofmode Require Import tactics.
 From st.lam Require Import lang wkpre generic.lift types lib.universe.base tactics lib.universe.paths.
 From st.backtranslations.un_syn Require Import logrel.definitions expressions.
 
+(* uninteresting tactic *)
+Ltac stuck_cases tc :=
+  destruct tc; ((by contradiction) || (iDestruct "Hvv'" as "[-> ->]"; iApply wp_stuck; head_stuck_solver; fail "hmm") ||
+        (by iDestruct "HHH" as "[-> ->]"; iApply wp_stuck; head_stuck_solver) ||
+        (by iDestruct "HHH" as (b) "[-> ->]"; iApply wp_stuck; head_stuck_solver) ||
+        (by iDestruct "HHH" as (z) "[-> ->]"; iApply wp_stuck; head_stuck_solver) ||
+        (by iDestruct "HHH" as (a1 a2 a1' a2') "(-> & -> & _ & _)"; iApply wp_stuck; head_stuck_solver) ||
+        (by iDestruct "HHH" as (vi vi') "[(-> & -> & _) | (-> & -> & _)]"; iApply wp_stuck; head_stuck_solver) ||
+        (by iDestruct "HHH" as (z) "(-> & _)"; iApply wp_stuck; head_stuck_solver) ||
+        (by iDestruct "HHH" as (z z') "(-> & -> & _)"; iApply wp_stuck; head_stuck_solver) ||
+        (by iDestruct "HHH" as (z z') "(-> & -> & _)"; iApply wp_stuck; head_stuck_solver)).
+
 Section un_le_syn.
 
   Instance rfn : refinement := un_le_syn.
@@ -31,16 +43,6 @@ Section un_le_syn.
     | UnfoldCtx => Some TCRec
     end.
 
-  (* uninteresting tactic *)
-  Ltac stuck_cases tc :=
-    destruct tc; ((by contradiction) || (iDestruct "Hvv'" as "[-> ->]"; iApply wp_stuck; head_stuck_solver; fail "hmm") ||
-         (by iDestruct "HHH" as "[-> ->]"; iApply wp_stuck; head_stuck_solver) ||
-         (by iDestruct "HHH" as (b) "[-> ->]"; iApply wp_stuck; head_stuck_solver) ||
-         (by iDestruct "HHH" as (z) "[-> ->]"; iApply wp_stuck; head_stuck_solver) ||
-         (by iDestruct "HHH" as (a1 a2 a1' a2') "(-> & -> & _ & _)"; iApply wp_stuck; head_stuck_solver) ||
-         (by iDestruct "HHH" as (vi vi') "[(-> & -> & _) | (-> & -> & _)]"; iApply wp_stuck; head_stuck_solver) ||
-         (by iDestruct "HHH" as (z z') "(-> & -> & _)"; iApply wp_stuck; head_stuck_solver) ||
-         (by iDestruct "HHH" as (z z') "(-> & -> & _)"; iApply wp_stuck; head_stuck_solver)).
 
   (* this is where the heavy lifting happens *)
   Lemma ectx_item_extract_val Φ (Kiᵢ : ectx_item) (Kᵢ Kₛ : list ectx_item) tc (H : ectx_item_tc Kiᵢ = Some tc) (v u : val) :
@@ -111,15 +113,18 @@ Section un_le_syn.
       iApply lift_step. eapply (inject_step _ _ (LamV _)). auto.
       change (Lam e.[up (subst_list_val vs)]) with (of_val $ LamV e.[up (subst_list_val vs)]). iApply lift_val.
       rewrite valrel_unfold. iExists TCArrow. fold valrel. iExists (LamV <<e>>.[up (subst_list_val vs')]). iSplit; auto.
-      simpl. iExists _ , _. repeat iSplit; auto.
-      do 2 iModIntro. iIntros (w w') "#Hww'". specialize (IHe (S n)). asimpl. do 2 rewrite subst_list_val_cons.
+      simpl. iExists _. repeat iSplit; auto.
+      do 2 iModIntro. iIntros (w w') "#Hww'".
+      iApply lift_step. auto_lam_step.
+      specialize (IHe (S n)). simplify_custom. asimpl. do 2 rewrite subst_list_val_cons.
       iApply IHe. closed_solver. simpl. lia. simpl. auto.
     - (* app *) asimpl. rewrite extract_Closed.
       iApply (ectx_item_extract_bind _ (AppLCtx _) [] [AppLCtx _]); auto. iSplitL "". iApply IHe1; auto. closed_solver.
-      iIntros (v v') "des". iDestruct "des" as (e e') "(-> & -> & #H)/=".
-      change (Lam e) with (of_val $ LamV e). change (Lam e') with (of_val $ LamV e').
+      iIntros (v v') "des". iDestruct "des" as (e) "(-> & #H)/=".
+      change (Lam e) with (of_val $ LamV e).
+      (* change (Lam e') with (of_val $ LamV e'). *)
       iApply (lift_bind _ _ _ [AppRCtx _] [AppRCtx _]). iSplitL "". iApply IHe2; auto. closed_solver. simpl.
-      iIntros (u v') "#Huv'/=". iApply lift_step. auto_lam_step. iApply lift_step_later. auto_lam_step. simplify_custom.
+      iIntros (u w') "#Huw'/=". iApply lift_step_later. auto_lam_step. simplify_custom.
       iNext. by iApply "H".
     - (* lit *) destruct l; asimpl; rewrite inject_Closed.
       + iApply lift_step. eapply (inject_step _ _ n0); auto. change (Lit n0) with (of_val n0). iApply lift_val.

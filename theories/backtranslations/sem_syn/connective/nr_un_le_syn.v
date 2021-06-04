@@ -2,8 +2,8 @@ From iris Require Import program_logic.weakestpre.
 From iris.proofmode Require Import tactics.
 From iris_string_ident Require Import ltac2_string_ident.
 From st.prelude Require Import autosubst big_op_three.
-From st.lam Require Import types nr_types lang typing tactics logrel.definitions logrel.generic.lift.
-From st.lam.lib Require Import fixlam universe.nr_embed_project nr_guard_assert universe.base.
+From st.lam.lib Require Import fixlam universe.nr_embed_project nr_guard_assert universe.base universe.paths.
+From st.lam Require Import wkpre types nr_types lang typing tactics logrel.definitions logrel.generic.lift.
 From st.backtranslations.un_syn Require Import logrel.definitions logrel.un_le_syn.fundamental.
 
 (* Defines connective lemma between the untyped and typed logic relations (the (untyped ≤ syntactically typed)-refinement) *)
@@ -80,20 +80,21 @@ Section nr_connective_un_le_syn.
         iEval (rewrite /= -!val_subst_valid).
         (iApply lift_step; first auto_lam_step); iEval (simplify_custom; (try rewrite extract_Closed)).
         (iApply lift_step_later; first auto_lam_step); iEval (simplify_custom; (try rewrite extract_Closed)). iNext.
-        iApply (ectx_item_extract_val _ (FstCtx) [LetInCtx _] [LetInCtx _]); auto. iFrame "Hvv". iEval simpl.
-        iIntros (w w') "des". iDestruct "des" as (v1 v2 v1' v2') "(-> & -> & #H1 & #H2)".
-        do 3 (iApply lift_step; first auto_lam_step); iEval (simplify_custom; (try rewrite extract_Closed)).
-        do 2 ((iApply lift_step_later; first auto_lam_step); iEval (simplify_custom)). do 2 iNext.
-        iApply (ectx_item_extract_val _ (SndCtx) [LetInCtx _] [LetInCtx _]); auto. iFrame "Hvv". iEval simpl.
-        iIntros (w w') "des". iDestruct "des" as (w1 w2 w1' w2') "(-> & -> & #H1' & #H2')".
-        do 3 (iApply lift_step; first auto_lam_step); iEval (simplify_custom; (try rewrite extract_Closed)).
-        do 2 ((iApply lift_step_later; first auto_lam_step); iEval (simplify_custom)). do 2 iNext.
-        iApply (lift_bind _ _ _ [PairLCtx _] [PairLCtx _]). iSplitL. by iApply "IH".
-        iIntros (x x') "#Hxx". simpl.
-        iApply (lift_bind _ _ _ [PairRCtx _] [PairRCtx _]). iSplitL. by iApply "IH1".
-        iIntros (y y') "#Hyy". simpl.
-        change (of_val ?v1, of_val ?v2)%Eₙₒ with (of_val (v1, v2)%Vₙₒ). iApply lift_val.
-        iEval (rewrite valrel_typed_TProd_unfold). repeat iExists _. iSplit; auto.
+        (* ectx_item_extract_val is not general enough here *)
+        iEval (rewrite valrel_unfold /=) in "Hvv".
+        iDestruct "Hvv" as (tc w') "[-> #Hvv]".
+        destruct (decide (tc = TCProd)) as [-> | neq].
+        * iDestruct "Hvv" as (v1 v2 v1' v2') "(-> & -> & #H1 & #H2)".
+          iApply lift_rtc_steps. apply (rtc_lam_step_ctx (fill [LetInCtx _])). eapply rtc_l. apply extract_step. apply eval_same_tc. iEval simpl.
+          do 4 (iApply lift_step_later; first auto_lam_step); iEval (simplify_custom; (try rewrite extract_Closed)). repeat iNext.
+          do 5 (iApply lift_step; first auto_lam_step); iEval (simplify_custom; (try rewrite extract_Closed)).
+          iApply (lift_bind _ _ _ [PairLCtx _] [PairLCtx _]). iSplitL. by iApply "IH".
+          iIntros (x x') "#Hxx". simpl.
+          iApply (lift_bind _ _ _ [PairRCtx _] [PairRCtx _]). iSplitL. by iApply "IH1".
+          iIntros (y y') "#Hyy". simpl.
+          change (of_val ?v1, of_val ?v2)%Eₙₒ with (of_val (v1, v2)%Vₙₒ). iApply lift_val.
+          iEval (rewrite valrel_typed_TProd_unfold). repeat iExists _. iSplit; auto.
+        * iApply (wp_bind (fill [LetInCtx _])). iRename "Hvv" into "HHH". stuck_cases tc.
     - iSplit.
       + iEval (rewrite valrel_typed_TSum_unfold); fold nr_type_type.
         iIntros "Hvv". iDestruct "Hvv" as (vi vi') "[(-> & -> & Hvivi) | (-> & -> & Hvivi)]".
@@ -135,8 +136,9 @@ Section nr_connective_un_le_syn.
         change (Lam ?e) with (of_val $ LamV e).
         iApply lift_step. apply inject_step'. iApply lift_val.
         rewrite valrel_unfold. iExists TCArrow. iExists _. iSplit; auto.
-        iExists _, _. repeat iSplit; eauto. iNext. iModIntro.
+        iExists _. repeat iSplit; eauto. iNext. iModIntro.
         iIntros (w w') "#Hww". asimpl.
+        (iApply lift_step; first auto_lam_step); iEval simplify_custom.
         iApply (lift_bind _ _ _ [AppRCtx _; AppRCtx _] [AppRCtx _; AppRCtx _]).
         iSplitL. by iApply "IH".
         iIntros (x x') "#Hxx". simpl.
@@ -158,9 +160,8 @@ Section nr_connective_un_le_syn.
         iApply (lift_bind _ _ _ [AppRCtx _; AppRCtx _] [AppRCtx _; AppRCtx _]).
         iSplitL. by iApply "IH".
         iIntros (x x') "#Hxx".
-        iDestruct "Hff" as (e e') "(-> & -> & #Hee)". iEval simpl.
+        iDestruct "Hff" as (e) "(-> & #Hee)". iEval simpl.
         (iApply lift_step_later; first auto_lam_step); iEval simplify_custom. iNext.
-        (iApply lift_step; first auto_lam_step); iEval simplify_custom.
         iApply (lift_bind _ _ _ [AppRCtx _] [AppRCtx _]). iSplitL. by iApply "Hee".
         iIntros (y y') "Hyy". simpl. by iApply "IH1".
   Qed.

@@ -30,7 +30,7 @@ Section definitions.
      | TCProd => ∃ v1 v2 v1' v2', ⌜ xᵢ = (v1, v2)%Vₙₒ ⌝ ∧ ⌜ xₛ = (v1', v2')%Vₙₒ ⌝ ∧ (▷ Ψ v1 v1') ∗ (▷ Ψ v2 v2')
      | TCSum => ∃ vi vi', (⌜ xᵢ = InjLV vi ⌝ ∧ ⌜ xₛ = InjLV vi' ⌝ ∧ ▷ Ψ vi vi') ∨
                          (⌜ xᵢ = InjRV vi ⌝ ∧ ⌜ xₛ = InjRV vi' ⌝ ∧ ▷ Ψ vi vi')
-     | TCArrow => ∃ e e', ⌜ xᵢ = LamV e ⌝ ∧ ⌜ xₛ = LamV e' ⌝ ∧ ▷ □ (∀ w w', Ψ w w' -∗ lift s Ψ e.[of_val w/] e'.[of_val w'/])
+     | TCArrow => ∃ e , ⌜ xᵢ = LamV e ⌝ ∧ ▷ □ (∀ w w', Ψ w w' -∗ lift s Ψ e.[of_val w/] (of_val xₛ w'))
      | TCRec => ∃ w w', ⌜ xᵢ = FoldV w ⌝ ∧ ⌜ xₛ = FoldV w' ⌝ ∧ ▷ Ψ w w'
      end)%I.
 

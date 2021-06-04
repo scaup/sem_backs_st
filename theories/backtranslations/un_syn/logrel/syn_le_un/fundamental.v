@@ -18,9 +18,9 @@ Section syn_le_un.
     rewrite /IntoVal; eapply of_to_val; rewrite /= !to_of_val /=; solve [ eauto ] : typeclass_instances.
 
 
-  Lemma bind_lift_extract (K K' : ectx lam_ectx_lang) (e e' : expr) (tc : type_constructor):
-      exprel e e' ∗ (▷ ∀ v v', canon_tc_lift tc valrel v v' -∗ lift! valrel (fill K (of_val v)) (fill K' (of_val v'))) ⊢
-        lift! valrel (fill K (extract tc e)) (fill K' e').
+  Lemma bind_lift_extract (K K' : ectx lam_ectx_lang) (e e' : expr) (tc : type_constructor) Φ :
+      exprel e e' ∗ (▷ ∀ v v', canon_tc_lift tc valrel v v' -∗ lift! Φ (fill K (of_val v)) (fill K' (of_val v'))) ⊢
+        lift! Φ (fill K (extract tc e)) (fill K' e').
   Proof.
     iIntros "[Hee' H]". iApply (lift_bind _ _ _ (AppRCtx _ :: K) K'). iFrame "Hee'".
     iIntros (v u') "#Hvu'". simpl.
@@ -46,29 +46,27 @@ Section syn_le_un.
       destruct (Var_subst_list_closed_n_length vs' x) as [v' [eqv' ->]]. rewrite -Hl. by simplify_eq.
       rewrite /exprel /=. iApply lift_val.
       iApply ((big_sepL2_lookup _ vs vs' x _ _ eqv eqv') with "Hvv's").
-    - (* let in *) admit.
+    - (* let in *) rewrite /=.
+      iApply (lift_bind' _ _ _ [LetInCtx _] [LetInCtx _]). iApply IHe. closed_solver. auto. auto.
+      iIntros (v v') "#Hvv". simpl.
+      iApply lift_step_later. auto_lam_step.
+      iApply lift_step. auto_lam_step. simplify_custom. asimpl. rewrite !subst_list_val_cons.
+      iNext. iApply (IHe0 (S (length vs))). closed_solver. auto. simpl. auto.
     - (* lam *) rewrite /= inject_Closed.
       iApply lift_step_later. eapply (inject_step _ _ (LamV _)). auto. iNext.
       change (Lam e.[up (subst_list_val vs')]) with (of_val $ LamV e.[up (subst_list_val vs')]). iApply lift_val.
       rewrite valrel_unfold. iExists TCArrow. fold valrel. iExists (LamV <<e>>.[up (subst_list_val vs)]). iSplit; auto.
-      simpl. iExists _ , _. iSplit. auto. iSplit. auto.
-      do 2 iModIntro. iIntros (w w') "#Hww'". specialize (IHe (S n)). asimpl. do 2 rewrite subst_list_val_cons.
+      simpl. iExists _. iSplit. auto.
+      do 2 iModIntro. iIntros (w w') "#Hww'". specialize (IHe (S n)).
+      iApply lift_step. auto_lam_step. simplify_custom.
+      asimpl. do 2 rewrite subst_list_val_cons.
       iApply IHe. closed_solver. simpl. lia. simpl. auto.
-    (* - (* fix *) rewrite /= extract_Closed. *)
-    (*   iApply (bind_lift_extract [FixCtx] [FixCtx]). *)
-    (*   iSplitL "". iApply IHe; auto. closed_solver. clear e IHe pne. *)
-    (*   iNext. iIntros (v v') "#Hdes". *)
-    (*   simpl. iLöb as "HiLob". *)
-    (*   iDestruct "Hdes" as (e e') "(-> & -> & #H)". *)
-    (*   iApply wp_step_later. auto_lam_step. *)
-    (*   iNext. simpl. iApply lift_steps. apply rtc_once. auto_lam_step. simpl. *)
-    (*   admit. *)
     - (* app *) asimpl. rewrite extract_Closed.
       iApply (bind_lift_extract [AppLCtx _] [AppLCtx _]).
       iSplitL "". iApply IHe1; auto. closed_solver. iNext.
-      iIntros (v v') "des". simpl. iDestruct "des" as (e e') "(-> & -> & #H)".
+      iIntros (v v') "des". simpl. iDestruct "des" as (e) "(-> & #H)".
       iApply (lift_bind _ _ _ [AppRCtx _] [AppRCtx _]). iSplitL "". iApply IHe2; auto. closed_solver.
-      iIntros (w w') "Hww'". simpl. iApply lift_step_later. auto_lam_step. iApply lift_step. auto_lam_step.
+      iIntros (w w') "Hww'". simpl. iApply lift_step_later. auto_lam_step.
       simplify_custom. iNext. iApply ("H" with "Hww'").
     - (* lit *) rewrite /=; destruct l; asimpl; rewrite inject_Closed.
       + iApply lift_step_later. eapply (inject_step _ _ n0); auto. change (Lit n0) with (of_val n0). iApply lift_val.
@@ -78,9 +76,31 @@ Section syn_le_un.
       + iApply lift_step_later. eapply (inject_step _ _ ()%Vₙₒ); auto. change ()%Eₙₒ with (of_val ()%Vₙₒ). iApply lift_val.
         rewrite valrel_unfold. iExists TCUnit. iExists _; iSplit; auto.
     - (* binop *)
-      admit.
+      rewrite /= inject_Closed extract_Closed.
+      iApply (lift_bind' _ _ _ [AppRCtx _; BinOpLCtx _ _; AppRCtx _] [BinOpLCtx _ _]). iApply IHe1. closed_solver. auto. auto.
+      iIntros (v1 v1') "#Hv1". simpl.
+      iApply (bind_lift_extract [BinOpLCtx _ _; AppRCtx _] [BinOpLCtx _ _]). iSplitL. by iApply lift_val. iNext.
+      iIntros (w1 w1') "#Hw1". simpl.
+      iApply (lift_bind' _ _ _ [AppRCtx _; BinOpRCtx _ _; AppRCtx _] [BinOpRCtx _ _]). iApply IHe2. closed_solver. auto. auto.
+      iIntros (v2 v2') "#Hv2". simpl.
+      iApply (bind_lift_extract [BinOpRCtx _ _; AppRCtx _] [BinOpRCtx _ _]). iSplitL. by iApply lift_val. iNext.
+      iIntros (w2 w2') "#Hw2". simpl.
+      iDestruct "Hw1" as (z1) "[-> ->]".
+      iDestruct "Hw2" as (z2) "[-> ->]".
+      iApply lift_step_later. auto_lam_step.
+      iApply lift_step. auto_lam_step. simplify_custom.
+      iApply lift_step_later. apply inject_step'. iApply lift_val. iNext. iNext.
+      iEval (rewrite valrel_unfold).
+      destruct op; repeat iExists _; eauto.
     - (* if *)
-      admit.
+      rewrite /= extract_Closed.
+      iApply (bind_lift_extract [IfCtx _ _] [IfCtx _ _]). iSplitL. iApply IHe1; auto. closed_solver. iNext.
+      iIntros (v v') "Hvv". simpl. iDestruct "Hvv" as (b) "[-> ->]".
+      destruct b.
+      + iApply lift_step_later. auto_lam_step. iApply lift_step. auto_lam_step. simpl.
+        iApply IHe2; auto. closed_solver.
+      + iApply lift_step_later. auto_lam_step. iApply lift_step. auto_lam_step. simpl.
+        iApply IHe3; auto. closed_solver.
     - (* seq *) rewrite /= extract_Closed.
       iApply (bind_lift_extract [SeqCtx _] [SeqCtx _]). iSplitL "". iApply IHe1; auto. closed_solver. iNext. simpl.
       iIntros (v v') "[-> ->]". iApply lift_step_later. auto_lam_step. iApply lift_step. auto_lam_step. simpl.
@@ -124,6 +144,6 @@ Section syn_le_un.
       iApply (bind_lift_extract [UnfoldCtx] [UnfoldCtx]). iSplitL "". iApply IHe; auto. closed_solver.
       iNext. iIntros (v v') "des/=". iDestruct "des" as (w w') "(-> & -> & #H)".
       iApply lift_step_later. auto_lam_step. iApply lift_step. auto_lam_step. simplify_custom. iApply lift_val. iApply "H".
-  Admitted.
+  Qed.
 
 End syn_le_un.

@@ -45,6 +45,8 @@ theories/lam/lib/nr_guard_assert.v
 # theories/backtranslations/sem_syn/expl_idx.v
 
 theories/backtranslations/sem_syn/nr_no_op.v
+theories/backtranslations/sem_syn/connective/nr_un_le_syn.v
+theories/backtranslations/sem_syn/connective/nr_syn_le_un.v
 
 
 # B-part
