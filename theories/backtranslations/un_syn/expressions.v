@@ -1,4 +1,5 @@
-From st.lam Require Import lang lib.universe.base types.
+From st.lam Require Import lang types.
+From st.backtranslations.un_syn Require Import universe.base.
 
 Reserved Notation "<< e >>" (at level 4, e at next level).
 Fixpoint back_expr (e : expr) : expr :=

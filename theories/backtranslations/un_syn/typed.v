@@ -1,5 +1,5 @@
-From st.lam Require Import lang types typing lib.universe.base.
-From st.backtranslations.un_syn Require Import expressions.
+From st.lam Require Import lang types typing.
+From st.backtranslations.un_syn Require Import expressions universe.base.
 
 Lemma back_typed (e : expr) n (pCn : Closed_n n e) : (replicate n TUniverse) ⊢ₙₒ <<e>> : TUniverse.
 Proof.

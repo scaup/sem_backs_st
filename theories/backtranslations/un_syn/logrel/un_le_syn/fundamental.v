@@ -1,7 +1,7 @@
 From iris Require Import program_logic.weakestpre.
 From iris.proofmode Require Import tactics.
-From st.lam Require Import lang wkpre generic.lift types lib.universe.base tactics lib.universe.paths.
-From st.backtranslations.un_syn Require Import logrel.definitions expressions.
+From st.lam Require Import lang wkpre generic.lift types reducibility tactics.
+From st.backtranslations.un_syn Require Import logrel.definitions expressions universe.base universe.paths.
 
 (* uninteresting tactic *)
 Ltac stuck_cases tc :=

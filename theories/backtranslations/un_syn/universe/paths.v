@@ -1,9 +1,10 @@
 From st.lam Require Import types lang typing tactics.
-From st.lam.lib Require Import omega fixlam universe.base.
+From st.backtranslations.un_syn Require Import universe.base.
+From st.lam.lib Require Import omega.
 
 Opaque Ω.
 
-Ltac simplify_custom := (repeat rewrite /= to_of_val; simplify_option_eq; repeat rewrite Ω_Closed).
+Local Ltac simplify_custom := (repeat rewrite /= to_of_val; simplify_option_eq; repeat rewrite Ω_Closed).
 
 Lemma eval_same_tc tc v : rtc lam_step (CaseTC tc (Unfold (FoldV (InjVTC tc v)))) v.
 Proof. destruct tc; by repeat (eapply rtc_l; first auto_lam_step; first simplify_custom). Qed.

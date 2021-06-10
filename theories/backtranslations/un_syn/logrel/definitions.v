@@ -1,7 +1,7 @@
 From iris Require Import program_logic.weakestpre.
 From iris.proofmode Require Import tactics.
-From st.lam Require Import lang wkpre generic.lift types lib.universe.base.
-From st.backtranslations.un_syn Require Import expressions.
+From st.lam Require Import lang wkpre generic.lift types.
+From st.backtranslations.un_syn Require Import expressions universe.base.
 
 Inductive refinement :=
   | syn_le_un (* syntactically-typed in universe ≤ untyped *)

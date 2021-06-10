@@ -3,8 +3,8 @@ From iris.proofmode Require Import tactics.
 From iris_string_ident Require Import ltac2_string_ident.
 From st.prelude Require Import autosubst.
 From st.lam Require Import nr_types lang typing tactics logrel.definitions logrel.generic.lift.
-From st.lam.lib Require Import fixlam universe.nr_embed_project nr_guard_assert universe.base.
-From st.backtranslations.un_syn Require Import logrel.definitions logrel.un_le_syn.fundamental.
+From st.backtranslations.un_syn Require Import logrel.definitions logrel.un_le_syn.fundamental universe.base.
+From st.backtranslations.sem_syn Require Import nr_guard_assert.
 
 Section nr_guard_assert_no_op.
 
@@ -15,12 +15,6 @@ Section nr_guard_assert_no_op.
 
   Notation valrel_typed := (valrel_typed s).
   Notation exprel_typed := (exprel_typed s).
-
-  Definition NoOpGuard (τ : nr_type) (grd : val) : iProp Σ :=
-    ∀ (v v' : val), (valrel_typed τ v v') -∗ (exprel_typed τ v (grd v')).
-
-  Definition NoOpAssert (τ : nr_type) (asr : val) : iProp Σ :=
-    ∀ (v v' : val), (valrel_typed τ v v') -∗ (exprel_typed τ v (asr v')).
 
   Fixpoint nr_ga_eval (τ : nr_type) (ga : action) (v : val) : val :=
     (match τ with

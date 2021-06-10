@@ -11,6 +11,10 @@ theories/prelude/at_least_one.v
 
 theories/lam/lang.v
 
+theories/lam/contexts/definition.v
+theories/lam/contexts/ctyping.v
+
+theories/lam/reducibility.v
 
 theories/lam/wkpre.v
 theories/lam/tactics.v
@@ -22,10 +26,7 @@ theories/lam/typing.v
 
 theories/lam/lib/omega.v
 theories/lam/lib/fixlam.v
-theories/lam/lib/universe/base.v
-theories/lam/lib/universe/embed_project.v
-theories/lam/lib/universe/nr_embed_project.v
-theories/lam/lib/universe/paths.v
+# theories/lam/lib/universe/embed_project.v
 
 theories/backtranslations/un_syn/expressions.v
 theories/backtranslations/un_syn/typed.v
@@ -33,17 +34,20 @@ theories/backtranslations/un_syn/typed.v
 theories/lam/logrel/generic/lift.v
 theories/lam/logrel/definitions.v
 
+theories/backtranslations/un_syn/universe/base.v
+theories/backtranslations/un_syn/universe/paths.v
 theories/backtranslations/un_syn/logrel/definitions.v
 theories/backtranslations/un_syn/logrel/un_le_syn/fundamental.v
 theories/backtranslations/un_syn/logrel/syn_le_un/fundamental.v
 
-theories/lam/lib/nr_guard_assert.v
 # theories/lam/lib/guard_assert.v
 # theories/lam/lib/guard_assert_approx.v
 
 # theories/backtranslations/sem_syn/connective/un_le_syn.v
 # theories/backtranslations/sem_syn/expl_idx.v
 
+theories/backtranslations/sem_syn/nr_guard_assert.v
+theories/backtranslations/sem_syn/nr_embed_project.v
 theories/backtranslations/sem_syn/nr_no_op.v
 theories/backtranslations/sem_syn/connective/nr_un_le_syn.v
 theories/backtranslations/sem_syn/connective/nr_syn_le_un.v
