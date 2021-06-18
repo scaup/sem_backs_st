@@ -1,5 +1,5 @@
 From st.prelude Require Import autosubst.
-From st.lam Require Import nr_types types lang typing tactics.
+From st.lam Require Import nr_types scopedness types lang typing tactics.
 
 Inductive action :=
   | Guard
@@ -53,3 +53,7 @@ Proof.
     rewrite -val_subst_valid. apply context_weakening2. apply IHτ2.
     rewrite -val_subst_valid. apply context_weakening2. apply IHτ1.
 Qed.
+
+Lemma ga_pair_Closed τ ga :
+  Closed (of_val $ ga_pair τ ga).
+Proof. apply expr_Closed_n. eapply (expr_typed_scoped []). apply ga_typed_gen. Qed.

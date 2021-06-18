@@ -37,6 +37,10 @@ Section lift.
     ⊢ lift Φ eᵢ eₛ -∗ (∀ vᵢ vₛ, Φ vᵢ vₛ -∗ lift Ψ (fill Kᵢ (of_val vᵢ)) (fill Kₛ (of_val vₛ))) -∗ lift Ψ (fill Kᵢ eᵢ) (fill Kₛ eₛ).
   Proof. iIntros "HΦeN H". rewrite /lift. iApply lift_bind. iFrame "HΦeN". auto. Qed.
 
+  Lemma lift_bind'' (Kᵢ Kₛ : list ectx_item) (Φ Ψ : valO -n> valO -n> iPropO Σ) (eᵢ eₛ : expr) :
+    ⊢ lift Φ eᵢ eₛ -∗ (∀ vᵢ vₛ, Φ vᵢ vₛ -∗ lift Ψ (fill Kᵢ (of_val vᵢ)) (fill Kₛ (of_val vₛ))) -∗ lift Ψ (fill Kᵢ eᵢ) (fill Kₛ eₛ).
+  Proof. iApply lift_bind'. Qed.
+
   Hint Extern 5 (IntoVal _ _) => eapply of_to_val; fast_done : typeclass_instances.
   Hint Extern 10 (IntoVal _ _) =>
     rewrite /IntoVal; eapply of_to_val; rewrite /= !to_of_val /=; solve [ eauto ] : typeclass_instances.
@@ -94,6 +98,31 @@ Section lift.
     iExists v'. iSplit. auto. by iApply "H".
   Qed.
 
+  Lemma anti_step_help e1 e2 v : lam_step e1 e2 → rtc lam_step e1 (of_val v) → rtc lam_step e2 (of_val v).
+  Proof.
+    intros H Hs.
+    inversion Hs; subst.
+    - exfalso. assert (to_val v = None) as Hn by eapply (language.val_stuck _ _ _ _ _ _ H).
+      by rewrite to_of_val in Hn.
+    - by rewrite (prim_step_det _ _ _ _ _ H0 H) in H1.
+  Qed.
+
+  Lemma anti_steps_help e1 e2 v : rtc lam_step e1 e2 → rtc lam_step e1 (of_val v) → rtc lam_step e2 (of_val v).
+  Proof.
+    intros H Hs. destruct (rtc_nsteps _ _ H) as [m Hm].
+    revert H Hs Hm. revert v e1 e2. induction m.
+    - simpl. intros. inversion Hm. by subst.
+    - intros. inversion Hm. subst.
+      pose proof (anti_step_help _ _ _ H1 Hs).
+      eapply (IHm _ _ _ (nsteps_rtc _ _ _ H2) H0 H2).
+  Qed.
+
+  Lemma lift_anti_steps_spec Φ eᵢ e1 e2 (H : rtc lam_step e1 e2) : lift Φ eᵢ e1 ⊢ lift Φ eᵢ e2.
+  Proof.
+    iIntros "H". iApply (wp_wand with "H"). iIntros (v) "des".
+    iDestruct "des" as (v') "[%Hs H]". iExists v'. iFrame "H".
+    iPureIntro. by eapply anti_steps_help.
+  Qed.
 
 End lift.
 

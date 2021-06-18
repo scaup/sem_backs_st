@@ -1,23 +1,21 @@
 From iris Require Import program_logic.weakestpre.
 From iris.proofmode Require Import tactics.
-From st.lam Require Import types lang wkpre generic.lift logrel.definitions.
+From st.lam Require Import types lang wkpre generic.lift logrel.definitions contexts.
 From st.backtranslations.st_sem Require Import ghost heap_emul.base.
 From st.backtranslations.st_sem.well_defined.logrel Require Import definition.
 From st Require Import embedding.types.
 From st Require Import prelude.big_op_three.
-
+From st Require Import resources.
 
 (* Given any non-st type, the two relations agree. *)
 
 Section matches_sem_val.
 
-  Context `{Σ : !gFunctors}.
-  Context `{irisG_inst : !irisG lam_lang Σ}.
-  Context `{ghost_mapG_inst : !ghost_mapG Σ nat (prod val val)}.
+  Context `{Σ : !gFunctors} `{semΣ_inst : !semΣ Σ}.
 
   Context (Δ : list gname).
 
-  Notation valrel_sem_typed := (lam.logrel.definitions.valrel_typed NotStuck).
+  Notation valrel_sem_typed := (lam.logrel.definitions.valrel_typed MaybeStuck).
   Notation valrel_st_typed := (well_defined.logrel.definition.valrel_typed Δ).
 
   Lemma matches_sem : ∀ (τ : type) (v v' : val) , valrel_sem_typed τ v v' ⊣⊢ valrel_st_typed [|τ|] v v'.
@@ -76,13 +74,11 @@ End matches_sem_val.
 
 Section matches_sem_expr.
 
-  Context `{Σ : !gFunctors}.
-  Context `{irisG_inst : !irisG lam_lang Σ}.
-  Context `{ghost_mapG_inst : !ghost_mapG Σ nat (prod val val)}.
+  Context `{Σ : !gFunctors} `{semΣ_inst : !semΣ Σ}.
 
   Context (Δ : list gname).
 
-  Notation exprel_sem_typed := (lam.logrel.definitions.exprel_typed NotStuck).
+  Notation exprel_sem_typed := (lam.logrel.definitions.exprel_typed MaybeStuck).
   Notation exprel_st_typed := (well_defined.logrel.definition.exprel_typed Δ).
 
   Lemma matches_sem_expr : ∀ (τ : type) (e e' : expr) , exprel_sem_typed τ e e' ⊣⊢ exprel_st_typed [|τ|] e e'.
@@ -92,11 +88,9 @@ End matches_sem_expr.
 
 Section matches_sem_expr_open.
 
-  Context `{Σ : !gFunctors}.
-  Context `{irisG_inst : !irisG lam_lang Σ}.
-  Context `{ghost_mapG_inst : !ghost_mapG Σ nat (prod val val)}.
+  Context `{Σ : !gFunctors} `{semΣ_inst : !semΣ Σ}.
 
-  Notation open_exprel_sem_typed := (lam.logrel.definitions.open_exprel_typed NotStuck).
+  Notation open_exprel_sem_typed := (lam.logrel.definitions.open_exprel_typed MaybeStuck).
   Notation open_exprel_st_typed := (well_defined.logrel.definition.open_exprel_typed).
 
   Lemma matches_sem_open_expr Γ τ e e' : open_exprel_sem_typed Γ e e' τ <-> open_exprel_st_typed (embed <$> Γ) e e' [|τ|].
@@ -117,3 +111,25 @@ Section matches_sem_expr_open.
   Qed.
 
 End matches_sem_expr_open.
+
+Section matches_sem_ctx.
+
+  Context `{Σ : !gFunctors} `{semΣ_inst : !semΣ Σ}.
+
+  Notation ctx_item_sem_typed := (lam.logrel.definitions.ctx_item_rel_typed MaybeStuck).
+  Notation ctx_sem_typed := (lam.logrel.definitions.ctx_rel_typed MaybeStuck).
+
+  Notation ctx_item_rel_st_typed := (well_defined.logrel.definition.ctx_item_rel_typed).
+  Notation ctx_rel_st_typed := (well_defined.logrel.definition.ctx_rel_typed).
+
+  Lemma matches_sem_ctx C C' Γ τ Γ' τ' :
+    ctx_sem_typed C C' Γ τ Γ' τ' <-> ctx_rel_st_typed C C' (embed <$> Γ) [|τ|] (embed <$> Γ') [|τ'|].
+  Proof.
+    split; intros H e e' Hee'.
+    - apply matches_sem_open_expr. apply H.
+      by apply matches_sem_open_expr.
+    - apply matches_sem_open_expr. apply H.
+      by apply matches_sem_open_expr.
+  Qed.
+
+End matches_sem_ctx.

@@ -106,6 +106,9 @@ Definition subst_list_val (vs : list val) : var → expr := subst_list (map of_v
 Lemma subst_list_val_cons v vs : of_val v .: subst_list_val vs = subst_list_val (v :: vs).
 Proof. intros. by asimpl. Qed.
 
+Lemma subst_list_val_snoc vs v : subst_list_val (vs ++ [v]) = (upn (length vs) (of_val v .: ids)) >> (subst_list_val vs).
+Proof. by rewrite /subst_list_val map_app subst_list_snoc map_length. Qed.
+
 (* Lemma var_subst_list_val_lt_length (vs : list val) (x : var) (p : x < length vs) : *)
 (*   (exists v : val, vs !! x = Some v ∧ (Var x).[subst_list_val vs] = v). *)
 (* Proof. *)

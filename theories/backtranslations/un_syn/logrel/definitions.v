@@ -1,6 +1,6 @@
 From iris Require Import program_logic.weakestpre.
 From iris.proofmode Require Import tactics.
-From st.lam Require Import lang wkpre generic.lift types.
+From st.lam Require Import lang wkpre generic.lift types contexts scopedness.
 From st.backtranslations.un_syn Require Import expressions universe.base.
 
 Inductive refinement :=
@@ -16,11 +16,11 @@ Section definitions.
 
   Context {rfn : refinement}.
 
-  Definition s : stuckness :=
-    match rfn with
-    | syn_le_un => NotStuck
-    | un_le_syn => MaybeStuck (* untyped can of course get stuck *)
-    end.
+  Definition s : stuckness := MaybeStuck.
+    (* match rfn with *)
+    (* | syn_le_un => NotStuck *)
+    (* | un_le_syn => MaybeStuck (* untyped can of course get stuck *) *)
+    (* end. *)
 
   Definition canon_tc_lift (tc : type_constructor) (Ψ : valO -n> valO -n> iPropO Σ) (xᵢ xₛ : valO) : iPropO Σ :=
     (match tc with
@@ -84,15 +84,19 @@ Section definitions.
   Definition exprel : exprO -n> exprO -n> iPropO Σ :=
     λne eᵢ eₛ, lift s valrel eᵢ eₛ.
 
-  Definition closed_condition n (e e' : expr) : Prop :=
-    Closed_n n match rfn with
-               | syn_le_un => e'
-               | un_le_syn => e
-               end.
-
-  Definition open_exprel (n : nat) (e e' : expr) (pne' : closed_condition n e e') : Prop :=
+  Definition open_exprel (n : nat) (e : expr) (e' : expr) : Prop :=
     ∀ (us : list val) (vs' : list val), length us = n →
       ([∗ list] uᵢ ; vᵢ' ∈ us ; vs', valrel uᵢ vᵢ') ⊢
         exprel e.[subst_list_val us] e'.[subst_list_val vs'].
+
+  Definition ctx_rel (n m : nat)
+             (C : ctx)
+             (C' : ctx) :=
+    ∀ e e' , open_exprel n e e' → open_exprel m (fill_ctx C e) (fill_ctx C' e').
+
+  Lemma ctx_rel_app (n m l : nat) (C1 C1' C2 C2' : ctx) :
+    ctx_rel n m C2 C2' → ctx_rel m l C1 C1' →
+    ctx_rel n l (C1 ++ C2) (C1' ++ C2').
+  Proof. intros H2 H1 e e' Hee'. rewrite -!fill_ctx_app. apply H1, H2, Hee'. Qed.
 
 End definitions.

@@ -134,6 +134,19 @@ Section big_sepL3_lemmas.
       iSplit; iIntros "[H1 H2]"; iFrame "H1"; by iApply IHl1.
   Qed.
 
+  Lemma big_sepL3_fmap_r {C' : Type} (f : C → C') (Φ : A → B → C' → iProp Σ) l1 l2 l3 :
+    big_sepL3 (fun a b c => Φ a b (f c)) l1 l2 l3
+    ⊣⊢ big_sepL3 (fun a b c => Φ a b c) l1 l2 (f <$> l3).
+  Proof.
+    generalize dependent l3.
+    generalize dependent l2.
+    generalize dependent l1.
+    induction l1.
+    - intros. destruct l2; destruct l3; auto.
+    - intros. destruct l2; destruct l3; auto. simpl. specialize (IHl1 l2 l3).
+      iSplit; iIntros "[H1 H2]"; iFrame "H1"; by iApply IHl1.
+  Qed.
+
   Lemma big_sepL3_impl (Φ Ψ : A → B → C → iProp Σ) l1 l2 l3 :
     ⊢ big_sepL3 Φ l1 l2 l3 -∗ □ (∀ x1 x2 x3, Φ x1 x2 x3 -∗ Ψ x1 x2 x3) -∗ big_sepL3 Ψ l1 l2 l3.
   Proof.
@@ -144,6 +157,30 @@ Section big_sepL3_lemmas.
     - intros. destruct l2; destruct l3; auto.
     - intros. destruct l2; destruct l3; auto. simpl. specialize (IHl1 l2 l3).
       iIntros "[Habc Hl1l2l3] #Himpl". iSplitL "Habc". by iApply "Himpl". by iApply (IHl1 with "Hl1l2l3").
+  Qed.
+
+  Lemma big_sepL3_pure (Φ : A → B → C → Prop) l1 l2 l3 :
+    @bi_emp_valid (uPredI (iResUR Σ)) (big_sepL3 (fun a b c => ⌜ Φ a b c ⌝) l1 l2 l3 -∗ ⌜ Forall3 Φ l1 l2 l3⌝)%I.
+  Proof.
+    generalize dependent l3.
+    generalize dependent l2.
+    generalize dependent l1.
+    induction l1.
+    - intros. destruct l2; destruct l3; auto. iPureIntro. constructor.
+    - intros. destruct l2; destruct l3; auto. simpl.
+      iIntros "[%Habc H]". iDestruct (IHl1 with "H") as "%Y". iPureIntro. by constructor.
+  Qed.
+
+  Lemma big_sepL3_superfluous_zip_r_l (Φ : A → B → (A * C) → iProp Σ) l1 l2 l3 :
+    big_sepL3 (fun a b c => Φ a b (a , c)) l1 l2 l3 ⊢ big_sepL3 Φ l1 l2 (zip l1 l3).
+  Proof.
+    generalize dependent l3.
+    generalize dependent l2.
+    generalize dependent l1.
+    induction l1.
+    - intros. destruct l2; destruct l3; auto.
+    - intros. destruct l2; destruct l3; auto. simpl. specialize (IHl1 l2 l3).
+      iIntros "[H1 H2]". iFrame "H1". by iApply IHl1.
   Qed.
 
   (* Lemma big_sepL3_impl (Φ Ψ : A → B → C → iProp Σ) l1 l2 l3 : *)

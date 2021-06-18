@@ -7,21 +7,16 @@ Local Notation "l ↦ v" := (mapsto l (DfracOwn 1) v)
 
 From st.prelude Require Import big_op_three.
 
-From st.lamst Require Import lang types.
-From st.lam Require Import lang wkpre .
+From st.lamst Require Import lang types contexts.
+From st.lam Require Import lang wkpre contexts.
 
 From st.backtranslations.st_sem Require Import ghost heap_emul.base.
 From st.backtranslations.st_sem.correctness.sem_le_st.logrel Require Import lift.
+From st Require Import resources.
 
 Section value_relation.
 
-  Context `{Σ : !gFunctors}.
-  Context `{irisG_inst : !irisG lam_lang Σ}.
-
-  Context `{genHeapG_inst : !gen_heapG loc lamst.lang.val Σ}.
-
-  Context `{val_ghost_mapG_inst : !ghost_mapG Σ nat val}.
-  Context `{loc_ghost_mapG_inst : !ghost_mapG Σ nat loc}.
+  Context `{Σ : !gFunctors} `{sem_le_stΣ_inst : !sem_le_stΣ Σ}.
 
   (* Context `{inG_Σ_auth_nat_to_ag_loc : !inG Σ () } *)
   Context (Δ : list (gname * gname)).
@@ -180,13 +175,7 @@ End value_relation.
 
 Section expr_relation.
 
-  Context `{Σ : !gFunctors}.
-  Context `{irisG_inst : !irisG lam_lang Σ}.
-
-  Context `{genHeapG_inst : !gen_heapG loc lamst.lang.val Σ}.
-
-  Context `{val_ghost_mapG_inst : !ghost_mapG Σ nat val}.
-  Context `{loc_ghost_mapG_inst : !ghost_mapG Σ nat loc}.
+  Context `{Σ : !gFunctors} `{sem_le_stΣ_inst : !sem_le_stΣ Σ}.
 
   Definition exprel_typed (Δ : list (gname * gname)) : typeO -n> exprO -n> lamst.lang.exprO -n> iPropO Σ :=
     λne τ eᵢ eₛ, lift MaybeStuck (valrel_typed Δ τ) eᵢ eₛ.
@@ -195,5 +184,11 @@ Section expr_relation.
     ∀ (Δ : list (gname * gname)) (vs : list val) (vs' : list lamst.lang.val),
       big_sepL3 (fun τ v v' => valrel_typed Δ τ v v') Γ vs vs' ⊢
                 exprel_typed Δ τ e.[subst_list_val vs] e'.[lamst.lang.subst_list_val vs'].
+
+  Definition ctx_item_rel_typed (Ci : lam.contexts.ctx_item) (Ci' : lamst.contexts.ctx_item) Γ τ Γ' τ' :=
+    ∀ e e', open_exprel_typed Γ e e' τ → open_exprel_typed Γ' (lam.contexts.fill_ctx_item Ci e) (lamst.contexts.fill_ctx_item Ci' e') τ'.
+
+  Definition ctx_rel_typed (C : lam.contexts.ctx) (C' : lamst.contexts.ctx) Γ τ Γ' τ' :=
+    ∀ e e', open_exprel_typed Γ e e' τ → open_exprel_typed Γ' (lam.contexts.fill_ctx C e) (lamst.contexts.fill_ctx C' e') τ'.
 
 End expr_relation.

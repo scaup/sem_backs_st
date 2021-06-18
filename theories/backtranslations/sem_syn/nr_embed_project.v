@@ -1,5 +1,5 @@
 From st.prelude Require Import autosubst.
-From st.lam Require Import types nr_types lang typing tactics.
+From st.lam Require Import types nr_types lang typing tactics scopedness.
 From st.backtranslations.un_syn Require Import universe.base.
 
 Inductive direction :=
@@ -77,3 +77,7 @@ Proof.
     + repeat ((rewrite -val_subst_valid; apply context_weakening2) || apply IHτ1 with (dir := Project) || apply IHτ2 with (dir := Embed) || closed_solver || apply inject_typed || econstructor).
     + repeat ((rewrite -val_subst_valid; apply context_weakening2) || apply IHτ1 with (dir := Embed) || apply IHτ2 with (dir := Project) || closed_solver || apply (extract_typed TCArrow) || econstructor).
 Qed.
+
+Lemma ep_pair_Closed τ ga :
+  Closed (of_val $ ep_pair τ ga).
+Proof. apply expr_Closed_n. eapply (expr_typed_scoped []). apply ep_pair_typed. Qed.

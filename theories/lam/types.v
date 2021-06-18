@@ -29,15 +29,6 @@ Infix "⟶" := TArrow (at level 51,right associativity) : types_no_st_scope.
 
 Delimit Scope types_no_st_scope with Tₙₒ.
 
-Lemma test : (TProd (TVar 0) (TVar 1)).[TBool, TInt/] = TProd TBool TInt.
-Proof. by simpl. Qed.
-
-Lemma test' : (TProd (TVar 0) (TVar 1)).[TBool/].[TInt/] = TProd TBool TInt.
-Proof. by simpl. Qed.
-
-(* Lemma test'' : (TVar 0).[TVar 0/].[TInt/] = (TVar 0).[TVar 0,TInt/]. *)
-(* Proof. simpl. Qed. *)
-
 Lemma TVar_subst_list_closed_n_length (τs : list type) (X : var) (p : Closed_n (length τs) (TVar X)) :
   (exists τ : type, τs !! X = Some τ ∧ (TVar X).[subst_list τs] = τ).
 Proof.

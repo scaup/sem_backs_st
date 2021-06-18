@@ -1,5 +1,4 @@
-From st.lam Require Import lang (* just for bin_op *).
-From st.lamst Require Import lang typing types.
+From st.lam Require Import lang typing types.
 
 Section context_depth_one.
 
@@ -24,17 +23,7 @@ Section context_depth_one.
     | CTX_IfM (e0 : expr) (e2 : expr)
     | CTX_IfR (e0 : expr) (e1 : expr)
     | CTX_Fold
-    | CTX_Unfold
-    | CTX_Alloc
-    | CTX_Read
-    | CTX_WriteL (e2 : expr)
-    | CTX_WriteR (e1 : expr)
-    | CTX_CompL (e2 : expr)
-    | CTX_CompR (e1 : expr)
-    | CTX_Return
-    | CTX_BindL (e2: expr)
-    | CTX_BindR (e1: expr)
-    | CTX_RunST.
+    | CTX_Unfold.
 
   Definition fill_ctx_item (ctx : ctx_item) (e : expr) : expr :=
     match ctx with
@@ -59,16 +48,6 @@ Section context_depth_one.
     | CTX_IfR e0 e1 => If e0 e1 e
     | CTX_Fold => Fold e
     | CTX_Unfold => Unfold e
-    | CTX_Alloc => Alloc e
-    | CTX_Read => Read e
-    | CTX_WriteL e2 => Write e e2
-    | CTX_WriteR e1 => Write e1 e
-    | CTX_CompL e2 => Compare e e2
-    | CTX_CompR e1 => Compare e1 e
-    | CTX_Return => Return e
-    | CTX_BindL e2 => Bind e e2
-    | CTX_BindR e1 => Bind e1 e
-    | CTX_RunST => RunST e
     end.
 
   Inductive typed_ctx_item :
@@ -128,34 +107,7 @@ Section context_depth_one.
     | TP_CTX_Fold Γ τ :
       typed_ctx_item CTX_Fold Γ τ.[(TRec τ)/] Γ (TRec τ)
     | TP_CTX_Unfold Γ τ :
-      typed_ctx_item CTX_Unfold Γ (TRec τ) Γ τ.[(TRec τ)/]
-    | TPCTX_Alloc Γ ρ τ :
-      typed_ctx_item CTX_Alloc Γ τ Γ (TST ρ (TSTref ρ τ))
-    | TP_CTX_Read Γ ρ τ :
-      typed_ctx_item CTX_Read Γ (TSTref ρ τ) Γ (TST ρ τ)
-    | TP_CTX_WriteL Γ e2 ρ τ :
-      typed Γ e2 τ →
-      typed_ctx_item (CTX_WriteL e2) Γ (TSTref ρ τ) Γ (TST ρ TUnit)
-    | TP_CTX_WriteR Γ e1 ρ τ :
-      typed Γ e1 (TSTref ρ τ) →
-      typed_ctx_item (CTX_WriteR e1) Γ τ Γ (TST ρ TUnit)
-    | TP_CTX_CompL Γ e2 ρ τ :
-        typed Γ e2 (TSTref ρ τ) →
-        typed_ctx_item (CTX_CompL e2) Γ (TSTref ρ τ) Γ TBool
-    | TP_CTX_CompR Γ e1 ρ τ :
-        typed Γ e1 (TSTref ρ τ) →
-        typed_ctx_item (CTX_CompR e1) Γ (TSTref ρ τ) Γ TBool
-    | TP_CTX_Return Γ ρ τ :
-        typed_ctx_item CTX_Return Γ τ Γ (TST ρ τ)
-    | TP_CTX_BindL Γ e2 ρ τ τ':
-        typed Γ e2 (TArrow τ (TST ρ τ')) →
-        typed_ctx_item (CTX_BindL e2) Γ (TST ρ τ) Γ (TST ρ τ')
-    | TP_CTX_BindR Γ e1 ρ τ τ' :
-        typed Γ e1 (TST ρ τ) →
-        typed_ctx_item (CTX_BindR e1) Γ (TArrow τ (TST ρ τ')) Γ (TST ρ τ')
-    | TP_CTX_RunST Γ τ :
-        typed_ctx_item CTX_RunST (subst (ren (+1)) <$>Γ)
-                      (TST (TVar 0) τ.[ren (+1)]) Γ τ.
+      typed_ctx_item CTX_Unfold Γ (TRec τ) Γ τ.[(TRec τ)/].
 
   Lemma typed_ctx_item_typed k Γ τ Γ' τ' e :
     typed Γ e τ → typed_ctx_item k Γ τ Γ' τ' →
@@ -189,17 +141,6 @@ Section context.
   Lemma fill_ctx_app e K K' : fill_ctx K' (fill_ctx K e) = fill_ctx (K' ++ K) e.
   Proof. revert K. induction K' => K; simpl; auto. by rewrite IHK'. Qed.
 
-  Lemma typed_ctx_app Γ Γ' Γ'' K K' τ τ' τ'' :
-    typed_ctx K' Γ' τ' Γ'' τ'' →
-    typed_ctx K Γ τ Γ' τ' →
-    typed_ctx (K' ++ K) Γ τ Γ'' τ''.
-  Proof.
-    revert K Γ Γ' Γ'' τ τ' τ''; induction K' => K Γ Γ' Γ'' τ τ' τ''; simpl.
-    - by inversion 1; subst.
-    - intros Htc1 Htc2. inversion Htc1; subst.
-      econstructor; last eapply IHK'; eauto.
-  Qed.
-
   (* Alternative that follows the convention *)
   Definition fill_ctx' (K : ctx) (e : expr) : expr := foldl (flip fill_ctx_item) e K.
 
@@ -207,3 +148,50 @@ Section context.
   Proof. by simpl. Qed.
 
 End context.
+
+Notation "|C> Γr ⊢ₙₒ C ☾ Γh ; τh ☽ : τr" := (typed_ctx C Γh τh Γr τr) (at level 74, Γr, C, Γh, τh, τr at next level).
+Notation "|Ci> Γr ⊢ₙₒ C ☾ Γh ; τh ☽ : τr" := (typed_ctx_item C Γh τh Γr τr) (at level 74, Γr, C, Γh, τh, τr at next level).
+
+Lemma typed_expr_append Γ e τ τs :
+  Γ ⊢ₙₒ e : τ → Γ ++ τs ⊢ₙₒ e : τ.
+Proof.
+  intro H.
+  replace e with (e.[upn (length Γ) (ren (+ (length τs)))]).
+  replace (Γ ++ τs) with (Γ ++ τs ++ []) by by rewrite app_nil_r.
+  apply context_gen_weakening. by rewrite app_nil_r.
+  by eapply typed_n_closed.
+Qed.
+
+Lemma typed_ctx_item_append C Γ τ Γ' τ' τs :
+  |Ci> Γ' ⊢ₙₒ C ☾ Γ ; τ ☽ : τ' →
+  |Ci> Γ' ++ τs ⊢ₙₒ C ☾ Γ ++ τs ; τ ☽ : τ'.
+Proof.
+  intro H. destruct H; try econstructor; try by apply typed_expr_append.
+  change (τ :: Γ ++ τs ) with ((τ :: Γ) ++ τs). by apply typed_expr_append.
+  change (τ1 :: Γ ++ τs ) with ((τ1 :: Γ) ++ τs). by apply typed_expr_append.
+  change (τ2 :: Γ ++ τs ) with ((τ2 :: Γ) ++ τs). by apply typed_expr_append.
+  change (τ2 :: Γ ++ τs ) with ((τ2 :: Γ) ++ τs). by apply typed_expr_append.
+  change (τ1 :: Γ ++ τs ) with ((τ1 :: Γ) ++ τs). by apply typed_expr_append.
+Qed.
+
+Lemma typed_ctx_append C Γ τ Γ' τ' τs :
+  |C> Γ' ⊢ₙₒ C ☾ Γ ; τ ☽ : τ' →
+  |C> Γ' ++ τs ⊢ₙₒ C ☾ Γ ++ τs ; τ ☽ : τ'.
+Proof.
+  intro H.
+  induction H.
+  - constructor.
+  - econstructor. 2: eapply IHtyped_ctx.
+    by apply typed_ctx_item_append.
+Qed.
+
+Lemma typed_ctx_app Γ Γ' Γ'' K K' τ τ' τ'' :
+  |C> Γ'' ⊢ₙₒ K' ☾ Γ' ; τ' ☽ : τ'' →
+  |C> Γ' ⊢ₙₒ K ☾ Γ ; τ ☽ : τ' →
+  |C> Γ'' ⊢ₙₒ (K' ++ K) ☾ Γ ; τ ☽ : τ''.
+Proof.
+  revert K Γ Γ' Γ'' τ τ' τ''; induction K' => K Γ Γ' Γ'' τ τ' τ''; simpl.
+  - by inversion 1; subst.
+  - intros Htc1 Htc2. inversion Htc1; subst.
+    econstructor; last eapply IHK'; eauto.
+Qed.

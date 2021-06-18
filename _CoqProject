@@ -4,15 +4,19 @@
 -arg -w -arg -ambiguous-paths
 -arg -w -arg -redundant-canonical-projection
 
+theories/resources.v
+
 theories/prelude/autosubst.v
 theories/prelude/generic.v
 theories/prelude/big_op_three.v
 theories/prelude/at_least_one.v
+theories/prelude/forall_three.v
 
 theories/lam/lang.v
 
-theories/lam/contexts/definition.v
-theories/lam/contexts/ctyping.v
+theories/lam/contexts.v
+theories/lam/contexts_subst.v
+theories/lam/scopedness.v
 
 theories/lam/reducibility.v
 
@@ -29,15 +33,21 @@ theories/lam/lib/fixlam.v
 # theories/lam/lib/universe/embed_project.v
 
 theories/backtranslations/un_syn/expressions.v
+theories/backtranslations/un_syn/contexts.v
 theories/backtranslations/un_syn/typed.v
 
 theories/lam/logrel/generic/lift.v
 theories/lam/logrel/definitions.v
+theories/lam/logrel/compat_lemmas.v
+theories/lam/logrel/fundamental.v
+theories/lam/logrel/adequacy.v
 
 theories/backtranslations/un_syn/universe/base.v
 theories/backtranslations/un_syn/universe/paths.v
 theories/backtranslations/un_syn/logrel/definitions.v
+theories/backtranslations/un_syn/logrel/un_le_syn/compat_lemmas.v
 theories/backtranslations/un_syn/logrel/un_le_syn/fundamental.v
+theories/backtranslations/un_syn/logrel/syn_le_un/compat_lemmas.v
 theories/backtranslations/un_syn/logrel/syn_le_un/fundamental.v
 
 # theories/lam/lib/guard_assert.v
@@ -51,13 +61,25 @@ theories/backtranslations/sem_syn/nr_embed_project.v
 theories/backtranslations/sem_syn/nr_no_op.v
 theories/backtranslations/sem_syn/connective/nr_un_le_syn.v
 theories/backtranslations/sem_syn/connective/nr_syn_le_un.v
+theories/backtranslations/sem_syn/uni_back_ctx.v
+theories/backtranslations/sem_syn/ctx_sem_le_syn_add_no_op.v
+theories/backtranslations/sem_syn/ctx_syn_le_un.v
+theories/backtranslations/sem_syn/ctx_un_le_syn.v
 
+
+# theories/thms/uni_back_ctx_sem_syn/no_op.v
+
+
+theories/backtranslations/sem_syn/gamma_lib.v
+# theories/backtranslations/sem_syn/wrappings/gamma_help.v
 
 # B-part
 
 theories/lamst/lang.v
 theories/lamst/types.v
 theories/lamst/typing.v
+theories/lamst/pure_steps.v
+theories/lamst/contexts.v
 
 theories/backtranslations/st_sem/list_gmap.v
 theories/backtranslations/st_sem/ghost.v
@@ -65,11 +87,19 @@ theories/backtranslations/st_sem/ghost.v
 theories/backtranslations/st_sem/heap_emul/base.v
 theories/backtranslations/st_sem/heap_emul/spec.v
 theories/backtranslations/st_sem/expressions.v
+theories/backtranslations/st_sem/retraction.v
+theories/backtranslations/st_sem/scoped.v
+theories/backtranslations/st_sem/contexts.v
 theories/backtranslations/st_sem/well_defined/logrel/definition.v
 theories/backtranslations/st_sem/well_defined/logrel/matches_sem.v
 
 theories/embedding/types.v
+theories/embedding/expressions.v
+theories/embedding/typed.v
+
 theories/backtranslations/st_sem/well_defined/logrel/compat_lemmas.v
+theories/backtranslations/st_sem/well_defined/logrel/compat_lemmas_easy.v
+theories/backtranslations/st_sem/well_defined/logrel/fundamental.v
 
 theories/lamst/wkpre.v
 
@@ -81,6 +111,7 @@ theories/backtranslations/st_sem/correctness/st_le_sem/logrel/adequacy.v
 
 theories/backtranslations/st_sem/correctness/st_le_sem/logrel/compat_help.v
 theories/backtranslations/st_sem/correctness/st_le_sem/logrel/compat_lemmas.v
+theories/backtranslations/st_sem/correctness/st_le_sem/logrel/compat_lemmas_easy.v
 theories/backtranslations/st_sem/correctness/st_le_sem/logrel/fundamental.v
 
 theories/backtranslations/st_sem/correctness/sem_le_st/logrel/lift.v
@@ -89,7 +120,13 @@ theories/backtranslations/st_sem/correctness/sem_le_st/logrel/adequacy.v
 
 theories/backtranslations/st_sem/correctness/sem_le_st/logrel/compat_help.v
 theories/backtranslations/st_sem/correctness/sem_le_st/logrel/compat_lemmas.v
+theories/backtranslations/st_sem/correctness/sem_le_st/logrel/compat_lemmas_easy.v
 theories/backtranslations/st_sem/correctness/sem_le_st/logrel/fundamental.v
+
+theories/thms/uni_back_ctx_st_sem.v
+theories/thms/uni_back_ctx_sem_syn.v
+theories/thms/uni_back_ctx_st_syn.v
+theories/thms/pres_nr_lam_equiv.v
 
 # We sometimes want to locally override notation, and there is no good way to do that with scopes.
 # -arg -w -arg -notation-overridden

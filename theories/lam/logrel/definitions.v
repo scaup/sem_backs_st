@@ -1,14 +1,15 @@
+From iris.base_logic.lib Require Import ghost_map.
 From iris Require Import program_logic.weakestpre.
 From iris.proofmode Require Import tactics.
-From st.lam Require Import lang types wkpre generic.lift.
+From st.lam Require Import lang types wkpre generic.lift contexts.
 From st.prelude Require Import big_op_three.
+From st Require Import resources.
 
 Canonical Structure typeO := leibnizO type.
 
 Section definition.
 
-  Context `{Σ : !gFunctors}.
-  Context `{irisG_inst : !irisG lam_lang Σ}.
+  Context `{Σ : !gFunctors} `{semΣ_inst : !semΣ Σ}.
 
   (* We define a stuckness-sensistive and insensitive one *)
   Context (s : stuckness).
@@ -93,6 +94,12 @@ Section definition.
   Definition open_exprel_typed (Γ : list type) (e e' : expr) (τ : type) :=
     ∀ (vs vs' : list val), big_sepL3 (fun τ v v' => valrel_typed τ v v') Γ vs vs' ⊢
                                      exprel_typed τ e.[subst_list_val vs] e'.[subst_list_val vs'].
+
+  Definition ctx_item_rel_typed (Ci Ci' : ctx_item) Γ τ Γ' τ' :=
+    ∀ e e', open_exprel_typed Γ e e' τ → open_exprel_typed Γ' (fill_ctx_item Ci e) (fill_ctx_item Ci' e') τ'.
+
+  Definition ctx_rel_typed (C C' : ctx) Γ τ Γ' τ' :=
+    ∀ e e', open_exprel_typed Γ e e' τ → open_exprel_typed Γ' (fill_ctx C e) (fill_ctx C' e') τ'.
 
 End definition.
 

@@ -4,8 +4,9 @@ From iris_string_ident Require Import ltac2_string_ident.
 From st.prelude Require Import autosubst.
 From st.lam Require Import wkpre types nr_types lang typing tactics logrel.definitions logrel.generic.lift.
 From st.backtranslations.un_syn Require Import universe.base.
-From st.backtranslations.un_syn.logrel Require Import definitions syn_le_un.fundamental.
+From st.backtranslations.un_syn.logrel Require Import definitions syn_le_un.compat_lemmas.
 From st.backtranslations.sem_syn Require Import nr_embed_project.
+From st Require Import resources.
 
 (* Defines connective lemma between the untyped and typed logic relations (the (syntactically typed ≤ untyped)-refinement) *)
 (* Of the two refinements, this is the easier one *)
@@ -13,11 +14,10 @@ Section connective_syn_le_un.
 
   Instance rfn' : refinement := syn_le_un.
 
-  Context `{Σ : !gFunctors}.
-  Context `{irisG_inst : !irisG lam_lang Σ}.
+  Context `{Σ : !gFunctors} `{semΣ_inst : !semΣ Σ}.
 
-  Notation valrel_typed := (valrel_typed NotStuck).
-  Notation exprel_typed := (exprel_typed NotStuck).
+  Notation valrel_typed := (valrel_typed MaybeStuck).
+  Notation exprel_typed := (exprel_typed MaybeStuck).
 
   Lemma nr_connective_ep_ga (τ : nr_type) : ⊢ ∀ (v v' : val),
       (valrel_typed τ v v' -∗ exprel (ep_pair τ Embed v) v') ∧
@@ -131,5 +131,28 @@ Section connective_syn_le_un.
         iApply (lift_bind _ _ _ [AppRCtx _] []). iSplitL. by iApply "Hff".
         iIntros (y y') "Hyy". simpl. by iApply "IH1".
   Qed.
+
+  Lemma nr_embed_connective (τ : nr_type) (v v' : val) :
+    valrel_typed τ v v' ⊢ exprel (ep_pair τ Embed v) v'.
+  Proof. iIntros "H". by iApply nr_connective_ep_ga. Qed.
+
+  Lemma nr_project_connective (τ : nr_type) (v v' : val) :
+    valrel v v' ⊢ exprel_typed τ (ep_pair τ Project v) v'.
+  Proof. iIntros "H". by iApply nr_connective_ep_ga. Qed.
+
+  Lemma nr_project_connective_expr (τ : nr_type) (e e' : expr) :
+    exprel e e' ⊢ exprel_typed τ (ep_pair τ Project e) e'.
+  Proof.
+    iIntros "Hee'". iApply (lift_bind'' _ [AppRCtx _] [] with "Hee'"). iIntros (v v') "Hvv'".
+    by iApply nr_project_connective.
+  Qed.
+
+  Lemma nr_embed_connective_expr (τ : nr_type) (e e' : expr) :
+    exprel_typed τ e e' ⊢ exprel (ep_pair τ Embed e) e'.
+  Proof.
+    iIntros "Hee'". iApply (lift_bind'' _ [AppRCtx _] [] with "Hee'"). iIntros (v v') "Hvv'".
+    by iApply nr_embed_connective.
+  Qed.
+
 
 End connective_syn_le_un.

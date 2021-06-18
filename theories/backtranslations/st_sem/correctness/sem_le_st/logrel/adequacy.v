@@ -5,6 +5,7 @@ From iris.base_logic.lib Require Import invariants gen_heap.
 From st.lamst Require Import lang types.
 From st.lam Require Import wkpre lang.
 From st.backtranslations.st_sem.correctness.sem_le_st.logrel Require Import definition lift.
+From st Require Import resources.
 
 Definition Σ : gFunctors :=
   #[invΣ;
@@ -21,12 +22,17 @@ Instance lam_irisG_inst (H : invG Σ) : irisG lam_lang Σ :=
     state_interp_mono _ _ _ _ := fupd_intro _ _;
   }.
 
+Instance sem_le_stΣ_inst (H : invG Σ) (H' : gen_heapG loc lang.val Σ) : sem_le_stΣ Σ :=
+  { irisG_inst' := _ ;
+    genHeapG_inst := _;
+    val_ghost_mapG_inst := _;
+    loc_ghost_mapG_inst := _;
+  }.
+
+
 Lemma exprel_adequate (e : expr) (e' : lamst.lang.expr)
       (Hee' : ∀ {Σ : gFunctors}
-                {irisG_inst : irisG lam_lang Σ}
-                {genHeapG_inst : gen_heapG loc lamst.lang.val Σ}
-                {val_ghost_mapG_inst : ghost_mapG Σ nat val}
-                {loc_ghost_mapG_inst : ghost_mapG Σ nat loc},
+                {semΣ_inst : sem_le_stΣ Σ},
           ⊢ exprel_typed [] TUnit e e') :
   lam_halts e → lamst_halts e'.
 Proof.
@@ -42,7 +48,7 @@ Proof.
     iExists (fun σ _ => True%I).
     iExists (fun _ => True%I).
     iMod (gen_heap_init (∅ : gmap loc lamst.lang.val)) as (gen_heapG_inst') "(H∅ & _ & _)". iModIntro. iSplit; auto.
-    iDestruct (Hee' Σ (lam_irisG_inst invG_inst') gen_heapG_inst' _ _) as "Hee'". clear Hee'. rewrite /exprel_typed /lift /=.
+    iDestruct (Hee' Σ _ ) as "Hee'". clear Hee'. rewrite /exprel_typed /lift /=.
     iSpecialize ("Hee'" $! ∅ with "H∅").
     iApply (wp_wand with "Hee'").
     iIntros (w) "Hdes". iDestruct "Hdes" as (w' σ) "(_ & %He' & _)".

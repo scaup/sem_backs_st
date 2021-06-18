@@ -3,8 +3,9 @@ From iris.proofmode Require Import tactics.
 From iris_string_ident Require Import ltac2_string_ident.
 From st.prelude Require Import autosubst big_op_three.
 From st.lam Require Import wkpre types nr_types lang typing tactics logrel.definitions logrel.generic.lift.
-From st.backtranslations.un_syn Require Import logrel.definitions logrel.un_le_syn.fundamental universe.base universe.paths.
+From st.backtranslations.un_syn Require Import logrel.definitions logrel.un_le_syn.compat_lemmas universe.base universe.paths.
 From st.backtranslations.sem_syn Require Import nr_embed_project nr_guard_assert.
+From st Require Import resources.
 
 (* Defines connective lemma between the untyped and typed logic relations (the (untyped ≤ syntactically typed)-refinement) *)
 (* Of the two refinements, this is the harder one; we need the additional guards/asserts *)
@@ -12,8 +13,7 @@ Section nr_connective_un_le_syn.
 
   Instance rfn : refinement := un_le_syn.
 
-  Context `{Σ : !gFunctors}.
-  Context `{irisG_inst : !irisG lam_lang Σ}.
+  Context `{Σ : !gFunctors} `{semΣ_inst : !semΣ Σ}.
 
   Notation valrel_typed := (valrel_typed MaybeStuck).
   Notation exprel_typed := (exprel_typed MaybeStuck).
@@ -173,5 +173,19 @@ Section nr_connective_un_le_syn.
   Lemma nr_assert_project_connective (τ : nr_type) (v v' : val) :
     valrel v v' ⊢ exprel_typed τ (ga_pair τ Assert v) (ep_pair τ Project v').
   Proof. iIntros "H". by iApply nr_connective_ep_ga. Qed.
+
+  Lemma nr_assert_project_connective_expr (τ : nr_type) (e e' : expr) :
+    exprel e e' ⊢ exprel_typed τ (ga_pair τ Assert e) (ep_pair τ Project e').
+  Proof.
+    iIntros "Hee'". iApply (lift_bind'' _ [AppRCtx _] [AppRCtx _] with "Hee'"). iIntros (v v') "Hvv'".
+    by iApply nr_assert_project_connective.
+  Qed.
+
+  Lemma nr_guard_embed_connective_expr (τ : nr_type) (e e' : expr) :
+    exprel_typed τ e e' ⊢ exprel (ga_pair τ Guard e) (ep_pair τ Embed e').
+  Proof.
+    iIntros "Hee'". iApply (lift_bind'' _ [AppRCtx _] [AppRCtx _] with "Hee'"). iIntros (v v') "Hvv'".
+    by iApply nr_guard_embed_connective.
+  Qed.
 
 End nr_connective_un_le_syn.

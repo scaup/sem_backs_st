@@ -96,7 +96,7 @@ Section wp_read_i.
   Context `{irisG_inst : !irisG lam_lang Σ}.
   Context `{ghost_mapG_inst : !ghost_mapG Σ nat (prod val val)}.
 
-  Lemma wp_read_i Φ (vs : list val) (v : val) (i : nat) : ▷ (Φ (encode vs, v)%Vₙₒ ∗ ⌜ vs !! i = Some v ⌝) ⊢ WP read_i i (encode vs) {{Φ}}.
+  Lemma wp_read_i Φ (vs : list val) (v : val) (i : nat) : ▷ (Φ (encode vs, v)%Vₙₒ ∗ ⌜ vs !! i = Some v ⌝) ⊢ WP read_i i (encode vs) ?{{Φ}}.
   Proof.
     iIntros "H". iApply wp_step_later.
     auto_lam_step. simplify_custom.

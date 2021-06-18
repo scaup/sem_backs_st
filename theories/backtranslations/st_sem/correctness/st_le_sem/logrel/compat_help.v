@@ -12,6 +12,7 @@ From st.lamst Require Import wkpre lang types typing.
 
 From st.backtranslations.st_sem Require Import help expressions ghost heap_emul.base heap_emul.spec.
 From st.backtranslations.st_sem.correctness.st_le_sem.logrel Require Import lift definition.
+From st Require Import resources.
 
 Section prim_step_lemmas.
 
@@ -174,13 +175,7 @@ End prim_step_lemmas.
 
 Section compat_help.
 
-  Context `{Σ : !gFunctors}.
-
-  Context `{invG_inst : !invG Σ}.
-  Context `{genHeapG_inst : !gen_heapG loc val Σ}.
-
-  Context `{val_ghost_mapG_inst : !ghost_mapG Σ nat lam.lang.val}.
-  Context `{loc_ghost_mapG_inst : !ghost_mapG Σ nat loc}.
+  Context `{Σ : !gFunctors} `{st_le_semΣ_inst : !st_le_semΣ Σ}.
 
   Lemma wp_alloc {s : stuckness} (v : val) : ⊢ WP RunST (Alloc v) @ s; ⊤ {{ w, ∃ (l : loc), ⌜ w = l ⌝ ∧ l ↦ v }}.
   Proof.

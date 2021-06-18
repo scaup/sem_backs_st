@@ -5,11 +5,11 @@ From st.prelude Require Import autosubst.
 From st.lam Require Import nr_types lang typing tactics logrel.definitions logrel.generic.lift.
 From st.backtranslations.un_syn Require Import logrel.definitions logrel.un_le_syn.fundamental universe.base.
 From st.backtranslations.sem_syn Require Import nr_guard_assert.
+From st Require Import resources.
 
 Section nr_guard_assert_no_op.
 
-  Context `{Σ : !gFunctors}.
-  Context `{irisG_inst : !irisG lam_lang Σ}.
+  Context `{Σ : !gFunctors} `{semΣ_inst : !semΣ Σ}.
 
   Context (s : stuckness).
 
@@ -83,6 +83,13 @@ Section nr_guard_assert_no_op.
   Proof.
     iIntros (ga v v') "Hvv'". iApply wp_value'.
     iExists (nr_ga_eval τ ga v'). by iApply nr_no_op_ga_help.
+  Qed.
+
+  Lemma nr_no_op_ga_expr (τ : nr_type) : ∀ (ga : action) (e e' : expr),
+      exprel_typed τ e e' ⊢ exprel_typed τ e (ga_pair τ ga e').
+  Proof.
+    iIntros (ga e e') "Hee'". iApply (lift_bind'' _ [] [AppRCtx _] with "Hee'"). iIntros (v v') "Hvv'".
+    simpl. by iApply nr_no_op_ga.
   Qed.
 
 End nr_guard_assert_no_op.

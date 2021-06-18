@@ -95,6 +95,13 @@ Section Autosubst_Lemmas.
   (*   - by asimpl. *)
   (* Qed. *)
 
+  Lemma subst_list_snoc vs v : subst_list (vs ++ [v]) = (upn (length vs) (v .: ids)) >> (subst_list vs).
+  Proof.
+    induction vs.
+    - by asimpl.
+    - simpl. rewrite IHvs. by asimpl.
+  Qed.
+
   Lemma ids_subst_list_lookup (x : var) (ts : list term) t (H : ts !! x = Some t) :
     (ids x).[subst_list ts] = t.
   Proof.

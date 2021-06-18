@@ -7,12 +7,11 @@ From iris.proofmode Require Import tactics.
 From st.backtranslations.st_sem Require Import ghost heap_emul.base heap_emul.spec expressions.
 From iris_string_ident Require Import ltac2_string_ident.
 From st.prelude Require Import big_op_three.
+From st Require Import resources.
 
 Section compat_lemmas.
 
-  Context `{Σ : !gFunctors}.
-  Context `{irisG_inst : !irisG lam_lang Σ}.
-  Context `{ghost_mapG_inst : !ghost_mapG Σ nat (prod val val)}.
+  Context `{Σ : !gFunctors} `{semΣ_inst : !semΣ Σ}.
 
   Opaque alloc.
 

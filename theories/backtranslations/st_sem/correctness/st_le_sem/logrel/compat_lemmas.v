@@ -12,16 +12,11 @@ From st.lamst Require Import wkpre lang types typing.
 
 From st.backtranslations.st_sem Require Import expressions ghost heap_emul.base heap_emul.spec.
 From st.backtranslations.st_sem.correctness.st_le_sem.logrel Require Import lift definition compat_help.
+From st Require Import resources.
 
 Section compat_lemmas.
 
-  Context `{Σ : !gFunctors}.
-
-  Context `{invG_inst : !invG Σ}.
-  Context `{genHeapG_inst : !gen_heapG loc val Σ}.
-
-  Context `{val_ghost_mapG_inst : !ghost_mapG Σ nat lam.lang.val}.
-  Context `{loc_ghost_mapG_inst : !ghost_mapG Σ nat loc}.
+  Context `{Σ : !gFunctors} `{st_le_semΣ_inst : !st_le_semΣ Σ}.
 
   Opaque alloc alloc_v encode.
 

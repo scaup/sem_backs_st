@@ -5,12 +5,11 @@ From iris.base_logic.lib Require Import gen_heap.
 
 From st.lamst Require Import lang.
 From st.lam Require Import lang wkpre.
+From st Require Import resources.
 
 Section lift.
 
-  Context `{Σ : !gFunctors}.
-  Context `{irisG_inst : !irisG lam_lang Σ}.
-  Context `{gen_heapG_inst : !gen_heapG loc lamst.lang.val Σ}.
+  Context `{Σ : !gFunctors} `{sem_le_stΣ_inst : !sem_le_stΣ Σ}.
 
   Context (s : stuckness).
 

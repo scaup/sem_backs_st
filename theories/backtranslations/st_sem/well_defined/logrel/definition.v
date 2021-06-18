@@ -1,16 +1,15 @@
 From iris Require Import program_logic.weakestpre.
 From iris.proofmode Require Import tactics.
 From st.lamst Require Import types.
-From st.lam Require Import lang wkpre generic.lift.
+From st.lam Require Import lang wkpre generic.lift contexts.
 From iris.base_logic.lib Require Import invariants.
 From st.backtranslations.st_sem Require Import ghost heap_emul.base.
 From st.prelude Require Import big_op_three.
+From st Require Import resources.
 
 Section value_relation.
 
-  Context `{Σ : !gFunctors}.
-  Context `{irisG_inst : !irisG lam_lang Σ}.
-  Context `{ghost_mapG_inst : !ghost_mapG Σ nat (prod val val)}.
+  Context `{Σ : !gFunctors} `{semΣ_inst : !semΣ Σ}.
 
   Context (Δ : list gname).
 
@@ -23,7 +22,7 @@ Section value_relation.
      | TProd τ1 τ2 => ∃ v1 v2 v1' v2', ⌜ v = (v1, v2)%Vₙₒ ⌝ ∧ ⌜ v' = (v1' , v2')%Vₙₒ ⌝ ∗ valrel_typed_gen_pre Ψ τ1 v1 v1' ∗ valrel_typed_gen_pre Ψ τ2 v2 v2'
      | TSum τ1 τ2 => ∃ vi vi', (⌜ v = InjLV vi ⌝ ∧ ⌜ v' = InjLV vi' ⌝ ∧ valrel_typed_gen_pre Ψ τ1 vi vi') ∨
                               (⌜ v = InjRV vi ⌝ ∧ ⌜ v' = InjRV vi' ⌝ ∧ valrel_typed_gen_pre Ψ τ2 vi vi')
-     | TArrow τ1 τ2 => □ (∀ w w', valrel_typed_gen_pre Ψ τ1 w w' -∗ lift NotStuck (valrel_typed_gen_pre Ψ τ2) (v w) (v' w'))
+     | TArrow τ1 τ2 => □ (∀ w w', valrel_typed_gen_pre Ψ τ1 w w' -∗ lift MaybeStuck (valrel_typed_gen_pre Ψ τ2) (v w) (v' w'))
      | TRec τb => ∃ w w', ⌜ v = FoldV w ⌝ ∧ ⌜ v' = FoldV w' ⌝ ∧ ▷ (Ψ τb.[TRec τb/] w w')
      | TVar X => False
      | TSTref ρ τ =>
@@ -44,7 +43,7 @@ Section value_relation.
              let vs := psᵢ.*1 in
              let vs' := psᵢ.*2 in
              □ (auth_list γ psᵢ -∗
-                          WP v (encode vs) {{ x, ∃ (w w' : val) (psₜ : list (prod val val)), auth_list γ psₜ ∧
+                          WP v (encode vs) ?{{ x, ∃ (w w' : val) (psₜ : list (prod val val)), auth_list γ psₜ ∧
                                                 let ws := psₜ.*1 in
                                                 let ws' := psₜ.*2 in
                                                 ⌜ x = (encode ws, w)%Vₙₒ ⌝ ∧
@@ -90,7 +89,7 @@ Section value_relation.
   Proof. by rewrite valrel_typed_unfold. Qed.
   Lemma valrel_typed_TInt_unfold v v' : valrel_typed TInt v v' ≡ (∃ z : Z, ⌜ v = z ⌝ ∧ ⌜ v' = z ⌝)%I.
   Proof. by rewrite valrel_typed_unfold. Qed.
-  Lemma valrel_typed_TArrow_unfold τ1 τ2 v v' : valrel_typed (TArrow τ1 τ2) v v' ≡ (□ (∀ w w', valrel_typed τ1 w w' -∗ lift NotStuck (valrel_typed τ2) (v w) (v' w')))%I.
+  Lemma valrel_typed_TArrow_unfold τ1 τ2 v v' : valrel_typed (TArrow τ1 τ2) v v' ≡ (□ (∀ w w', valrel_typed τ1 w w' -∗ lift MaybeStuck (valrel_typed τ2) (v w) (v' w')))%I.
   Proof.
     rewrite valrel_typed_unfold. rewrite /valrel_typed_gen. simpl.
     f_equiv. f_equiv. intros w. f_equiv. intro w'. f_equiv.
@@ -126,7 +125,7 @@ Section value_relation.
              let vs := psᵢ.*1 in
              let vs' := psᵢ.*2 in
              □ (auth_list γ psᵢ -∗
-                          WP v (encode vs) {{ x, ∃ (w w' : val) (psₜ : list (prod val val)),
+                          WP v (encode vs) ?{{ x, ∃ (w w' : val) (psₜ : list (prod val val)),
                                                 auth_list γ psₜ ∧
                                                 let ws := psₜ.*1 in
                                                 let ws' := psₜ.*2 in
@@ -161,14 +160,18 @@ End value_relation.
 
 Section expr_relation.
 
-  Context `{Σ : !gFunctors}.
-  Context `{irisG_inst : !irisG lam_lang Σ}.
-  Context `{ghost_mapG_inst : !ghost_mapG Σ nat (prod val val)}.
+  Context `{Σ : !gFunctors} `{semΣ_inst : !semΣ Σ}.
 
-  Definition exprel_typed (Δ : list gname) : typeO -n> exprO -n> exprO -n> iPropO Σ := λne τ eᵢ eₛ, lift NotStuck (valrel_typed Δ τ) eᵢ eₛ.
+  Definition exprel_typed (Δ : list gname) : typeO -n> exprO -n> exprO -n> iPropO Σ := λne τ eᵢ eₛ, lift MaybeStuck (valrel_typed Δ τ) eᵢ eₛ.
 
   Definition open_exprel_typed (Γ : list type) (e e' : expr) (τ : type) :=
     ∀ (Δ : list gname) (vs vs' : list val), big_sepL3 (fun τ v v' => valrel_typed Δ τ v v') Γ vs vs' ⊢
                                                       exprel_typed Δ τ e.[subst_list_val vs] e'.[subst_list_val vs'].
+
+  Definition ctx_item_rel_typed (Ci Ci' : ctx_item) Γ τ Γ' τ' :=
+    ∀ e e', open_exprel_typed Γ e e' τ → open_exprel_typed Γ' (fill_ctx_item Ci e) (fill_ctx_item Ci' e') τ'.
+
+  Definition ctx_rel_typed (C C' : ctx) Γ τ Γ' τ' :=
+    ∀ e e', open_exprel_typed Γ e e' τ → open_exprel_typed Γ' (fill_ctx C e) (fill_ctx C' e') τ'.
 
 End expr_relation.

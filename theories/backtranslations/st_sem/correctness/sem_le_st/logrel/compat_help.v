@@ -55,19 +55,14 @@ From iris.proofmode Require Import tactics.
 From iris.base_logic.lib Require Import invariants gen_heap.
 From st.backtranslations.st_sem Require Import ghost heap_emul.base.
 From st.lam Require Import lang.
+From st Require Import resources.
 
 Local Notation "l ↦ v" := (mapsto l (DfracOwn 1) v)
   (at level 20, format "l  ↦  v") : bi_scope.
 
 Section valrel_cons_ren.
 
-  Context `{Σ : !gFunctors}.
-  Context `{irisG_inst : !irisG lam_lang Σ}.
-
-  Context `{genHeapG_inst : !gen_heapG loc lamst.lang.val Σ}.
-
-  Context `{val_ghost_mapG_inst : !ghost_mapG Σ nat val}.
-  Context `{loc_ghost_mapG_inst : !ghost_mapG Σ nat loc}.
+  Context `{Σ : !gFunctors} `{sem_le_stΣ_inst : !sem_le_stΣ Σ}.
 
   (* super boring lemma *)
   Lemma valrel_typed_cons_ren γ γ' Δ : ∀ τ v v', valrel_typed ((γ,γ') :: Δ) τ.[ren (+1)] v v' ⊣⊢ valrel_typed Δ τ v v'.
