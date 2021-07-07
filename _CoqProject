@@ -96,6 +96,7 @@ theories/backtranslations/st_sem/well_defined/logrel/matches_sem.v
 theories/embedding/types.v
 theories/embedding/expressions.v
 theories/embedding/typed.v
+theories/embedding/contexts.v
 
 theories/backtranslations/st_sem/well_defined/logrel/compat_lemmas.v
 theories/backtranslations/st_sem/well_defined/logrel/compat_lemmas_easy.v
@@ -127,6 +128,7 @@ theories/thms/uni_back_ctx_st_sem.v
 theories/thms/uni_back_ctx_sem_syn.v
 theories/thms/uni_back_ctx_st_syn.v
 theories/thms/pres_nr_lam_equiv.v
+theories/thms/refl_equiv.v
 
 # We sometimes want to locally override notation, and there is no good way to do that with scopes.
 # -arg -w -arg -notation-overridden
