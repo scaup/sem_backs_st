@@ -63,7 +63,7 @@ Proof. apply stuck_fill. Qed.
 
 Lemma dec_expr_reducibility (e : expr) : reducibility e.
 Proof.
-  induction e as [x | e1 IH1 e2 IH2 | e _ | e1 IH1 e2 IH2 | | op e1 IH1 e2 IH2 | e0 IH0 e1 IH1 e2 IH2 | e1 IH1 e2 IH2 | e1 IH1 e2 IH2 | e IH | e IH | e IH | e IH | e0 IH0 e1 IH1 e2 IH2 | e IH | e IH ];
+  induction e as [x | e1 IH1 e2 IH2 | e _ | e1 IH1 e2 IH2 | | op e1 IH1 e2 IH2 | e0 IH0 e1 IH1 e2 IH2 | e1 IH1 e2 IH2 | e1 IH1 e2 IH2 | e IH | e IH | e IH | e IH | e0 IH0 e1 IH1 e2 IH2 | e IH | e IH | e IH ];
     (try by eapply is_val).
   - apply is_stuck. head_stuck_solver.
   - destruct IH1 as [ v1 eq1 | is_red1 | is_stuck1 ]; [ rewrite -(of_to_val _ _ eq1) | | ].
@@ -136,5 +136,9 @@ Proof.
       apply is_red; apply lam_prim_red; eexists; auto_lam_step.
     + apply is_red. by apply (fill_reducible [UnfoldCtx]).
     + apply is_stuck; by apply (fill_stuck [UnfoldCtx]).
+  - destruct IH as [ v1 eq1 | is_red1 | is_stuck1 ]; [ rewrite -(of_to_val _ _ eq1) | | ].
+    + destruct v1; apply is_red; apply lam_prim_red; eexists; auto_lam_step.
+    + apply is_red. by apply (fill_reducible [GhostStepCtx]).
+    + apply is_stuck; by apply (fill_stuck [GhostStepCtx]).
 Qed.
 

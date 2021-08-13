@@ -33,10 +33,12 @@ Inductive expr :=
 | Case (e0 : expr) (e1 : {bind expr}) (e2 : {bind expr})
 (* Recursive Types *)
 | Fold (e : expr)
-| Unfold (e : expr).
+| Unfold (e : expr)
 (** Polymorphic Types *)
 (* | TLam (e : expr) *)
 (* | TApp (e : expr). *)
+(* Ghost Step *)
+| GhostStep (e : expr).
 
 Coercion LitInt : Z >-> base_lit.
 Coercion LitBool : bool >-> base_lit.
@@ -224,7 +226,8 @@ Inductive ectx_item :=
 | BinOpRCtx (op : bin_op) (v1 : val)
 | SeqCtx (e2 : expr)
 | FoldCtx
-| UnfoldCtx.
+| UnfoldCtx
+| GhostStepCtx.
 
 Definition fill_item (Ki : ectx_item) (e : expr) : expr :=
  match Ki with
@@ -246,6 +249,7 @@ Definition fill_item (Ki : ectx_item) (e : expr) : expr :=
  | SeqCtx e2 => Seq e e2
  | FoldCtx => Fold e
  | UnfoldCtx => Unfold e
+ | GhostStepCtx => GhostStep e
  end.
 
 (** The stepping relation *)
@@ -305,10 +309,27 @@ Inductive head_step : expr → state → list Empty_set → expr → state → l
 (* Recursive Types *)
 | Unfold_Fold_head_step e v σ :
    to_val e = Some v →
-   head_step (Unfold (Fold e)) σ [] e σ [].
+   head_step (Unfold (Fold e)) σ [] e σ []
 (* Polymorphic Types *)
 (* | TBeta e σ : *)
    (* head_step (TApp (TLam e)) σ [] e σ []. *)
+| GhostStep_Lam_head_step e σ :
+   head_step (GhostStep (Lam e)) σ [] (Lam (GhostStep ((Lam e).[ren (+1)] (GhostStep %0))))%Eₙₒ σ []
+| GhostStep_Lit_head_step bl σ :
+   head_step (GhostStep (Lit bl)) σ [] (Lit bl) σ []
+| GhostStep_Pair_head_step e1 v1 e2 v2 σ :
+   to_val e1 = Some v1 →
+   to_val e2 = Some v2 →
+   head_step (GhostStep (Pair e1 e2)) σ [] (Pair (GhostStep e1) (GhostStep e2)) σ []
+| GhostStep_InjL_head_step e v σ :
+   to_val e = Some v →
+   head_step (GhostStep (InjL e)) σ [] (InjL (GhostStep e)) σ []
+| GhostStep_InjR_head_step e v σ :
+   to_val e = Some v →
+   head_step (GhostStep (InjR e)) σ [] (InjR (GhostStep e)) σ []
+| GhostStep_Fold_head_step e v σ :
+   to_val e = Some v →
+   head_step (GhostStep (Fold e)) σ [] (Fold (GhostStep e)) σ [].
 
 Lemma App_Lam_head_step' (e' e1 e2 : expr) v2 (eq : e1.[e2/] = e') σ (H : to_val e2 = Some v2) :
   head_step (Lam e1 e2) σ [] e' σ [].

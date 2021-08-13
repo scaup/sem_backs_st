@@ -1,7 +1,5 @@
 From st.prelude Require Import generic forall_three.
-From st.lam Require Import lang typing types nr_types tactics contexts contexts_subst scopedness.
-From st.backtranslations.un_syn Require Import universe.base.
-From st.backtranslations.sem_syn Require Import nr_embed_project.
+From st.lam Require Import lang typing types tactics contexts contexts_subst scopedness.
 
 Definition GammaType (Γ : list type) (τ : type) : type := foldr (TArrow) τ (rev Γ).
 
@@ -41,6 +39,16 @@ Lemma LamGamma_typed e (Γ : list type) (τ : type) (de : typed Γ e τ) :
 Proof.
   rewrite -fill_LamGamma_ctx. eapply typed_ctx_typed. apply de.
   apply LamGamma_ctx_typed.
+Qed.
+
+Lemma LamGamma_scoped e n (de : expr_scoped n e) :
+  expr_scoped 0 (LamGamma n e).
+Proof.
+  rewrite -fill_LamGamma_ctx. eapply scoped_ctx_fill. apply de.
+  replace n with (length (replicate n TUnit)).
+  replace 0 with (length ([] : list type)).
+  apply (ctx_typed_scoped _ TUnit _ (GammaType (replicate n TUnit) TUnit)).
+  apply LamGamma_ctx_typed. auto. by rewrite replicate_length.
 Qed.
 
 Fixpoint AppGamma (F : expr) (es : list expr) : expr :=
@@ -255,4 +263,3 @@ Proof.
   - intros ks Hl; destruct ks as [|k0 ks];[inversion Hl|]. simpl in *.
     rewrite IHls; auto.
 Qed.
-

@@ -2,7 +2,7 @@ From st.lam Require Import lang types typing contexts scopedness.
 From st.backtranslations.un_syn Require Import universe.base expressions typed.
 
 (* Reserved Notation "<[ Ci ]>" (at level 4, Ci at next level). *)
-Definition back_ctx_item (Ci : ctx_item) : ctx :=
+Definition universe_back_ctx_item (Ci : ctx_item) : ctx :=
   match Ci with
   | CTX_Lam => [CTX_AppR (inject TCArrow); CTX_Lam]
   | CTX_AppL e2 => [CTX_AppL <<e2>>; CTX_AppR (extract TCArrow)]
@@ -37,14 +37,15 @@ Definition back_ctx_item (Ci : ctx_item) : ctx :=
   | CTX_IfR e0 e1 => [CTX_IfR (extract TCBool <<e0>>) <<e1>>]
   | CTX_Fold => [CTX_AppR (inject TCRec); CTX_Fold]
   | CTX_Unfold => [CTX_Unfold ; CTX_AppR (extract TCRec)]
+  | CTX_GhostStep => []
   end.
 
-Lemma back_ctx_item_typed (Ci : ctx_item) n m :
+Lemma universe_back_ctx_item_typed (Ci : ctx_item) n m :
     |sCi> n ⊢ₙₒ Ci ☾ m ☽ →
-    |C> replicate n TUniverse ⊢ₙₒ (back_ctx_item Ci) ☾ replicate m TUniverse ; TUniverse ☽ : TUniverse.
+    |C> replicate n TUniverse ⊢ₙₒ (universe_back_ctx_item Ci) ☾ replicate m TUniverse ; TUniverse ☽ : TUniverse.
 Proof.
   Ltac blaa := lazymatch goal with
-           | |- typed _ (back_expr ?e) TUniverse => apply back_typed
+           | |- typed _ (universe_back_expr ?e) TUniverse => apply back_typed
            | |- typed _ (of_val (inject ?tc)) _ => apply (inject_typed tc)
            | |- typed _ (of_val (extract ?tc)) _ => apply (extract_typed tc)
            | |- _ => econstructor
@@ -54,17 +55,17 @@ Proof.
   destruct op; repeat blaa; try blaa; try done.
 Qed.
 
-Fixpoint back_ctx (C : ctx) : ctx :=
+Fixpoint universe_back_ctx (C : ctx) : ctx :=
   match C with
   | nil => []
-  | cons Ci Ctl => back_ctx_item Ci ++ (back_ctx Ctl)
+  | cons Ci Ctl => universe_back_ctx_item Ci ++ (universe_back_ctx Ctl)
   end.
 
-Lemma back_ctx_typed (C : ctx) n m :
+Lemma universe_back_ctx_typed (C : ctx) n m :
     |sC> n ⊢ₙₒ C ☾ m ☽ →
-    |C> replicate n TUniverse ⊢ₙₒ (back_ctx C) ☾ replicate m TUniverse ; TUniverse ☽ : TUniverse.
+    |C> replicate n TUniverse ⊢ₙₒ (universe_back_ctx C) ☾ replicate m TUniverse ; TUniverse ☽ : TUniverse.
 Proof.
   intro H. induction H.
   - constructor.
-  - simpl. eapply typed_ctx_app; [by apply back_ctx_item_typed | auto].
+  - simpl. eapply typed_ctx_app; [by apply universe_back_ctx_item_typed | auto].
 Qed.

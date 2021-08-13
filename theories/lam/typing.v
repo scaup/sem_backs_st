@@ -252,6 +252,14 @@ Lemma context_weakening ξ Γ e τ :
   Γ ⊢ₙₒ e : τ → ξ ++ Γ ⊢ₙₒ e.[(ren (+ (length ξ)))] : τ.
 Proof. eapply (context_gen_weakening _ []). Qed.
 
+Lemma typed_nil e τ : [] ⊢ₙₒ e : τ  → ∀Γ, Γ ⊢ₙₒ e : τ.
+Proof.
+  intros de Γ. replace Γ with (Γ ++ []) by by rewrite app_nil_r.
+  replace e with e.[ren (+ (length Γ))]. by apply context_weakening.
+  replace e with e.[ids] at 2 by by asimpl. eapply typed_subst_invariant.
+  apply de. simpl. lia.
+Qed.
+
 Lemma context_weakening1 τ1 Γ e τ :
   Γ ⊢ₙₒ e : τ → (τ1 :: Γ) ⊢ₙₒ e.[(ren (+ 1))] : τ.
 Proof. change (τ1 :: Γ) with ([τ1] ++ Γ). apply context_weakening. Qed.

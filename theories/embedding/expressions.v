@@ -24,5 +24,6 @@ Fixpoint embd_expr (e : lam.lang.expr) : expr :=
   | lam.lang.Case e0 e1 e2 => Case [[e0]] [[e1]] [[e2]]
   | lam.lang.Fold e => Fold [[e]]
   | lam.lang.Unfold e => Unfold [[e]]
+  | lam.lang.GhostStep e => Lam [[e]]%Eₛₜ (* just a dummy value; we only care about embedding syntactically well-typed expressions *)
   end
 where "[[ e ]]" := (embd_expr e).

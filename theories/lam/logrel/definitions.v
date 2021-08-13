@@ -1,7 +1,7 @@
 From iris.base_logic.lib Require Import ghost_map.
 From iris Require Import program_logic.weakestpre.
 From iris.proofmode Require Import tactics.
-From st.lam Require Import lang types wkpre generic.lift contexts.
+From st.lam Require Import lang types wkpre generic.lift contexts scopedness.
 From st.prelude Require Import big_op_three.
 From st Require Import resources.
 
@@ -95,11 +95,17 @@ Section definition.
     ∀ (vs vs' : list val), big_sepL3 (fun τ v v' => valrel_typed τ v v') Γ vs vs' ⊢
                                      exprel_typed τ e.[subst_list_val vs] e'.[subst_list_val vs'].
 
+  Lemma open_exprel_typed_nil τ e e' : (⊢ exprel_typed τ e e') -> open_exprel_typed [] e e' τ.
+  Proof. iIntros (Hee' vs vs') "Hvv'". destruct vs, vs'; auto. asimpl. iApply Hee'. Qed.
+
+  Lemma open_exprel_typed_nil' τ e e' : open_exprel_typed [] e e' τ → (⊢ exprel_typed τ e e').
+  Proof. rewrite /open_exprel_typed. iIntros (Hee'). iDestruct (Hee' [] []) as "H". asimpl. by iApply "H". Qed.
+
   Definition ctx_item_rel_typed (Ci Ci' : ctx_item) Γ τ Γ' τ' :=
-    ∀ e e', open_exprel_typed Γ e e' τ → open_exprel_typed Γ' (fill_ctx_item Ci e) (fill_ctx_item Ci' e') τ'.
+    ∀ e e' (pe : expr_scoped (length Γ) e) (pe' : expr_scoped (length Γ) e'), open_exprel_typed Γ e e' τ → open_exprel_typed Γ' (fill_ctx_item Ci e) (fill_ctx_item Ci' e') τ'.
 
   Definition ctx_rel_typed (C C' : ctx) Γ τ Γ' τ' :=
-    ∀ e e', open_exprel_typed Γ e e' τ → open_exprel_typed Γ' (fill_ctx C e) (fill_ctx C' e') τ'.
+    ∀ e e' (pe : expr_scoped (length Γ) e) (pe' : expr_scoped (length Γ) e'), open_exprel_typed Γ e e' τ → open_exprel_typed Γ' (fill_ctx C e) (fill_ctx C' e') τ'.
 
 End definition.
 

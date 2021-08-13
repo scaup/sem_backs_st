@@ -2,7 +2,7 @@ From st.lam Require Import lang types.
 From st.backtranslations.un_syn Require Import universe.base.
 
 Reserved Notation "<< e >>" (at level 4, e at next level).
-Fixpoint back_expr (e : expr) : expr :=
+Fixpoint universe_back_expr (e : expr) : expr :=
   match e with
   | Var x => x
   | LetIn e1 e2 => LetIn <<e1>> <<e2>>
@@ -31,5 +31,6 @@ Fixpoint back_expr (e : expr) : expr :=
   | Case e0 e1 e2 => Case (extract TCSum <<e0>>) <<e1>> <<e2>>
   | Fold e => inject TCRec (Fold <<e>>)
   | Unfold e => Unfold (extract TCRec <<e>>)
+  | GhostStep e => <<e>>
   end
-where "<< e >>" := (back_expr e).
+where "<< e >>" := (universe_back_expr e).

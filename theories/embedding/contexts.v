@@ -25,6 +25,7 @@ Definition embd_ctx_item (Ci : lam.contexts.ctx_item) : ctx_item :=
   | lam.contexts.CTX_IfR e0 e1 => CTX_IfR [[e0]] [[e1]]
   | lam.contexts.CTX_Fold => CTX_Fold
   | lam.contexts.CTX_Unfold => CTX_Unfold
+  | lam.contexts.CTX_GhostStep => CTX_Lam (* we only care about embedding syntactically well-typed expressions *)
   end.
 
 Lemma embd_ctx_item_typed (Ci : lam.contexts.ctx_item) (Γ : list lam.types.type) (τ : lam.types.type) (Γ' : list lam.types.type) (τ' : lam.types.type) :

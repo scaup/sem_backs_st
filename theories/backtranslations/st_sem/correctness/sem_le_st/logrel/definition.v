@@ -185,6 +185,12 @@ Section expr_relation.
       big_sepL3 (fun τ v v' => valrel_typed Δ τ v v') Γ vs vs' ⊢
                 exprel_typed Δ τ e.[subst_list_val vs] e'.[lamst.lang.subst_list_val vs'].
 
+  Lemma open_exprel_typed_nil' τ e e' : open_exprel_typed [] e e' τ → (∀ Δ, ⊢ exprel_typed Δ τ e e').
+  Proof. rewrite /open_exprel_typed. iIntros (Hee' Δ). iDestruct (Hee' Δ [] []) as "H". asimpl. by iApply "H". Qed.
+
+  Lemma open_exprel_typed_nil τ e e' : (∀ Δ, ⊢ exprel_typed Δ τ e e') -> open_exprel_typed [] e e' τ.
+  Proof. iIntros (Hee' Δ vs vs') "Hvv'". destruct vs, vs'; auto. asimpl. iApply Hee'. Qed.
+
   Definition ctx_item_rel_typed (Ci : lam.contexts.ctx_item) (Ci' : lamst.contexts.ctx_item) Γ τ Γ' τ' :=
     ∀ e e', open_exprel_typed Γ e e' τ → open_exprel_typed Γ' (lam.contexts.fill_ctx_item Ci e) (lamst.contexts.fill_ctx_item Ci' e') τ'.
 

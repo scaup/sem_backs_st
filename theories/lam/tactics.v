@@ -75,6 +75,10 @@ Fixpoint ectx_expr (e : expr) : list ectx_item :=
              (* | Some v => [] *)
              (* | None => ectx_expr e ++ [TAppCtx] *)
              (* end *)
+  | GhostStep e => match to_val e with
+                | Some v => []
+                | None => ectx_expr e ++ [GhostStepCtx]
+                end
   end.
 
 
@@ -141,9 +145,9 @@ Fixpoint head_expr (e : expr) : expr :=
                     | None => head_expr e0
                     end
   | Fold e => match to_val e with
-                | Some v => FoldV v
-                | None => head_expr e
-                end
+             | Some v => FoldV v
+             | None => head_expr e
+             end
   | Unfold e => match to_val e with
                 | Some v => Unfold v
                 | None => head_expr e
@@ -153,6 +157,10 @@ Fixpoint head_expr (e : expr) : expr :=
              (* | Some v => TApp v *)
              (* | None => head_expr e *)
              (* end *)
+  | GhostStep e => match to_val e with
+                  | Some v => GhostStep v
+                  | None => head_expr e
+                  end
   end.
 
 (* Lemma prim_step_pure e σ κ e' : prim_step e [] e' [] → pure_step e e'. *)
@@ -167,7 +175,7 @@ Fixpoint head_expr (e : expr) : expr :=
 
 Lemma split_expr (e : expr) : e = fill (ectx_expr e) (head_expr e).
 Proof.
-  induction e as [x | e1 IH1 e2 IH2 | e1 IH1 | e1 IH1 e2 IH2 | e1 | binop e1 IH1 e2 IH2 | e1 IH1 e2 IH2 e3 IH3 | e1 IH1 e2 IH2 | e1 IH1 e2 IH2 | e1 IH1 | e1 IH1 | e1 IH1 | e1 IH1 | e1 IH1 e2 IH2 | e1 IH1 | e1 IH1 ];
+  induction e as [x | e1 IH1 e2 IH2 | e1 IH1 | e1 IH1 e2 IH2 | e1 | binop e1 IH1 e2 IH2 | e1 IH1 e2 IH2 e3 IH3 | e1 IH1 e2 IH2 | e1 IH1 e2 IH2 | e1 IH1 | e1 IH1 | e1 IH1 | e1 IH1 | e1 IH1 e2 IH2 | e1 IH1 | e1 IH1 | e1 IH1 ];
     try done; repeat ((destruct (to_val e1) eqn:eq1 || destruct (to_val e2) eqn:eq2 || rewrite fill_app || rewrite (of_to_val _ _ eq1) || rewrite (of_to_val _ _ eq2) || rewrite eq1 || rewrite eq2 || rewrite -IH1 || rewrite -IH2 || simpl)); auto.
 Qed.
 

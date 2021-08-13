@@ -1,7 +1,7 @@
 From iris Require Import program_logic.weakestpre.
 From iris.proofmode Require Import tactics.
 From st.lamst Require Import types.
-From st.lam Require Import lang wkpre generic.lift contexts.
+From st.lam Require Import lang wkpre generic.lift contexts scopedness.
 From iris.base_logic.lib Require Import invariants.
 From st.backtranslations.st_sem Require Import ghost heap_emul.base.
 From st.prelude Require Import big_op_three.
@@ -169,9 +169,9 @@ Section expr_relation.
                                                       exprel_typed Δ τ e.[subst_list_val vs] e'.[subst_list_val vs'].
 
   Definition ctx_item_rel_typed (Ci Ci' : ctx_item) Γ τ Γ' τ' :=
-    ∀ e e', open_exprel_typed Γ e e' τ → open_exprel_typed Γ' (fill_ctx_item Ci e) (fill_ctx_item Ci' e') τ'.
+    ∀ e e' (pe : expr_scoped (length Γ) e) (pe' : expr_scoped (length Γ) e'), open_exprel_typed Γ e e' τ → open_exprel_typed Γ' (fill_ctx_item Ci e) (fill_ctx_item Ci' e') τ'.
 
   Definition ctx_rel_typed (C C' : ctx) Γ τ Γ' τ' :=
-    ∀ e e', open_exprel_typed Γ e e' τ → open_exprel_typed Γ' (fill_ctx C e) (fill_ctx C' e') τ'.
+    ∀ e e' (pe : expr_scoped (length Γ) e) (pe' : expr_scoped (length Γ) e'), open_exprel_typed Γ e e' τ → open_exprel_typed Γ' (fill_ctx C e) (fill_ctx C' e') τ'.
 
 End expr_relation.

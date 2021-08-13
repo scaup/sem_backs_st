@@ -56,7 +56,10 @@ Inductive expr_scoped (n : nat) : expr → Prop :=
      expr_scoped n (Fold e)
  | Unfold_scoped e :
      expr_scoped n e →
-     expr_scoped n (Unfold e).
+     expr_scoped n (Unfold e)
+ | GhostStep_scoped e :
+     expr_scoped n e →
+     expr_scoped n (GhostStep e).
 
 Lemma expr_Closed_n (e : expr) : ∀ n, Closed_n n e <-> expr_scoped n e.
 Proof.
@@ -144,7 +147,9 @@ Inductive ctx_item_scoped : ctx_item → nat → nat → Prop :=
   | CTX_Fold_scoped n :
       ctx_item_scoped CTX_Fold n n
   | CTX_Unfold_scoped n :
-      ctx_item_scoped CTX_Unfold n n.
+      ctx_item_scoped CTX_Unfold n n
+  | CTX_GhostStep_scoped n :
+      ctx_item_scoped CTX_GhostStep n n.
 
 Notation "|s> n ⊢ₙₒ e" := (expr_scoped n e) (at level 74, n, e at next level).
 Notation "|sCi> n ⊢ₙₒ Ci ☾ m ☽" := (ctx_item_scoped Ci m n) (at level 74, n, Ci, m at next level).
@@ -159,7 +164,7 @@ Proof.
   change (S (length Γ)) with (length (τ1 :: Γ)); by eapply expr_typed_scoped.
 Qed.
 
-Lemma scoped_ctx_item_typed n m C e :
+Lemma scoped_ctx_item_fill n m C e :
   |s> m ⊢ₙₒ e →
   |sCi> n ⊢ₙₒ C ☾ m ☽ →
   |s> n ⊢ₙₒ (fill_ctx_item C e).
@@ -178,10 +183,21 @@ Inductive ctx_scoped : ctx → nat → nat → Prop :=
     ctx_scoped K n1 n2 →
     ctx_scoped (k :: K) n1 n3.
 
+Notation "|sC> n ⊢ₙₒ C ☾ m ☽" := (ctx_scoped C m n) (at level 74, n, C, m at next level).
+
+Lemma scoped_ctx_fill n m C e :
+  |s> m ⊢ₙₒ e →
+  |sC> n ⊢ₙₒ C ☾ m ☽ →
+  |s> n ⊢ₙₒ (fill_ctx C e).
+Proof.
+  revert n. induction C.
+  - intros. inversion H0. by subst.
+  - intros. simpl. inversion H0. subst. eapply scoped_ctx_item_fill.
+    eapply IHC; eauto. auto.
+Qed.
+
 Lemma ctx_typed_scoped Γ τ Γ' τ' (C : ctx) : typed_ctx C Γ τ Γ' τ' → ctx_scoped C (length Γ) (length Γ').
 Proof.
   intro dC. induction dC; first constructor.
   simpl. econstructor. by eapply ctx_item_typed_scoped. auto.
 Qed.
-
-Notation "|sC> n ⊢ₙₒ C ☾ m ☽" := (ctx_scoped C m n) (at level 74, n, C, m at next level).

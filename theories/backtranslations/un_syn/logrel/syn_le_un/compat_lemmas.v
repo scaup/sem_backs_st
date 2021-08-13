@@ -1,6 +1,6 @@
 From iris Require Import program_logic.weakestpre.
 From iris.proofmode Require Import tactics.
-From st.lam Require Import lang wkpre generic.lift types tactics lib.omega.
+From st.lam Require Import lang ghost_steps wkpre generic.lift types tactics lib.omega tactics reducibility.
 From st.backtranslations.un_syn Require Import logrel.definitions expressions universe.base universe.paths.
 
 Section syn_le_un.
@@ -294,6 +294,72 @@ Section syn_le_un.
     iApply (bind_lift_extract [UnfoldCtx] [UnfoldCtx]). iSplitL "". iApply IHe; auto.
     iNext. iIntros (v v') "des/=". iDestruct "des" as (w w') "(-> & -> & #H)".
     iApply lift_step_later. auto_lam_step. iApply lift_step. auto_lam_step. simplify_custom. iApply lift_val. iApply "H".
+  Qed.
+
+  Lemma compat_GhostStep_help : ∀ v v',
+      valrel v v' ⊢ valrel v (GhostStepped v').
+  Proof.
+    iLöb as "IHlob".
+    iIntros (v v') "#Hvv'".
+    iEval (rewrite valrel_unfold) in "Hvv'". fold valrel. iDestruct "Hvv'" as (tc w) "[-> Hcan]".
+    destruct tc; iEval (simpl) in "Hcan".
+    - iDestruct "Hcan" as "[-> ->]". simpl.
+      rewrite valrel_unfold. iExists TCUnit, _. auto.
+    - iDestruct "Hcan" as (b) "[-> ->]". simpl.
+      rewrite valrel_unfold. iExists TCBool, _. iSplit; auto. by iExists _.
+    - iDestruct "Hcan" as (z) "[-> ->]". simpl.
+      rewrite valrel_unfold. iExists TCInt, _. iSplit; auto. by iExists _.
+    - iDestruct "Hcan" as (v1 v2 v1' v2') "(-> & -> & #H1 & #H2)". simpl.
+      iEval (rewrite valrel_unfold). fold valrel. iExists TCProd, _. iSplit; auto.
+      iExists _, _, _, _. repeat iSplit; eauto; by iApply "IHlob".
+    - iDestruct "Hcan" as (vi vi') "[(-> & -> & #H) | (-> & -> & #H)]/=";
+        iEval (rewrite valrel_unfold); fold valrel; iExists TCSum;
+          iExists _; iSplit; auto; repeat iExists _.
+      + iLeft. repeat iSplit; eauto. by iApply "IHlob".
+      + iRight. repeat iSplit; eauto. by iApply "IHlob".
+    - iDestruct "Hcan" as (e) "[-> #H]";
+        iEval (rewrite valrel_unfold); fold valrel; iExists TCArrow.
+      iExists _; iSplit; eauto. simpl. iExists _. iSplit; eauto. iNext.
+      iDestruct "H" as "#H". iModIntro.
+      iIntros (w w') "Hww'".
+      iAssert (valrel w (GhostStepped w')) with "[Hww']" as "Hwws'". by iApply "IHlob".
+      iSpecialize ("H" $! w (GhostStepped w') with "Hwws'").
+      iApply (wp_wand with "H"). iIntros (v) "Hdes".
+      iDestruct "Hdes" as (r) "[%Hsteps #H]".
+      iExists (GhostStepped r). iSplit; [|by iApply "IHlob"].
+      iPureIntro.
+      destruct (dec_expr_reducibility (v' (GhostStepped w'))) as [ vl eq | red | stuck ]; [inversion eq| |].
+      * assert (head_reducible (v' (GhostStepped w')) ()).
+        { apply prim_head_reducible; auto.
+          apply ectxi_language_sub_redexes_are_values.
+          intros. destruct Ki; simpl in H; try by inversion H.
+          inversion H. subst. eexists _. by rewrite /= to_of_val.
+          inversion H. subst. eexists _. by rewrite /= to_of_val. }
+        assert (lam_head_reducible (v' (GhostStepped w'))). by apply lam_prim_head_red.
+        destruct H0 as [p hd].
+        inversion hd; subst. assert (LamV e1 = v') as <-. by apply of_val_inj.
+        eapply rtc_l. auto_lam_step. simplify_custom.
+        change (Lam e1) with (of_val (LamV e1)).
+        eapply rtc_transitive. apply (rtc_lam_step_ctx (fill [AppRCtx _; GhostStepCtx])). apply GhostStep_eval. simpl.
+        eapply rtc_transitive. by apply (rtc_lam_step_ctx (fill [GhostStepCtx])).
+        apply GhostStep_eval.
+      * exfalso. inversion Hsteps; subst.
+        -- assert (abs : to_val (v' (GhostStepped w')) = Some r). by rewrite -to_of_val H1. inversion abs.
+        -- destruct stuck. eapply H2. apply H.
+    - iDestruct "Hcan" as (x x') "(-> & -> & #H)";
+        iEval (rewrite valrel_unfold); fold valrel; iExists TCRec.
+      iExists _; eauto. iSplit; eauto. iExists _, _. repeat iSplit; eauto. by iApply "IHlob".
+  Qed.
+
+  Lemma compat_GhostStep e e' :
+    open_exprel n e e' →
+    open_exprel n e (GhostStep e').
+  Proof.
+    iIntros (IHe vs vs' Hlvs) "#Hvv's". asimpl.
+    iApply (lift_bind _ _ _ [] [GhostStepCtx]). iSplitL "". iApply IHe; auto.
+    iIntros (v v') "#Hvv'". iClear "Hvv's". simpl.
+    iApply lift_rtc_steps. apply GhostStep_eval.
+    iApply lift_val. by iApply compat_GhostStep_help.
   Qed.
 
 End syn_le_un.

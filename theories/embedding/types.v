@@ -51,3 +51,15 @@ Proof.
   cut ([| (τb.[upn 0 ((lam.types.TRec τb) .: ids)])|] = [|τb|].[upn 0 ([|(lam.types.TRec τb)|] .: ids)]).
   by asimpl. apply embed_TRec_comm_gen.
 Qed.
+
+Lemma embed_pres_closed τ : ∀n, Closed_n n τ → Closed_n n [|τ|].
+Proof.
+  induction τ.
+  1-3: intros; intro σ; asimpl; try done.
+  1-3: intros; intro σ; asimpl; rewrite IHτ1; first rewrite IHτ2; first done; clear σ; closed_solver.
+  intros; intro σ; asimpl. rewrite IHτ. done. clear σ. closed_solver.
+  intros. simpl.
+  rewrite (@ids_lt_Closed_n type _ _ _ _ _ X n).
+  by apply (ids_lt_Closed_n X n).
+  intros x y eq. by inversion eq.
+Qed.

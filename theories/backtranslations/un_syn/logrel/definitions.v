@@ -89,6 +89,12 @@ Section definitions.
       ([∗ list] uᵢ ; vᵢ' ∈ us ; vs', valrel uᵢ vᵢ') ⊢
         exprel e.[subst_list_val us] e'.[subst_list_val vs'].
 
+  Lemma open_exprel_nil e e' : (⊢ exprel e e') -> open_exprel 0 e e'.
+  Proof. iIntros (Hee' vs vs' Hl) "Hvv'". destruct vs, vs'; try by inversion Hl. asimpl. iApply Hee'. Qed.
+
+  Lemma open_exprel_nil' e e' : open_exprel 0 e e' → (⊢ exprel e e').
+  Proof. iIntros (Hee'). iDestruct (Hee' [] []) as "H". auto. asimpl. by iApply "H". Qed.
+
   Definition ctx_rel (n m : nat)
              (C : ctx)
              (C' : ctx) :=

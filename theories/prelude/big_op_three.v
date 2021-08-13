@@ -183,6 +183,35 @@ Section big_sepL3_lemmas.
       iIntros "[H1 H2]". iFrame "H1". by iApply IHl1.
   Qed.
 
+  Lemma big_sepL3_app_inv (Φ : A → B → C → iProp Σ) l1 l2 l1' l2' l1'' l2'' :
+    (length l1 = length l1' ∧ length l1' = length l1'') ∨ (length l2 = length l2' ∧ length l2' = length l2'') →
+    (big_sepL3 Φ (l1 ++ l2) (l1' ++ l2') (l1'' ++ l2'')) -∗
+    (big_sepL3 Φ l1 l1' l1'') ∗ (big_sepL3 Φ l2 l2' l2'').
+  Proof.
+    revert l1' l1''. induction l1 as [|x1 l1 IH].
+    - intros. destruct H as [[eq1 eq2]|[eq1 eq2]].
+      + destruct l1'; [|by inversion eq1]. destruct l1'';[|by inversion eq2].
+        rewrite !app_nil_l. simpl. auto.
+      + iIntros "H". iDestruct (big_sepL3_length with "H") as "[%eq3 %eq4]".
+        rewrite !app_length in eq3,eq4.
+        destruct l1'; [|simpl in *; lia]. destruct l1'';[|simpl in *; lia].
+        rewrite !app_nil_l. auto.
+    - intros. destruct H as [[eq1 eq2]|[eq1 eq2]].
+      + destruct l1' as [|x1' l1']; [by inversion eq1|].
+        destruct l1'' as [|x1'' l1''];[by inversion eq2|].
+        rewrite -!app_comm_cons. simpl.
+        iIntros "[H1 H2]". iFrame "H1". iApply (IH with "H2"). left. split; eauto.
+      + iIntros "H". iDestruct (big_sepL3_length with "H") as "[%eq3 %eq4]".
+        rewrite !app_length in eq3, eq4.
+        destruct l1' as [|x1' l1']; [simpl in *; lia|].
+        destruct l1'' as [|x1'' l1''];[simpl in *; lia|].
+        simpl. iDestruct "H" as "[H1 H2]". iFrame "H1". iApply (IH with "H2"). auto.
+  Qed.
+
+  Lemma big_sepL3_singleton (Φ : A → B → C → iProp Σ) (x1 : A) (x2 : B) (x3 : C) :
+    (big_sepL3 Φ [x1] [x2] [x3]) ⊣⊢ Φ x1 x2 x3.
+  Proof. simpl. iSplit; auto. by iIntros "[H _]". Qed.
+
   (* Lemma big_sepL3_impl (Φ Ψ : A → B → C → iProp Σ) l1 l2 l3 : *)
   (*   ⊢ □ (∀ x1 x2 x3, Φ x1 x2 x3 ∗-∗ Ψ x1 x2 x3) -∗ big_sepL3 Φ l1 l2 l3 ∗-∗ big_sepL3 Ψ l1 l2 l3. *)
   (* Proof. *)

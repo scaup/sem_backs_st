@@ -125,10 +125,10 @@ Section matches_sem_ctx.
   Lemma matches_sem_ctx C C' Γ τ Γ' τ' :
     ctx_sem_typed C C' Γ τ Γ' τ' <-> ctx_rel_st_typed C C' (embed <$> Γ) [|τ|] (embed <$> Γ') [|τ'|].
   Proof.
-    split; intros H e e' Hee'.
-    - apply matches_sem_open_expr. apply H.
+    split; intros H e e' pe pe' Hee'; try rewrite fmap_length in pe pe'.
+    - apply matches_sem_open_expr. apply H; auto.
       by apply matches_sem_open_expr.
-    - apply matches_sem_open_expr. apply H.
+    - apply matches_sem_open_expr. apply H; try by rewrite fmap_length.
       by apply matches_sem_open_expr.
   Qed.
 

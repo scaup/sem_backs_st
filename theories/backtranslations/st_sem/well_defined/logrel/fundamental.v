@@ -1,7 +1,7 @@
 From iris Require Import program_logic.weakestpre.
 From st.lamst Require Import lang types typing contexts.
-From st.lam Require Import lang wkpre generic.lift contexts contexts_subst.
-From st.backtranslations.st_sem Require Import ghost heap_emul.base expressions contexts.
+From st.lam Require Import lang wkpre generic.lift contexts contexts_subst scopedness.
+From st.backtranslations.st_sem Require Import ghost heap_emul.base expressions contexts scoped.
 From st.backtranslations.st_sem.well_defined.logrel Require Import definition compat_lemmas compat_lemmas_easy.
 From iris.proofmode Require Import tactics.
 From st Require Import resources.
@@ -48,7 +48,7 @@ Section fundamental_theorem.
         (Γ' : list lamst.types.type) (τ' : lamst.types.type) (Ci : lamst.contexts.ctx_item) (pCi :  lamst.contexts.typed_ctx_item Ci Γ τ Γ' τ') :
     ctx_rel_typed (back_ctx_item Ci) (back_ctx_item Ci) Γ τ Γ' τ'.
   Proof.
-    destruct pCi; intros e e' Hee'; simpl.
+    destruct pCi; intros e e' pe pe' Hee'; simpl.
     - by apply compat_Lam.
     - eapply compat_App; auto; eauto. by apply fundamental.
     - eapply compat_App; auto; eauto. by apply fundamental.
@@ -89,8 +89,10 @@ Section fundamental_theorem.
   Proof.
     intro H. induction H.
     - simpl. by intros e e' Hee'.
-    - simpl. iIntros (e e' Hee' Δ vs vs') "Hvs". rewrite -!fill_ctx_app.
+    - simpl. iIntros (e e' pe pe' Hee' Δ vs vs') "Hvs". rewrite -!fill_ctx_app.
       iApply (ctx_item_fundamental _ _ _ _ k H); auto.
+      eapply scoped_ctx_fill. eauto. by eapply back_ctx_scope.
+      eapply scoped_ctx_fill. eauto. by eapply back_ctx_scope.
   Qed.
 
 End fundamental_theorem.

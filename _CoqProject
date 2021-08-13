@@ -4,8 +4,6 @@
 -arg -w -arg -ambiguous-paths
 -arg -w -arg -redundant-canonical-projection
 
-theories/resources.v
-
 theories/prelude/autosubst.v
 theories/prelude/generic.v
 theories/prelude/big_op_three.v
@@ -13,28 +11,30 @@ theories/prelude/at_least_one.v
 theories/prelude/forall_three.v
 
 theories/lam/lang.v
+theories/lam/types.v
+theories/lam/typing.v
+
+theories/lam/ghost_steps.v
 
 theories/lam/contexts.v
-theories/lam/contexts_subst.v
 theories/lam/scopedness.v
+theories/lam/contexts_subst.v
 
+theories/lam/tactics.v
 theories/lam/reducibility.v
 
 theories/lam/wkpre.v
-theories/lam/tactics.v
-
-theories/lam/types.v
-theories/lam/nr_types.v
-
-theories/lam/typing.v
 
 theories/lam/lib/omega.v
 theories/lam/lib/fixlam.v
-# theories/lam/lib/universe/embed_project.v
 
+theories/backtranslations/un_syn/universe/base.v
+theories/backtranslations/un_syn/universe/paths.v
 theories/backtranslations/un_syn/expressions.v
-theories/backtranslations/un_syn/contexts.v
 theories/backtranslations/un_syn/typed.v
+theories/backtranslations/un_syn/contexts.v
+
+theories/resources.v
 
 theories/lam/logrel/generic/lift.v
 theories/lam/logrel/definitions.v
@@ -42,38 +42,29 @@ theories/lam/logrel/compat_lemmas.v
 theories/lam/logrel/fundamental.v
 theories/lam/logrel/adequacy.v
 
-theories/backtranslations/un_syn/universe/base.v
-theories/backtranslations/un_syn/universe/paths.v
 theories/backtranslations/un_syn/logrel/definitions.v
-theories/backtranslations/un_syn/logrel/un_le_syn/compat_lemmas.v
-theories/backtranslations/un_syn/logrel/un_le_syn/fundamental.v
 theories/backtranslations/un_syn/logrel/syn_le_un/compat_lemmas.v
 theories/backtranslations/un_syn/logrel/syn_le_un/fundamental.v
-
-# theories/lam/lib/guard_assert.v
-# theories/lam/lib/guard_assert_approx.v
-
-# theories/backtranslations/sem_syn/connective/un_le_syn.v
-# theories/backtranslations/sem_syn/expl_idx.v
-
-theories/backtranslations/sem_syn/nr_guard_assert.v
-theories/backtranslations/sem_syn/nr_embed_project.v
-theories/backtranslations/sem_syn/nr_no_op.v
-theories/backtranslations/sem_syn/connective/nr_un_le_syn.v
-theories/backtranslations/sem_syn/connective/nr_syn_le_un.v
-theories/backtranslations/sem_syn/uni_back_ctx.v
-theories/backtranslations/sem_syn/ctx_sem_le_syn_add_no_op.v
-theories/backtranslations/sem_syn/ctx_syn_le_un.v
-theories/backtranslations/sem_syn/ctx_un_le_syn.v
-
-
-# theories/thms/uni_back_ctx_sem_syn/no_op.v
-
+theories/backtranslations/un_syn/logrel/un_le_syn/compat_lemmas.v
+theories/backtranslations/un_syn/logrel/un_le_syn/fundamental.v
 
 theories/backtranslations/sem_syn/gamma_lib.v
-# theories/backtranslations/sem_syn/wrappings/gamma_help.v
+theories/backtranslations/sem_syn/embed_project.v
+theories/backtranslations/sem_syn/back_ctx.v
 
-# B-part
+theories/backtranslations/sem_syn/sem_le_syn/no_op.v
+theories/backtranslations/sem_syn/sem_le_syn/ghost_step_ga.v
+theories/backtranslations/sem_syn/sem_le_syn/guard_assert.v
+theories/backtranslations/sem_syn/sem_le_syn/connective.v
+theories/backtranslations/sem_syn/sem_le_syn/gs_ctx.v
+theories/backtranslations/sem_syn/sem_le_syn/ga_ctx.v
+theories/backtranslations/sem_syn/sem_le_syn/ctx_le_gs_ctx.v
+theories/backtranslations/sem_syn/sem_le_syn/gs_ctx_le_ga_ctx.v
+theories/backtranslations/sem_syn/sem_le_syn/ga_ctx_le_ep_ctx.v
+
+theories/backtranslations/sem_syn/syn_le_sem/connective.v
+theories/backtranslations/sem_syn/syn_le_sem/ctx_syn_le_un.v
+
 
 theories/lamst/lang.v
 theories/lamst/types.v
@@ -113,6 +104,7 @@ theories/backtranslations/st_sem/correctness/st_le_sem/logrel/adequacy.v
 theories/backtranslations/st_sem/correctness/st_le_sem/logrel/compat_help.v
 theories/backtranslations/st_sem/correctness/st_le_sem/logrel/compat_lemmas.v
 theories/backtranslations/st_sem/correctness/st_le_sem/logrel/compat_lemmas_easy.v
+
 theories/backtranslations/st_sem/correctness/st_le_sem/logrel/fundamental.v
 
 theories/backtranslations/st_sem/correctness/sem_le_st/logrel/lift.v
@@ -124,15 +116,8 @@ theories/backtranslations/st_sem/correctness/sem_le_st/logrel/compat_lemmas.v
 theories/backtranslations/st_sem/correctness/sem_le_st/logrel/compat_lemmas_easy.v
 theories/backtranslations/st_sem/correctness/sem_le_st/logrel/fundamental.v
 
-theories/thms/uni_back_ctx_st_sem.v
-theories/thms/uni_back_ctx_sem_syn.v
-theories/thms/uni_back_ctx_st_syn.v
-theories/thms/pres_nr_lam_equiv.v
-theories/thms/refl_equiv.v
-
-# We sometimes want to locally override notation, and there is no good way to do that with scopes.
-# -arg -w -arg -notation-overridden
-# Cannot use non-canonical projections as it causes massive unification failures
-# (https://github.com/coq/coq/issues/6294).
-# -arg -w -arg -redundant-canonical-projection
-
+theories/thms/back_ctx_sem_syn.v
+theories/thms/back_ctx_st_sem.v
+theories/thms/back_ctx_st_syn.v
+theories/thms/pres_ctx_equiv.v
+theories/thms/refl_ctx_equiv.v

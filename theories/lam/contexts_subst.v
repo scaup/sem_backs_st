@@ -23,6 +23,7 @@ Definition subst_ctx_item (σ : var → expr) (Ci : ctx_item) : ctx_item :=
   | CTX_IfR e0 e1 => CTX_IfR e0.[σ] e1.[σ]
   | CTX_Fold => CTX_Fold
   | CTX_Unfold => CTX_Unfold
+  | CTX_GhostStep => CTX_GhostStep
   end.
 
 Definition subst_ctx_item_cont (σ : var → expr) (Ci : ctx_item) : var → expr :=
