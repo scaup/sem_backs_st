@@ -1,7 +1,7 @@
 From st.thms Require Import back_ctx_st_sem back_ctx_sem_syn.
 From st.embedding Require Import types expressions typed.
 From st.STLCmuST Require Import lang types typing.
-From st.lam Require Import lang types typing contexts scopedness.
+From st.STLCmuVS Require Import lang types typing contexts scopedness.
 From st.STLCmuST Require Import contexts.
 From st.backtranslations.st_sem Require Import scoped.
 
@@ -13,7 +13,7 @@ Section back_ctx_st_syn.
           (pC : typed_ctx C (embed <$> Γ) (embed τ) [] (embed TUnit)).
 
   (* we have a syntactically typed context, C_b, *)
-  Definition back_ctx_st_syn : lam.contexts.ctx :=
+  Definition back_ctx_st_syn : STLCmuVS.contexts.ctx :=
     (back_ctx_sem_syn (back_ctx_st_sem C) Γ τ).
 
   (* It is indeed syntactically typed of (Γ;τ) ⇒ ([];1) *)
@@ -26,12 +26,12 @@ Section back_ctx_st_syn.
     eapply back_ctx_scope; eauto.
   Qed.
 
-  (* Furthermore, the backtranslated contexts successfully emulates the original (when interacting with syntactically typed terms in lam). *)
+  (* Furthermore, the backtranslated contexts successfully emulates the original (when interacting with syntactically typed terms in STLCmuVS). *)
   (* That is, for all syntactically typed e, Γ ⊢ₙₒ e : τ, C_b[e]⇓ ⇔ C[[[e]]]⇓ *)
 
   Lemma back_ctx_st_syn_correct_emulation :
     ∀ (e : expr) (de : Γ ⊢ₙₒ e : τ),
-      lam_halts (lam.contexts.fill_ctx back_ctx_st_syn e) <-> STLCmuST_halts (fill_ctx C (embd_expr e)).
+      STLCmuVS_halts (STLCmuVS.contexts.fill_ctx back_ctx_st_syn e) <-> STLCmuST_halts (fill_ctx C (embd_expr e)).
   Proof.
     assert (H1 : |sC> 0 ⊢ₙₒ back_ctx_st_sem C ☾ length Γ ☽).
     { change 0 with (length ([] : list STLCmuST.types.type)).

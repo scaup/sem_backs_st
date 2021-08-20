@@ -7,7 +7,7 @@ Local Notation "l ↦ v" := (mapsto l (DfracOwn 1) v)
 
 From st.prelude Require Import big_op_three.
 
-From st.lam Require Import lang.
+From st.STLCmuVS Require Import lang.
 From st.STLCmuST Require Import wkpre lang types typing.
 
 From st.backtranslations.st_sem Require Import expressions ghost heap_emul.base heap_emul.spec.
@@ -28,7 +28,7 @@ Section compat_lemmas.
     specialize (Hee' Δ vs vs').
     iDestruct (Hee' with "Hvsvs'") as "Hee'". clear Hee'. iClear "Hvsvs'".
     rewrite /= !alloc_Closed.
-    iApply (lift_bind _ [AllocCtx] [lam.lang.AppRCtx _] with "Hee'"). iClear "Hee'".
+    iApply (lift_bind _ [AllocCtx] [STLCmuVS.lang.AppRCtx _] with "Hee'"). iClear "Hee'".
     iIntros (v v') "#Hvv'". simpl.
     (* ok *)
     iApply lift_step. apply alloc_step.
@@ -58,7 +58,7 @@ Section compat_lemmas.
     specialize (Hee' Δ vs vs').
     iDestruct (Hee' with "Hvsvs'") as "Hee'". clear Hee'. iClear "Hvsvs'".
     rewrite /= !read_Closed.
-    iApply (lift_bind _ [ReadCtx] [lam.lang.AppRCtx _] with "Hee'").
+    iApply (lift_bind _ [ReadCtx] [STLCmuVS.lang.AppRCtx _] with "Hee'").
     simpl. iIntros (v v') "#Hvv'". iClear "Hee'".
     rewrite valrel_typed_TSTRef_unfold. destruct ρ; auto. destruct (Δ !! X) as [[γ γ']|] eqn:eq; auto.
     iDestruct "Hvv'" as (i l) "(-> & Hloc & -> & #HInv)".
@@ -103,10 +103,10 @@ Section compat_lemmas.
     iDestruct (H1 with "Hvsvs'") as "H1". clear H1. iDestruct (H2 with "Hvsvs'") as "H2". clear H2.
     iClear "Hvsvs'".
     change ((write ?e1 ?e2).[?σ]) with (write e1.[σ] e2.[σ]).
-    iApply (lift_bind _ [WriteLCtx _] [lam.lang.AppRCtx _; lam.lang.AppLCtx _] with "H1"). simpl.
+    iApply (lift_bind _ [WriteLCtx _] [STLCmuVS.lang.AppRCtx _; STLCmuVS.lang.AppLCtx _] with "H1"). simpl.
     iIntros (v1 v1') "#Hv1v1'". iClear "H1".
-    iApply lift_step. apply (@lam_step_ctx (lam.lang.fill_item (lam.lang.AppLCtx _)) (ectxi_lang_ctx_item _)). apply write_step. simpl.
-    iApply (lift_bind _ [WriteRCtx _] [lam.lang.AppRCtx _] with "H2"). iClear "H2".
+    iApply lift_step. apply (@STLCmuVS_step_ctx (STLCmuVS.lang.fill_item (STLCmuVS.lang.AppLCtx _)) (ectxi_lang_ctx_item _)). apply write_step. simpl.
+    iApply (lift_bind _ [WriteRCtx _] [STLCmuVS.lang.AppRCtx _] with "H2"). iClear "H2".
     iIntros (v2 v2') "#Hv2v2'". simpl.
     iApply lift_step. apply write_i_step.
     change (Write v1 v2) with (of_val $ WriteV v1 v2).
@@ -155,10 +155,10 @@ Section compat_lemmas.
     iClear "Hvsvs'".
     change ((bind ?e1 ?e2).[?σ]) with (bind e1.[σ] e2.[σ]).
     change ((Bind ?e1 ?e2).[?σ]) with (Bind e1.[σ] e2.[σ]).
-    iApply (lift_bind _ [BindLCtx _] [lam.lang.AppRCtx _; lam.lang.AppLCtx _] with "H1"). simpl.
+    iApply (lift_bind _ [BindLCtx _] [STLCmuVS.lang.AppRCtx _; STLCmuVS.lang.AppLCtx _] with "H1"). simpl.
     iIntros (v1 v1') "#Hv1v1'". iClear "H1".
-    iApply lift_step. apply (@lam_step_ctx (lam.lang.fill_item (lam.lang.AppLCtx _)) (ectxi_lang_ctx_item _)). apply bind_step. simpl.
-    iApply (lift_bind _ [BindRCtx _] [lam.lang.AppRCtx _] with "H2").
+    iApply lift_step. apply (@STLCmuVS_step_ctx (STLCmuVS.lang.fill_item (STLCmuVS.lang.AppLCtx _)) (ectxi_lang_ctx_item _)). apply bind_step. simpl.
+    iApply (lift_bind _ [BindRCtx _] [STLCmuVS.lang.AppRCtx _] with "H2").
     iIntros (v2 v2') "#Hv2v2'". simpl.
     iApply lift_step. apply bind_v_step.
     change (Bind (of_val ?v1) (of_val ?v2)) with (of_val $ BindV v1 v2).
@@ -189,17 +189,17 @@ Section compat_lemmas.
     specialize (Hee' Δ vs vs').
     iDestruct (Hee' with "Hvsvs'") as "Hee'". clear Hee'. iClear "Hvsvs'".
     change (retrn ?e).[?σ] with (retrn e.[σ]).
-    iApply (lift_bind _ [ReturnCtx] [lam.lang.AppRCtx _] with "Hee'").
+    iApply (lift_bind _ [ReturnCtx] [STLCmuVS.lang.AppRCtx _] with "Hee'").
     simpl. iIntros (v v') "#Hvv'". iClear "Hee'".
-    iApply lift_step. apply head_prim_step. econstructor. by rewrite lam.lang.to_of_val. asimpl.
-    change (Return (of_val ?v)) with (of_val $ ReturnV v). change (lam.lang.Lam ?e) with (lam.lang.of_val $ lam.lang.LamV e).
+    iApply lift_step. apply head_prim_step. econstructor. by rewrite STLCmuVS.lang.to_of_val. asimpl.
+    change (Return (of_val ?v)) with (of_val $ ReturnV v). change (STLCmuVS.lang.Lam ?e) with (STLCmuVS.lang.of_val $ STLCmuVS.lang.LamV e).
     iApply lift_val.
     (* ok *)
     rewrite valrel_typed_TST_unfold. destruct ρ; auto. destruct (Δ !! X) as [[γ γ']|] eqn:eq; auto.
     iIntros (ps). iModIntro. iIntros "[AuthLoc AuthVal]". iApply wp_pure_step_later. apply pure_step_RunST_Return_val. iNext. iApply wp_value'.
     iExists v', ps. iFrame. iFrame "Hvv'". iPureIntro.
     apply rtc_once. apply head_prim_step. eapply App_Lam_head_step'. by asimpl.
-    by rewrite lam.lang.to_of_val.
+    by rewrite STLCmuVS.lang.to_of_val.
   Qed.
 
   Lemma compat_runst Γ e e' τ :
@@ -208,7 +208,7 @@ Section compat_lemmas.
   Proof.
     iIntros (Hee' Δ vs vs') "#Hvsvs'".
     change (runst ?e).[?σ] with (runst e.[σ]). simpl.
-    iDestruct (@ghost_empty _ loc) as "#Hγ". iDestruct (@ghost_empty _ lam.lang.val) as "#Hγ'".
+    iDestruct (@ghost_empty _ loc) as "#Hγ". iDestruct (@ghost_empty _ STLCmuVS.lang.val) as "#Hγ'".
     iMod "Hγ" as (γ) "AuthLoc". iMod "Hγ'" as (γ') "AuthVal".
     specialize (Hee' ((γ, γ') :: Δ) vs vs').
     iDestruct Hee' as "Hee'". clear Hee'.
@@ -220,14 +220,14 @@ Section compat_lemmas.
     rewrite valrel_typed_TST_unfold /=. iSpecialize ("Hvv'" $! [] with "[AuthLoc AuthVal]"). iFrame.
     iApply (wp_wand with "Hvv'"). iIntros (w) "Hdes". iDestruct "Hdes" as (w' psf) "(AuthLoc & AuthVal & %Hsteps' & #Hrr')".
     iExists w'. iSplit. iPureIntro.
-    change (lam.lang.Lam ?e) with (lam.lang.of_val (lam.lang.LamV e)).
+    change (STLCmuVS.lang.Lam ?e) with (STLCmuVS.lang.of_val (STLCmuVS.lang.LamV e)).
     eapply rtc_transitive.
-    by apply (@rtc_lam_step_ctx (lam.lang.fill_item $ lam.lang.AppRCtx _) (ectxi_lang_ctx_item _)). simpl.
-    eapply rtc_l. apply head_prim_step. econstructor. by rewrite lam.lang.to_of_val. asimpl. rewrite encode_empty_subst.
+    by apply (@rtc_STLCmuVS_step_ctx (STLCmuVS.lang.fill_item $ STLCmuVS.lang.AppRCtx _) (ectxi_lang_ctx_item _)). simpl.
+    eapply rtc_l. apply head_prim_step. econstructor. by rewrite STLCmuVS.lang.to_of_val. asimpl. rewrite encode_empty_subst.
     eapply rtc_transitive.
-    by apply (@rtc_lam_step_ctx (lam.lang.fill_item $ lam.lang.SndCtx) (ectxi_lang_ctx_item _)). simpl.
-    change (lam.lang.Pair (lam.lang.of_val ?v1) (lam.lang.of_val ?v2)) with (lam.lang.of_val (lam.lang.PairV v1 v2)).
-    apply rtc_once. apply head_prim_step. econstructor. fold lam.lang.of_val. by rewrite lam.lang.to_of_val. by rewrite lam.lang.to_of_val.
+    by apply (@rtc_STLCmuVS_step_ctx (STLCmuVS.lang.fill_item $ STLCmuVS.lang.SndCtx) (ectxi_lang_ctx_item _)). simpl.
+    change (STLCmuVS.lang.Pair (STLCmuVS.lang.of_val ?v1) (STLCmuVS.lang.of_val ?v2)) with (STLCmuVS.lang.of_val (STLCmuVS.lang.PairV v1 v2)).
+    apply rtc_once. apply head_prim_step. econstructor. fold STLCmuVS.lang.of_val. by rewrite STLCmuVS.lang.to_of_val. by rewrite STLCmuVS.lang.to_of_val.
     by iApply valrel_typed_cons_ren.
   Qed.
 
@@ -241,16 +241,16 @@ Section compat_lemmas.
     specialize (H1 Δ vs vs'). specialize (H2 Δ vs vs').
     iDestruct (H1 with "Hvsvs'") as "H1". clear H1. iDestruct (H2 with "Hvsvs'") as "H2". clear H2.
     iClear "Hvsvs'". iEval simpl.
-    iApply (lift_bind _ [CompLCtx _] [lam.lang.BinOpLCtx _ _] with "H1"). iEval simpl.
+    iApply (lift_bind _ [CompLCtx _] [STLCmuVS.lang.BinOpLCtx _ _] with "H1"). iEval simpl.
     iIntros (v1 v1') "#Hv1v1'". iClear "H1".
-    iApply (lift_bind _ [CompRCtx _] [lam.lang.BinOpRCtx _ _] with "H2"). iEval simpl.
+    iApply (lift_bind _ [CompRCtx _] [STLCmuVS.lang.BinOpRCtx _ _] with "H2"). iEval simpl.
     iIntros (v2 v2') "#Hv2v2'". simpl. iClear "H2".
     (* okay *)
     rewrite !valrel_typed_TSTRef_unfold. destruct ρ; auto; destruct (Δ !! X) as [[γ γ']|] eqn:eq; auto.
     iDestruct "Hv1v1'" as (i1 l1) "(-> & Hl1 & -> & Hinv1)".
     iDestruct "Hv2v2'" as (i2 l2) "(-> & Hl2 & -> & Hinv2)".
 
-    iApply lift_step. apply head_prim_step. econstructor; by rewrite lam.lang.to_of_val.
+    iApply lift_step. apply head_prim_step. econstructor; by rewrite STLCmuVS.lang.to_of_val.
     iApply lift_pure_step_later. apply pure_step_eq_loc. iNext. iApply lift_val_fupd.
     setoid_rewrite valrel_typed_TBool_unfold.
     iExists (bool_decide (l1 = l2)). iSplitL ""; auto.

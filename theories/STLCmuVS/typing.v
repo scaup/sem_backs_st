@@ -1,4 +1,4 @@
-From st.lam Require Import types lang.
+From st.STLCmuVS Require Import types lang.
 
 Definition binop_res_type (op : bin_op) : type :=
   match op with

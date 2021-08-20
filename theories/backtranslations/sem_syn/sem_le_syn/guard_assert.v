@@ -1,6 +1,6 @@
 From st.prelude Require Import autosubst.
-From st.lam Require Import types lang typing tactics.
-From st.lam.lib Require Import fixlam omega.
+From st.STLCmuVS Require Import types lang typing tactics.
+From st.STLCmuVS.lib Require Import fixSTLCmuVS omega.
 
 Inductive action :=
   | Guard
@@ -31,8 +31,8 @@ Definition fixgenTRecga (gb ab : val) : val :=
 Lemma fixgenTRecga_subst (gb ab : val) (σ : var → expr) : (fixgenTRecga gb ab).{σ} = fixgenTRecga gb.{up σ} ab.{up σ}.
 Proof. rewrite /fixgenTRecga. repeat rewrite -val_subst_valid. by asimpl. Qed.
 
-(* Lemma App_fixgenTRecga_lam_step (gb ab : val) (e : expr) : *)
-(*   lam_step (fixgenTRecga gb ab (Lam e)) *)
+(* Lemma App_fixgenTRecga_STLCmuVS_step (gb ab : val) (e : expr) : *)
+(*   STLCmuVS_step (fixgenTRecga gb ab (Lam e)) *)
 (* ((LamV ( *)
 (*            ( LamV (Fold ((of_val gb).[Lam e.[ren (0 .: (+3))] .: ren (+2)] (Unfold %0))) , (* τ → τ *) *)
 (*              LamV (Fold ((of_val ab).[Lam e.[ren (0 .: (+3))] .: ren (+2)] (Unfold %0))) (* τ → τ *) *)

@@ -6,14 +6,14 @@ Purity of ST: Full Abstraction by Semantically Typed Back-translation
 | Main theorems from the paper                                                 | File in Coq project                  |
 |------------------------------------------------------------------------------|--------------------------------------|
 | Theorem 3.2 (reflection of contextual equivalence)                           | theories/thms/refl_equiv.v           |
-| Theorem 3.3 (preservation of contextual equivalence with slight restriction) | theories/thms/pres_nr_lam_equiv.v    |
+| Theorem 3.3 (preservation of contextual equivalence with slight restriction) | theories/thms/pres_nr_STLCmuVS_equiv.v    |
 | Theorem 3.4 (Uniform backtranslation; STLCmuST -> Syntact. STLC)             | theories/thms/uni_back_ctx_st_syn.v  |
 | Theorem 3.5 (Faithfully emulating stateful contexts by semantic contexts)    | theories/thms/uni_back_ctx_st_sem.v  |
 | Theorem 3.6 (Faithfully emulating semantic contexts by pure contexts)        | theories/thms/uni_back_ctx_sem_syn.v |
 
 # Directory Structure
 
-- lam : contains the definition of the pure language
+- STLCmuVS : contains the definition of the pure language
   + logrel : LR for the definition of semantically typed intermediate language
 - STLCmuST : contains the definition of the extended language with the ST monad
 - embedding : the embedding from the pure language into the one with ST

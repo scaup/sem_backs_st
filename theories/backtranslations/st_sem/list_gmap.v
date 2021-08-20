@@ -1,4 +1,4 @@
-From st.lam Require Import lang tactics lib.fixlam.
+From st.STLCmuVS Require Import lang tactics lib.fixSTLCmuVS.
 From iris.base_logic.lib Require Import ghost_map.
 From iris.proofmode Require Import tactics.
 

@@ -1,5 +1,5 @@
 From st.STLCmuST Require Import lang contexts.
-From st.lam Require Import lang contexts.
+From st.STLCmuVS Require Import lang contexts.
 From st.backtranslations.st_sem Require Import heap_emul.base expressions.
 
 Definition back_ctx_item (Ci : STLCmuST.contexts.ctx_item) : ctx :=

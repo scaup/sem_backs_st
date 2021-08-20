@@ -1,4 +1,4 @@
-From st.lam Require Import lang types typing scopedness.
+From st.STLCmuVS Require Import lang types typing scopedness.
 From st.backtranslations.un_syn Require Import expressions universe.base.
 
 Lemma back_typed (e : expr) n (pCn :  expr_scoped n e) : (replicate n TUniverse) ⊢ₙₒ <<e>> : TUniverse.

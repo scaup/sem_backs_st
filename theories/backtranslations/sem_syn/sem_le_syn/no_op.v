@@ -2,17 +2,17 @@ From iris Require Import program_logic.weakestpre.
 From iris.proofmode Require Import tactics.
 From iris_string_ident Require Import ltac2_string_ident.
 From st.prelude Require Import autosubst.
-From st.lam Require Import lang ghost_steps types typing tactics logrel.definitions logrel.generic.lift reducibility.
+From st.STLCmuVS Require Import lang virt_steps types typing tactics logrel.definitions logrel.generic.lift reducibility.
 From st Require Import resources.
 
-Section GhostStep_no_op.
+Section VirtStep_no_op.
 
   Context `{Σ : !gFunctors} `{semΣ_inst : !semΣ Σ}.
 
   Context (s : stuckness).
 
-  Lemma GhostStep_no_op_help :
-    ∀ τ v v', valrel_typed s τ v v' ⊢ valrel_typed s τ v (GhostStepped v').
+  Lemma VirtStep_no_op_help :
+    ∀ τ v v', valrel_typed s τ v v' ⊢ valrel_typed s τ v (VirtStepped v').
   Proof.
     iLöb as "IHlob".
     iIntros (τ).
@@ -33,28 +33,28 @@ Section GhostStep_no_op.
       + repeat iExists _. iRight. repeat iSplit; auto. by iApply "IH1".
     - rewrite !valrel_typed_TArrow_unfold.
       iModIntro. iIntros (w w') "#Hww'".
-      iSpecialize ("IH" $! w w' with "Hww'"). iSpecialize ("Hvv'" $! w (GhostStepped w') with "IH").
+      iSpecialize ("IH" $! w w' with "Hww'"). iSpecialize ("Hvv'" $! w (VirtStepped w') with "IH").
       iApply (wp_wand with "Hvv'"). iIntros (r) "Hdes". iDestruct "Hdes" as (r') "[%Hsteps #Hrr']".
       iSpecialize ("IH1" $! r r' with "Hrr'").
-      iExists (GhostStepped r'). iFrame "IH1".
+      iExists (VirtStepped r'). iFrame "IH1".
       iPureIntro.
-      destruct (dec_expr_reducibility (v' (GhostStepped w'))) as [ vl eq | red | stuck ]; [inversion eq| |].
-      * assert (head_reducible (v' (GhostStepped w')) ()).
+      destruct (dec_expr_reducibility (v' (VirtStepped w'))) as [ vl eq | red | stuck ]; [inversion eq| |].
+      * assert (head_reducible (v' (VirtStepped w')) ()).
         { apply prim_head_reducible; auto.
           apply ectxi_language_sub_redexes_are_values.
           intros. destruct Ki; simpl in H; try by inversion H.
           inversion H. subst. eexists _. by rewrite /= to_of_val.
           inversion H. subst. eexists _. by rewrite /= to_of_val. }
-        assert (lam_head_reducible (v' (GhostStepped w'))). by apply lam_prim_head_red.
+        assert (STLCmuVS_head_reducible (v' (VirtStepped w'))). by apply STLCmuVS_prim_head_red.
         destruct H0 as [p hd].
         inversion hd; subst. assert (LamV e1 = v') as <-. by apply of_val_inj.
-        eapply rtc_l. auto_lam_step. simplify_custom.
+        eapply rtc_l. auto_STLCmuVS_step. simplify_custom.
         change (Lam e1) with (of_val (LamV e1)).
-        eapply rtc_transitive. apply (rtc_lam_step_ctx (fill [AppRCtx _; GhostStepCtx])). apply GhostStep_eval. simpl.
-        eapply rtc_transitive. by apply (rtc_lam_step_ctx (fill [GhostStepCtx])).
-        apply GhostStep_eval.
+        eapply rtc_transitive. apply (rtc_STLCmuVS_step_ctx (fill [AppRCtx _; VirtStepCtx])). apply VirtStep_eval. simpl.
+        eapply rtc_transitive. by apply (rtc_STLCmuVS_step_ctx (fill [VirtStepCtx])).
+        apply VirtStep_eval.
       * exfalso. inversion Hsteps; subst.
-        -- assert (abs : to_val (v' (GhostStepped w')) = Some r'). by rewrite -to_of_val H1. inversion abs.
+        -- assert (abs : to_val (v' (VirtStepped w')) = Some r'). by rewrite -to_of_val H1. inversion abs.
         -- destruct stuck. eapply H2. apply H.
     - rewrite !valrel_typed_TRec_unfold.
       iDestruct "Hvv'" as (w w') "(-> & -> & #Hww')".
@@ -62,13 +62,13 @@ Section GhostStep_no_op.
     - by rewrite !valrel_typed_TVar_unfold.
   Qed.
 
-  Lemma GhostStep_no_op :
-    ∀ τ v v', valrel_typed s τ v v' ⊢ exprel_typed s τ v (GhostStep v').
-  Proof. iIntros (τ v v') "Hvv'". iApply lift_rtc_steps. apply GhostStep_eval. iApply lift_val. by iApply GhostStep_no_op_help. Qed.
+  Lemma VirtStep_no_op :
+    ∀ τ v v', valrel_typed s τ v v' ⊢ exprel_typed s τ v (VirtStep v').
+  Proof. iIntros (τ v v') "Hvv'". iApply lift_rtc_steps. apply VirtStep_eval. iApply lift_val. by iApply VirtStep_no_op_help. Qed.
 
-  Lemma GhostStep_no_op_expr :
-    ∀ τ e e', exprel_typed s τ e e' ⊢ exprel_typed s τ e (GhostStep e').
-  Proof. iIntros (τ e e') "Hee'". iApply (lift_bind'' _ [] [GhostStepCtx] with "Hee'"). iIntros (v v') "Hvv'". by iApply GhostStep_no_op. Qed.
+  Lemma VirtStep_no_op_expr :
+    ∀ τ e e', exprel_typed s τ e e' ⊢ exprel_typed s τ e (VirtStep e').
+  Proof. iIntros (τ e e') "Hee'". iApply (lift_bind'' _ [] [VirtStepCtx] with "Hee'"). iIntros (v v') "Hvv'". by iApply VirtStep_no_op. Qed.
 
-End GhostStep_no_op.
+End VirtStep_no_op.
 

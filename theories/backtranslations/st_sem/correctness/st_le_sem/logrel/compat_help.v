@@ -7,7 +7,7 @@ Local Notation "l ↦ v" := (mapsto l (DfracOwn 1) v)
 
 From st.prelude Require Import big_op_three.
 
-From st.lam Require Import lang.
+From st.STLCmuVS Require Import lang.
 From st.STLCmuST Require Import wkpre lang types typing.
 
 From st.backtranslations.st_sem Require Import help expressions ghost heap_emul.base heap_emul.spec.

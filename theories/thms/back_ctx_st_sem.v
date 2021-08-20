@@ -3,12 +3,12 @@ From iris.proofmode Require Import tactics.
 From st.backtranslations.st_sem.correctness Require Import
      sem_le_st.logrel.definition sem_le_st.logrel.adequacy sem_le_st.logrel.fundamental
      st_le_sem.logrel.definition st_le_sem.logrel.adequacy st_le_sem.logrel.fundamental.
-From st.lam Require Import typing contexts scopedness logrel.definitions logrel.adequacy logrel.fundamental.
+From st.STLCmuVS Require Import typing contexts scopedness logrel.definitions logrel.adequacy logrel.fundamental.
 From st.STLCmuST Require Import contexts types lang.
 From st.backtranslations.st_sem Require Import expressions contexts scoped retraction.
 From st.backtranslations.st_sem.well_defined.logrel Require Import definition fundamental matches_sem.
 From st.embedding Require Import types expressions typed.
-From st.lam Require Import types lang.
+From st.STLCmuVS Require Import types lang.
 
 From st Require Import resources.
 
@@ -20,7 +20,7 @@ Section back_ctx_st_sem.
           (pC : typed_ctx C (embed <$> Γ) (embed τ) [] (embed TUnit)).
 
   (* we have a semantically typed context, C_b, *)
-  Definition back_ctx_st_sem : lam.contexts.ctx :=
+  Definition back_ctx_st_sem : STLCmuVS.contexts.ctx :=
     back_ctx C.
 
   (* It is indeed semantically typed of (Γ;τ) ⇒ ([];1),
@@ -41,19 +41,19 @@ Section back_ctx_st_sem.
     by apply matches_sem_ctx.
   Qed.
 
-  (* Furthermore, the backtranslated contexts successfully emulates the original (when interacting with syntactically typed terms in lam). *)
+  (* Furthermore, the backtranslated contexts successfully emulates the original (when interacting with syntactically typed terms in STLCmuVS). *)
   (* That is, for all syntactically typed e, Γ ⊢ₙₒ e : τ, C_b[e]⇓ ⇔ C[[[e]]]⇓ *)
 
   Lemma back_ctx_st_sem_correct_emulation :
     ∀ (e : expr) (de : Γ ⊢ₙₒ e : τ),
-      lam_halts (lam.contexts.fill_ctx back_ctx_st_sem e) <-> STLCmuST_halts (fill_ctx C (embd_expr e)).
+      STLCmuVS_halts (STLCmuVS.contexts.fill_ctx back_ctx_st_sem e) <-> STLCmuST_halts (fill_ctx C (embd_expr e)).
   Proof.
     intros e de. split.
     - (* C_b[e] ⇓ ⇒ C[e] ⇓ *)
       intro LamHalts.
       (* using logical relatedness *)
       apply (correctness.sem_le_st.logrel.adequacy.exprel_adequate
-               (lam.contexts.fill_ctx back_ctx_st_sem e)); auto.
+               (STLCmuVS.contexts.fill_ctx back_ctx_st_sem e)); auto.
       (* proving relatedness *)
       intros Σ sem_le_stΣ_inst.
       apply correctness.sem_le_st.logrel.definition.open_exprel_typed_nil'.

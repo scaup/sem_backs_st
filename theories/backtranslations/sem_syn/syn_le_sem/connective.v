@@ -2,8 +2,8 @@ From iris Require Import program_logic.weakestpre.
 From iris.proofmode Require Import tactics.
 From iris_string_ident Require Import ltac2_string_ident.
 From st.prelude Require Import autosubst.
-From st.lam Require Import types lang typing tactics logrel.definitions logrel.generic.lift.
-From st.lam.lib Require Import fixlam.
+From st.STLCmuVS Require Import types lang typing tactics logrel.definitions logrel.generic.lift.
+From st.STLCmuVS.lib Require Import fixSTLCmuVS.
 From st.backtranslations.un_syn Require Import logrel.definitions universe.base universe.paths logrel.syn_le_un.compat_lemmas.
 From st.backtranslations.sem_syn Require Import embed_project.
 From st Require Import resources.
@@ -64,7 +64,7 @@ Section connective_syn_le_un.
       iSplit.
       + iIntros (v v') "Hvv". rewrite valrel_typed_TProd_unfold.
         iDestruct "Hvv" as (v1 v2 v1' v2') "(-> & -> & #H1 & #H2)".
-        do 5 ((iApply lift_step_later; first auto_lam_step); iEval (simplify_custom; (try rewrite inject_Closed))).
+        do 5 ((iApply lift_step_later; first auto_STLCmuVS_step); iEval (simplify_custom; (try rewrite inject_Closed))).
         do 5 iNext.
         iApply (lift_bind _ _ _ [PairLCtx _; AppRCtx _] [PairLCtx _]). iSplitL.
         rewrite val_subst_valid. iApply "IH"; auto. iPureIntro; closed_solver.
@@ -76,10 +76,10 @@ Section connective_syn_le_un.
         iApply lift_step_later. apply inject_step'. iApply lift_val.
         iEval (rewrite valrel_unfold). iExists TCProd. iExists _. iSplit; eauto. repeat iExists _. iSplit; auto.
       + iIntros (v v') "#Hvv". iEval (simpl).
-        (iApply lift_step_later; first auto_lam_step); iEval (simplify_custom; (try rewrite !extract_Closed)).
+        (iApply lift_step_later; first auto_STLCmuVS_step); iEval (simplify_custom; (try rewrite !extract_Closed)).
         iApply (bind_lift_extract [LetInCtx _] [] v v'). iSplitL. by iApply lift_val. iNext. iNext.
         iIntros (w w') "des". iDestruct "des" as (v1 v2 v1' v2') "(-> & -> & #H1 & #H2)". simpl.
-        do 5 (iApply lift_step_later; first auto_lam_step); iEval simplify_custom. repeat iNext.
+        do 5 (iApply lift_step_later; first auto_STLCmuVS_step); iEval simplify_custom. repeat iNext.
         iApply (lift_bind _ _ _ [PairLCtx _] [PairLCtx _]). iSplitL.
         rewrite val_subst_valid. iApply "IH"; auto. iPureIntro; closed_solver.
         iIntros (w w') "#Hww". simpl.
@@ -93,29 +93,29 @@ Section connective_syn_le_un.
       + iEval (setoid_rewrite valrel_typed_TSum_unfold).
         iIntros (v v') "Hvv". iDestruct "Hvv" as (vi vi') "[(-> & -> & Hvivi) | (-> & -> & Hvivi)]".
         * iClear "IH1".
-          do 2 (iApply lift_step_later; first auto_lam_step); iEval (simplify_custom; (try rewrite inject_Closed)). do 2 iNext.
+          do 2 (iApply lift_step_later; first auto_STLCmuVS_step); iEval (simplify_custom; (try rewrite inject_Closed)). do 2 iNext.
           iApply (lift_bind _ _ _ [InjLCtx; AppRCtx _] [InjLCtx]). iSplitL.
           rewrite val_subst_valid. iApply "IH"; auto. iPureIntro; closed_solver.
           iIntros (v v') "Hvv". simpl. change (InjL (of_val ?v)) with (of_val (InjLV v)).
           iApply lift_step_later. apply inject_step'. iApply lift_val.
           iEval (rewrite valrel_unfold). iExists TCSum. iExists _. iSplit; eauto. repeat iExists _. iLeft. iSplit; auto.
         * iClear "IH".
-          do 2 (iApply lift_step_later; first auto_lam_step); iEval (simplify_custom; (try rewrite inject_Closed)). do 2 iNext.
+          do 2 (iApply lift_step_later; first auto_STLCmuVS_step); iEval (simplify_custom; (try rewrite inject_Closed)). do 2 iNext.
           iApply (lift_bind _ _ _ [InjRCtx; AppRCtx _] [InjRCtx]). iSplitL.
           rewrite val_subst_valid. iApply "IH1"; auto. iPureIntro; closed_solver.
           iIntros (v v') "Hvv". simpl. change (InjR (of_val ?v)) with (of_val (InjRV v)).
           iApply lift_step_later. apply inject_step'. iApply lift_val.
           iEval (rewrite valrel_unfold). iExists TCSum. iExists _. iSplit; eauto. repeat iExists _. iRight. iSplit; auto.
       + iIntros (v v') "Hvv".
-        (iApply lift_step_later; first auto_lam_step); iEval (simplify_custom; (try rewrite extract_Closed)). iNext.
+        (iApply lift_step_later; first auto_STLCmuVS_step); iEval (simplify_custom; (try rewrite extract_Closed)). iNext.
         iApply (bind_lift_extract [CaseCtx _ _] [] v v'). iSplitL. by iApply lift_val. iNext.
         iIntros (w w') "des". iDestruct "des" as (vi vi') "[(-> & -> & Hvivi) | (-> & -> & Hvivi)]"; simpl.
-        * (iApply lift_step_later; first auto_lam_step); iEval simplify_custom. iNext.
+        * (iApply lift_step_later; first auto_STLCmuVS_step); iEval simplify_custom. iNext.
           iApply (lift_bind _ _ _ [InjLCtx] [InjLCtx]). iSplitL.
           rewrite val_subst_valid. iApply "IH"; auto. iPureIntro; closed_solver.
           iIntros (w w') "Hww". simpl. change (InjL (of_val ?v)) with (of_val (InjLV v)). iApply lift_val.
           rewrite valrel_typed_TSum_unfold. iExists _, _. iLeft. auto.
-        * (iApply lift_step_later; first auto_lam_step); iEval simplify_custom. iNext.
+        * (iApply lift_step_later; first auto_STLCmuVS_step); iEval simplify_custom. iNext.
           iApply (lift_bind _ _ _ [InjRCtx] [InjRCtx]). iSplitL.
           rewrite val_subst_valid. iApply "IH1"; auto. iPureIntro; closed_solver.
           iIntros (w w') "Hww". simpl. change (InjR (of_val ?v)) with (of_val (InjRV v)). iApply lift_val.
@@ -123,7 +123,7 @@ Section connective_syn_le_un.
     - iEval (rewrite /emb_Connective /prj_Connective /= -!val_subst_valid inject_Closed extract_Closed).
       iSplit.
       + iIntros (v v') "#Hvv". rewrite valrel_typed_TArrow_unfold.
-        (iApply lift_step_later; first auto_lam_step); iEval (simplify_custom; try rewrite inject_Closed).
+        (iApply lift_step_later; first auto_STLCmuVS_step); iEval (simplify_custom; try rewrite inject_Closed).
         change (Lam ?e) with (of_val $ LamV e).
         iApply lift_step_later. apply inject_step'. iApply lift_val. repeat iNext.
         rewrite valrel_unfold. iExists TCArrow. iExists _. iSplit; auto. simpl.
@@ -139,11 +139,11 @@ Section connective_syn_le_un.
         iIntros (y y') "#Hyy". simpl.
         iApply "IH1"; auto. iPureIntro; closed_solver.
       + iIntros (v v') "#Hvv".
-        (iApply lift_step_later; first auto_lam_step); iEval (simplify_custom; (try rewrite extract_Closed)). iNext.
+        (iApply lift_step_later; first auto_STLCmuVS_step); iEval (simplify_custom; (try rewrite extract_Closed)). iNext.
         change (Lam ?e) with (of_val $ LamV e). iApply lift_val.
         rewrite valrel_typed_TArrow_unfold. iModIntro.
         iIntros (w w') "#Hww".
-        (iApply lift_step_later; first auto_lam_step); iEval (simplify_custom; (try rewrite extract_Closed)). iNext.
+        (iApply lift_step_later; first auto_STLCmuVS_step); iEval (simplify_custom; (try rewrite extract_Closed)). iNext.
         rewrite !val_subst_valid.
         iApply (bind_lift_extract [AppLCtx _ ; AppRCtx _] [AppLCtx _]). iSplitL. by iApply lift_val.
         iNext. iIntros (f f') "#Hff".
@@ -151,7 +151,7 @@ Section connective_syn_le_un.
         iApply (lift_bind _ _ _ [AppRCtx _; AppRCtx _] [AppRCtx _]). iSplitL.
         iApply "IH"; auto. iPureIntro; closed_solver.
         iIntros (x x') "#Hxx". iEval simpl. rewrite eq.
-        (iApply lift_step_later; first auto_lam_step); iEval simplify_custom. iNext.
+        (iApply lift_step_later; first auto_STLCmuVS_step); iEval simplify_custom. iNext.
         iApply (lift_bind _ _ _ [AppRCtx _] []). iSplitL. by iApply "Hff".
         iIntros (y y') "Hyy". simpl. iApply "IH1"; auto. iPureIntro; closed_solver.
     - assert (p : Closed_n (length (TRec τ.[up (subst_list τs)] :: τs)) τ) by closed_solver.
@@ -159,18 +159,18 @@ Section connective_syn_le_un.
       iSplit.
       + iIntros (v v') "#Hvv'". iEval simpl. rewrite valrel_typed_TRec_unfold.
         iDestruct "Hvv'" as (w w') "(-> & -> & #Hww')".
-        iApply lift_step_later. auto_lam_step. iEval simplify_custom.
-        iApply lift_step_later. auto_lam_step. iEval simplify_custom.
+        iApply lift_step_later. auto_STLCmuVS_step. iEval simplify_custom.
+        iApply lift_step_later. auto_STLCmuVS_step. iEval simplify_custom.
         iEval (rewrite FixArrow_subst).
-        iApply lift_nsteps_later. apply (nsteps_lam_step_ctx (fill [AppLCtx _; FstCtx ; AppLCtx _])).
+        iApply lift_nsteps_later. apply (nsteps_STLCmuVS_step_ctx (fill [AppLCtx _; FstCtx ; AppLCtx _])).
         apply FixArrow_eval. repeat iNext. iEval simplify_custom.
         iEval (rewrite FixArrow_subst !val_subst_valid !val_subst_comp).
-        iApply lift_step_later. auto_lam_step. iEval simplify_custom.
-        iApply lift_step_later. auto_lam_step. iEval simplify_custom. rewrite inject_Closed extract_Closed.
-        iApply lift_step_later. auto_lam_step. iEval simplify_custom.
-        iApply lift_step_later. auto_lam_step. iEval simplify_custom. rewrite inject_Closed.
+        iApply lift_step_later. auto_STLCmuVS_step. iEval simplify_custom.
+        iApply lift_step_later. auto_STLCmuVS_step. iEval simplify_custom. rewrite inject_Closed extract_Closed.
+        iApply lift_step_later. auto_STLCmuVS_step. iEval simplify_custom.
+        iApply lift_step_later. auto_STLCmuVS_step. iEval simplify_custom. rewrite inject_Closed.
         iEval (rewrite !val_subst_valid !val_subst_comp). iEval asimpl.
-        iApply lift_step_later. auto_lam_step. simpl. rewrite !to_of_val. simplify_option_eq.
+        iApply lift_step_later. auto_STLCmuVS_step. simpl. rewrite !to_of_val. simplify_option_eq.
         iEval (change (Lam ?e) with (of_val $ LamV e)). rewrite subst_list_val_cons. repeat iNext.
         iApply (lift_bind''  _ [FoldCtx; AppRCtx _] [FoldCtx]). iApply "IH"; [|by asimpl]. iFrame "Hl".
         { iClear "IH". iSpecialize ("IHlob" $! (TRec τ) τs pτ eps with "Hl"). iModIntro.
@@ -183,20 +183,20 @@ Section connective_syn_le_un.
         iApply lift_step_later. apply inject_step'. iApply lift_val. iNext.
         iEval (rewrite valrel_unfold). iExists TCRec. iExists _. iSplit; eauto. repeat iExists _. iSplit; auto.
       + iIntros (v v') "#Hvv'". iEval simpl.
-        iApply lift_step_later. auto_lam_step. iEval simplify_custom.
-        iApply lift_step_later. auto_lam_step. iEval simplify_custom.
+        iApply lift_step_later. auto_STLCmuVS_step. iEval simplify_custom.
+        iApply lift_step_later. auto_STLCmuVS_step. iEval simplify_custom.
         iEval (rewrite FixArrow_subst).
-        iApply lift_nsteps_later. apply (nsteps_lam_step_ctx (fill [AppLCtx _; SndCtx ; AppLCtx _])).
+        iApply lift_nsteps_later. apply (nsteps_STLCmuVS_step_ctx (fill [AppLCtx _; SndCtx ; AppLCtx _])).
         apply FixArrow_eval. repeat iNext. iEval simplify_custom.
         iEval (rewrite FixArrow_subst !val_subst_valid !val_subst_comp).
-        iApply lift_step_later. auto_lam_step. iEval simplify_custom.
-        iApply lift_step_later. auto_lam_step. iEval simplify_custom. rewrite inject_Closed extract_Closed.
-        iApply lift_step_later. auto_lam_step. iEval simplify_custom.
-        iApply lift_step_later. auto_lam_step. iEval simplify_custom. rewrite extract_Closed.
+        iApply lift_step_later. auto_STLCmuVS_step. iEval simplify_custom.
+        iApply lift_step_later. auto_STLCmuVS_step. iEval simplify_custom. rewrite inject_Closed extract_Closed.
+        iApply lift_step_later. auto_STLCmuVS_step. iEval simplify_custom.
+        iApply lift_step_later. auto_STLCmuVS_step. iEval simplify_custom. rewrite extract_Closed.
         iEval (rewrite !val_subst_valid !val_subst_comp). iEval asimpl.
         iApply (bind_lift_extract (rev [FoldCtx ; AppRCtx _ ; UnfoldCtx]) []). iSplitL. by iApply lift_val. repeat iNext.
         iEval simpl. iIntros (x x') "Hdes". iDestruct "Hdes" as (w w') "(-> & -> & #Hww')".
-        iApply lift_step_later. auto_lam_step. iEval simplify_custom. iNext.
+        iApply lift_step_later. auto_STLCmuVS_step. iEval simplify_custom. iNext.
         iEval (change (Lam ?e) with (of_val $ LamV e)). rewrite subst_list_val_cons.
         iApply (lift_bind'' _ [FoldCtx] [FoldCtx]). iApply "IH"; auto. iFrame "Hl".
         { iClear "IH". iSpecialize ("IHlob" $! (TRec τ) τs pτ eps with "Hl"). iModIntro.

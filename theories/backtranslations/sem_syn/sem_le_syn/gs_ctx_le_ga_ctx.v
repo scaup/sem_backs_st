@@ -3,8 +3,8 @@ From iris.proofmode Require Import tactics.
 
 From st.prelude Require Import forall_three big_op_three.
 
-From st.lam Require Import contexts lang contexts_subst types scopedness types typing tactics.
-From st.lam.logrel Require Import definitions fundamental generic.lift compat_lemmas.
+From st.STLCmuVS Require Import contexts lang contexts_subst types scopedness types typing tactics.
+From st.STLCmuVS.logrel Require Import definitions fundamental generic.lift compat_lemmas.
 
 From st.backtranslations.sem_syn Require Import gamma_lib.
 From st.backtranslations.sem_syn.sem_le_syn Require Import guard_assert ga_ctx gs_ctx ghost_step_ga.
@@ -26,13 +26,13 @@ Section gs_ctx_le_ga_ctx_0.
   Proof.
     iIntros (e e' pe pe' Hee').
     apply open_exprel_typed_nil. simpl.
-    iApply GhostStep_ga_expr. by intro σ; asimpl.
+    iApply VirtStep_ga_expr. by intro σ; asimpl.
     rewrite -!fill_ctx_app.
     iApply open_exprel_typed_nil'. simpl.
     apply pC. by constructor. constructor; auto.
     apply expr_Closed_n. simpl. by apply ga_pair_closed.
     apply open_exprel_typed_nil.
-    iApply GhostStep_ga_expr; auto.
+    iApply VirtStep_ga_expr; auto.
     by iApply open_exprel_typed_nil'.
   Qed.
 
@@ -52,7 +52,7 @@ Section gs_ctx_le_ga_ctx_S_n.
     ∀ (HCΓ' : Forall Closed Γ') (F F' : expr) vs vs' (Hl : length vs = length Γ'),
       ⊢ exprel_typed MaybeStuck (GammaType Γ' τ) F F' -∗ (big_sepL3 (fun τ v v' => valrel_typed MaybeStuck τ v v') Γ' vs vs' ) -∗
         exprel_typed MaybeStuck τ
-          (wrap_funs_vals F (zip (replicate (length Γ') (LamV (GhostStep (Var 0)))) vs))
+          (wrap_funs_vals F (zip (replicate (length Γ') (LamV (VirtStep (Var 0)))) vs))
           (wrap_funs_vals F' (zip ((λ τ : type, ga_pair Assert τ) <$> Γ') vs')).
   Proof.
     induction Γ' as [|τn Γ' IHΓ'] using rev_ind.
@@ -75,7 +75,7 @@ Section gs_ctx_le_ga_ctx_S_n.
       iApply (lift_bind _ [AppLCtx _] [AppLCtx _] with "HF").
       iIntros (f f') "#Hff". simpl.
       iApply (lift_bind _ [AppRCtx _] [AppRCtx _]).
-      iApply lift_step_later. auto_lam_step. iEval simplify_custom. iApply GhostStep_ga_expr. by inversion HC2.
+      iApply lift_step_later. auto_STLCmuVS_step. iEval simplify_custom. iApply VirtStep_ga_expr. by inversion HC2.
       by iApply lift_val.
       iIntros (w w') "Hww".
       simpl. rewrite -GammaType_snoc valrel_typed_TArrow_unfold. by iApply "Hff".
@@ -92,7 +92,7 @@ Section gs_ctx_le_ga_ctx_S_n.
   Lemma rel_gs_ctx_le_ga_ctx_S_n :
     ctx_rel_typed MaybeStuck (gs_ctx_cons C (length Γ)) (ga_ctx_cons C Γ τ) Γ τ [] TUnit.
   Proof.
-    assert (HFC : Forall (fun f => Closed (of_val f)) (replicate (length Γ) (LamV (GhostStep (%0)%Eₙₒ)))).
+    assert (HFC : Forall (fun f => Closed (of_val f)) (replicate (length Γ) (LamV (VirtStep (%0)%Eₙₒ)))).
     apply Forall_replicate. intro σ'; by asimpl.
     (* assert (H : |sC> 0 ⊢ₙₒ universe_back_ctx C ☾ length Γ ☽). *)
     (* { change 0 with (length (replicate 0 TUniverse)). rewrite pn. *)
@@ -102,13 +102,13 @@ Section gs_ctx_le_ga_ctx_S_n.
     (* two steps *)
     Opaque LamGammaV_S.
     rewrite !pn !fill_LamGamma_ctx -!LamGammaV_S_rw -!pn.
-    iApply lift_step. auto_lam_step. iEval simplify_custom.
+    iApply lift_step. auto_STLCmuVS_step. iEval simplify_custom.
     change (Lam (LamGamma n ?e)) with (LamGamma (S n) e). rewrite !pn -!LamGammaV_S_rw -!pn.
-    iApply lift_step_later. auto_lam_step. iEval simplify_custom.
+    iApply lift_step_later. auto_STLCmuVS_step. iEval simplify_custom.
     change (Lam (LamGamma n ?e)) with (LamGamma (S n) e). rewrite !pn -!LamGammaV_S_rw -!pn.
     rewrite ga_pair_closed; try by intro σ; asimpl.
     (* connective lemma *)
-    iApply GhostStep_ga_expr; first by intro σ; asimpl. iNext.
+    iApply VirtStep_ga_expr; first by intro σ; asimpl. iNext.
     (* rewriting substitutions *)
     rewrite !subst_fill_ctx. erewrite !(subst_closed_ctx _ _ (length Γ)); eauto. erewrite !(subst_closed_ctx_cont _ _ (length Γ)); eauto. simpl.
     rewrite ga_pair_closed; auto; try by intro σ; asimpl.
@@ -146,7 +146,7 @@ Section gs_ctx_le_ga_ctx_S_n.
     (* collecting info *)
     iDestruct (big_sepL3_length with "Hvs") as "[%Hl' %Hll']".
     (* connective lemma *)
-    iApply GhostStep_ga_expr; auto.
+    iApply VirtStep_ga_expr; auto.
     (* rewriting substitutions *)
     rewrite !wrap_funs_vars_subst1'. asimpl.
     rewrite !(iter_up (length Γ) (length Γ)). destruct (lt_dec (length Γ) (length Γ)); first by lia. asimpl. rewrite Nat.sub_diag. asimpl.

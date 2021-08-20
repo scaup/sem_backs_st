@@ -1,15 +1,15 @@
 From iris.base_logic.lib Require Import gen_heap ghost_map.
 From iris Require Import program_logic.weakestpre.
-From st.lam Require lang.
+From st.STLCmuVS Require lang.
 From st.STLCmuST Require lang.
 
-Class semΣ Σ := { irisG_inst :> irisG lam.lang.lam_lang Σ;
-                  ghost_mapG_inst :> ghost_mapG Σ nat (prod lam.lang.val lam.lang.val)
+Class semΣ Σ := { irisG_inst :> irisG STLCmuVS.lang.STLCmuVS_lang Σ;
+                  ghost_mapG_inst :> ghost_mapG Σ nat (prod STLCmuVS.lang.val STLCmuVS.lang.val)
                 }.
 
-Class sem_le_stΣ Σ := { irisG_inst' :> irisG lam.lang.lam_lang Σ;
+Class sem_le_stΣ Σ := { irisG_inst' :> irisG STLCmuVS.lang.STLCmuVS_lang Σ;
                         genHeapG_inst :> gen_heapG STLCmuST.lang.loc STLCmuST.lang.val Σ ;
-                        val_ghost_mapG_inst :> ghost_mapG Σ nat lam.lang.val ;
+                        val_ghost_mapG_inst :> ghost_mapG Σ nat STLCmuVS.lang.val ;
                         loc_ghost_mapG_inst :> ghost_mapG Σ nat STLCmuST.lang.loc
                       }.
 
@@ -23,6 +23,6 @@ Global Instance STLCmuST_irisG_instance `{H : invG Σ} {H' : gen_heapG STLCmuST.
 
 Class st_le_semΣ Σ := { invG_inst :> invG Σ;
                         genHeapG_inst' :> gen_heapG STLCmuST.lang.loc STLCmuST.lang.val Σ;
-                        val_ghost_mapG_inst' :> ghost_mapG Σ nat lam.lang.val;
+                        val_ghost_mapG_inst' :> ghost_mapG Σ nat STLCmuVS.lang.val;
                         loc_ghost_mapG_inst' :> ghost_mapG Σ nat STLCmuST.lang.loc
                       }.

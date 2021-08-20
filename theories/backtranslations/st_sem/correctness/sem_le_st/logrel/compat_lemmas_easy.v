@@ -9,7 +9,7 @@ From st.prelude Require Import big_op_three.
 
 From st.STLCmuST Require Import lang types typing pure_steps.
 
-From st.lam Require Import lang wkpre tactics.
+From st.STLCmuVS Require Import lang wkpre tactics.
 From st.backtranslations.st_sem Require Import help expressions ghost heap_emul.base heap_emul.spec.
 From st.backtranslations.st_sem.correctness.sem_le_st.logrel Require Import lift definition compat_help.
 From st Require Import resources.

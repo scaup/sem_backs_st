@@ -1,6 +1,6 @@
 From iris Require Import program_logic.weakestpre.
 From iris.proofmode Require Import tactics.
-From st.lam Require Import lang ghost_steps wkpre generic.lift types tactics lib.omega tactics reducibility.
+From st.STLCmuVS Require Import lang virt_steps wkpre generic.lift types tactics lib.omega tactics reducibility.
 From st.backtranslations.un_syn Require Import logrel.definitions expressions universe.base universe.paths.
 
 Section syn_le_un.
@@ -8,7 +8,7 @@ Section syn_le_un.
   Instance rfn : refinement := syn_le_un.
 
   Context `{Σ : !gFunctors}.
-  Context `{irisG_inst : !irisG lam_lang Σ}.
+  Context `{irisG_inst : !irisG STLCmuVS_lang Σ}.
 
   Lemma wp_Ω Φ : ⊢ WP Ω ?{{Φ}}.
   Proof. iLöb as "IH". iApply wp_nsteps_later. by apply Ω_loop. done. Qed.
@@ -18,7 +18,7 @@ Section syn_le_un.
     rewrite /IntoVal; eapply of_to_val; rewrite /= !to_of_val /=; solve [ eauto ] : typeclass_instances.
 
 
-  Lemma bind_lift_extract (K K' : ectx lam_ectx_lang) (e e' : expr) (tc : type_constructor) Φ :
+  Lemma bind_lift_extract (K K' : ectx STLCmuVS_ectx_lang) (e e' : expr) (tc : type_constructor) Φ :
       exprel e e' ∗ (▷ ∀ v v', canon_tc_lift tc valrel v v' -∗ lift? Φ (fill K (of_val v)) (fill K' (of_val v'))) ⊢
         lift? Φ (fill K (extract tc e)) (fill K' e').
   Proof.
@@ -56,7 +56,7 @@ Section syn_le_un.
     intros e1 e1' e2 e2' IH1 IH2.
     iIntros (vs vs' Hlvs) "#Hvv's". asimpl.
     iApply (lift_bind _ _ _ [LetInCtx _] [LetInCtx _]). iSplitL "". iApply IH1; auto.
-    iIntros (u v') "Huv'/=". iApply lift_step_later. asimpl. auto_lam_step. iApply lift_step. auto_lam_step. iNext. simplify_custom. asimpl. do 2 rewrite subst_list_val_cons.
+    iIntros (u v') "Huv'/=". iApply lift_step_later. asimpl. auto_STLCmuVS_step. iApply lift_step. auto_STLCmuVS_step. iNext. simplify_custom. asimpl. do 2 rewrite subst_list_val_cons.
     iApply IH2; auto. simpl. auto.
   Qed.
 
@@ -73,7 +73,7 @@ Section syn_le_un.
     rewrite valrel_unfold. iExists TCArrow. fold valrel. iExists (LamV e.[up (subst_list_val vs)]). iSplit; auto.
     simpl. iExists _. iSplit. auto.
     do 2 iModIntro. iIntros (w w') "#Hww'".
-    iApply lift_step. auto_lam_step. simplify_custom.
+    iApply lift_step. auto_STLCmuVS_step. simplify_custom.
     asimpl. do 2 rewrite subst_list_val_cons.
     iApply IHe. simpl. lia. simpl. auto.
   Qed.
@@ -91,7 +91,7 @@ Section syn_le_un.
     iSplitL "". iApply IHe1; auto. iNext.
     iIntros (v v') "des". simpl. iDestruct "des" as (e) "(-> & #H)".
     iApply (lift_bind _ _ _ [AppRCtx _] [AppRCtx _]). iSplitL "". iApply IHe2; auto.
-    iIntros (w w') "Hww'". simpl. iApply lift_step_later. auto_lam_step.
+    iIntros (w w') "Hww'". simpl. iApply lift_step_later. auto_STLCmuVS_step.
     simplify_custom. iNext. iApply ("H" with "Hww'").
   Qed.
 
@@ -140,8 +140,8 @@ Section syn_le_un.
     iIntros (w2 w2') "#Hw2". simpl.
     iDestruct "Hw1" as (z1) "[-> ->]".
     iDestruct "Hw2" as (z2) "[-> ->]".
-    iApply lift_step_later. auto_lam_step.
-    iApply lift_step. auto_lam_step. simplify_custom.
+    iApply lift_step_later. auto_STLCmuVS_step.
+    iApply lift_step. auto_STLCmuVS_step. simplify_custom.
     iApply lift_step_later. apply inject_step'. iApply lift_val. iNext. iNext.
     iEval (rewrite valrel_unfold).
     destruct op; repeat iExists _; eauto.
@@ -161,9 +161,9 @@ Section syn_le_un.
     iApply (bind_lift_extract [IfCtx _ _] [IfCtx _ _]). iSplitL. iApply IHe1; auto. iNext.
     iIntros (v v') "Hvv". simpl. iDestruct "Hvv" as (b) "[-> ->]".
     destruct b.
-    + iApply lift_step_later. auto_lam_step. iApply lift_step. auto_lam_step. simpl.
+    + iApply lift_step_later. auto_STLCmuVS_step. iApply lift_step. auto_STLCmuVS_step. simpl.
       iApply IHe2; auto.
-    + iApply lift_step_later. auto_lam_step. iApply lift_step. auto_lam_step. simpl.
+    + iApply lift_step_later. auto_STLCmuVS_step. iApply lift_step. auto_STLCmuVS_step. simpl.
       iApply IHe3; auto.
   Qed.
 
@@ -177,7 +177,7 @@ Section syn_le_un.
     iIntros (vs vs' Hlvs) "#Hvv's". asimpl.
     rewrite /= extract_Closed.
     iApply (bind_lift_extract [SeqCtx _] [SeqCtx _]). iSplitL "". iApply IHe1; auto. iNext. simpl.
-    iIntros (v v') "[-> ->]". iApply lift_step_later. auto_lam_step. iApply lift_step. auto_lam_step. simpl.
+    iIntros (v v') "[-> ->]". iApply lift_step_later. auto_STLCmuVS_step. iApply lift_step. auto_STLCmuVS_step. simpl.
     iApply IHe2; auto.
   Qed.
 
@@ -207,7 +207,7 @@ Section syn_le_un.
     rewrite /= extract_Closed.
     iApply (bind_lift_extract [FstCtx] [FstCtx]). iSplitL "". iApply IHe; auto.
     iNext. iIntros (v v') "des/=". iDestruct "des" as (v1 v2 v1' v2') "(-> & -> & #H1 & #H2)".
-    iApply lift_step_later. auto_lam_step. iApply lift_step. auto_lam_step. simplify_custom. iApply lift_val. done.
+    iApply lift_step_later. auto_STLCmuVS_step. iApply lift_step. auto_STLCmuVS_step. simplify_custom. iApply lift_val. done.
   Qed.
 
   Lemma compat_Snd:
@@ -220,7 +220,7 @@ Section syn_le_un.
     rewrite /= extract_Closed.
     iApply (bind_lift_extract [SndCtx] [SndCtx]). iSplitL "". iApply IHe; auto.
     iNext. iIntros (v v') "des/=". iDestruct "des" as (v1 v2 v1' v2') "(-> & -> & #H1 & #H2)".
-    iApply lift_step_later. auto_lam_step. iApply lift_step. auto_lam_step. simplify_custom. iApply lift_val. done.
+    iApply lift_step_later. auto_STLCmuVS_step. iApply lift_step. auto_STLCmuVS_step. simplify_custom. iApply lift_val. done.
   Qed.
 
   Lemma compat_InjL:
@@ -264,9 +264,9 @@ Section syn_le_un.
     rewrite /= extract_Closed.
     iApply (bind_lift_extract [CaseCtx _ _] [CaseCtx _ _]). iSplitL "". iApply IHe0; auto.
     iNext. iIntros (v v') "des/=". iDestruct "des" as (vi vi') "[(-> & -> & #Hi)|(-> & -> & #Hi)]".
-    + iApply lift_step_later. auto_lam_step. iApply lift_step. auto_lam_step. simplify_custom. asimpl.
+    + iApply lift_step_later. auto_STLCmuVS_step. iApply lift_step. auto_STLCmuVS_step. simplify_custom. asimpl.
       iNext. do 2 rewrite subst_list_val_cons. iApply IHe1; auto. simpl. auto.
-    + iApply lift_step_later. auto_lam_step. iApply lift_step. auto_lam_step. simplify_custom. asimpl.
+    + iApply lift_step_later. auto_STLCmuVS_step. iApply lift_step. auto_STLCmuVS_step. simplify_custom. asimpl.
       iNext. do 2 rewrite subst_list_val_cons. iApply IHe2; auto. simpl. auto.
   Qed.
 
@@ -293,11 +293,11 @@ Section syn_le_un.
     rewrite /= extract_Closed.
     iApply (bind_lift_extract [UnfoldCtx] [UnfoldCtx]). iSplitL "". iApply IHe; auto.
     iNext. iIntros (v v') "des/=". iDestruct "des" as (w w') "(-> & -> & #H)".
-    iApply lift_step_later. auto_lam_step. iApply lift_step. auto_lam_step. simplify_custom. iApply lift_val. iApply "H".
+    iApply lift_step_later. auto_STLCmuVS_step. iApply lift_step. auto_STLCmuVS_step. simplify_custom. iApply lift_val. iApply "H".
   Qed.
 
-  Lemma compat_GhostStep_help : ∀ v v',
-      valrel v v' ⊢ valrel v (GhostStepped v').
+  Lemma compat_VirtStep_help : ∀ v v',
+      valrel v v' ⊢ valrel v (VirtStepped v').
   Proof.
     iLöb as "IHlob".
     iIntros (v v') "#Hvv'".
@@ -322,44 +322,44 @@ Section syn_le_un.
       iExists _; iSplit; eauto. simpl. iExists _. iSplit; eauto. iNext.
       iDestruct "H" as "#H". iModIntro.
       iIntros (w w') "Hww'".
-      iAssert (valrel w (GhostStepped w')) with "[Hww']" as "Hwws'". by iApply "IHlob".
-      iSpecialize ("H" $! w (GhostStepped w') with "Hwws'").
+      iAssert (valrel w (VirtStepped w')) with "[Hww']" as "Hwws'". by iApply "IHlob".
+      iSpecialize ("H" $! w (VirtStepped w') with "Hwws'").
       iApply (wp_wand with "H"). iIntros (v) "Hdes".
       iDestruct "Hdes" as (r) "[%Hsteps #H]".
-      iExists (GhostStepped r). iSplit; [|by iApply "IHlob"].
+      iExists (VirtStepped r). iSplit; [|by iApply "IHlob"].
       iPureIntro.
-      destruct (dec_expr_reducibility (v' (GhostStepped w'))) as [ vl eq | red | stuck ]; [inversion eq| |].
-      * assert (head_reducible (v' (GhostStepped w')) ()).
+      destruct (dec_expr_reducibility (v' (VirtStepped w'))) as [ vl eq | red | stuck ]; [inversion eq| |].
+      * assert (head_reducible (v' (VirtStepped w')) ()).
         { apply prim_head_reducible; auto.
           apply ectxi_language_sub_redexes_are_values.
           intros. destruct Ki; simpl in H; try by inversion H.
           inversion H. subst. eexists _. by rewrite /= to_of_val.
           inversion H. subst. eexists _. by rewrite /= to_of_val. }
-        assert (lam_head_reducible (v' (GhostStepped w'))). by apply lam_prim_head_red.
+        assert (STLCmuVS_head_reducible (v' (VirtStepped w'))). by apply STLCmuVS_prim_head_red.
         destruct H0 as [p hd].
         inversion hd; subst. assert (LamV e1 = v') as <-. by apply of_val_inj.
-        eapply rtc_l. auto_lam_step. simplify_custom.
+        eapply rtc_l. auto_STLCmuVS_step. simplify_custom.
         change (Lam e1) with (of_val (LamV e1)).
-        eapply rtc_transitive. apply (rtc_lam_step_ctx (fill [AppRCtx _; GhostStepCtx])). apply GhostStep_eval. simpl.
-        eapply rtc_transitive. by apply (rtc_lam_step_ctx (fill [GhostStepCtx])).
-        apply GhostStep_eval.
+        eapply rtc_transitive. apply (rtc_STLCmuVS_step_ctx (fill [AppRCtx _; VirtStepCtx])). apply VirtStep_eval. simpl.
+        eapply rtc_transitive. by apply (rtc_STLCmuVS_step_ctx (fill [VirtStepCtx])).
+        apply VirtStep_eval.
       * exfalso. inversion Hsteps; subst.
-        -- assert (abs : to_val (v' (GhostStepped w')) = Some r). by rewrite -to_of_val H1. inversion abs.
+        -- assert (abs : to_val (v' (VirtStepped w')) = Some r). by rewrite -to_of_val H1. inversion abs.
         -- destruct stuck. eapply H2. apply H.
     - iDestruct "Hcan" as (x x') "(-> & -> & #H)";
         iEval (rewrite valrel_unfold); fold valrel; iExists TCRec.
       iExists _; eauto. iSplit; eauto. iExists _, _. repeat iSplit; eauto. by iApply "IHlob".
   Qed.
 
-  Lemma compat_GhostStep e e' :
+  Lemma compat_VirtStep e e' :
     open_exprel n e e' →
-    open_exprel n e (GhostStep e').
+    open_exprel n e (VirtStep e').
   Proof.
     iIntros (IHe vs vs' Hlvs) "#Hvv's". asimpl.
-    iApply (lift_bind _ _ _ [] [GhostStepCtx]). iSplitL "". iApply IHe; auto.
+    iApply (lift_bind _ _ _ [] [VirtStepCtx]). iSplitL "". iApply IHe; auto.
     iIntros (v v') "#Hvv'". iClear "Hvv's". simpl.
-    iApply lift_rtc_steps. apply GhostStep_eval.
-    iApply lift_val. by iApply compat_GhostStep_help.
+    iApply lift_rtc_steps. apply VirtStep_eval.
+    iApply lift_val. by iApply compat_VirtStep_help.
   Qed.
 
 End syn_le_un.

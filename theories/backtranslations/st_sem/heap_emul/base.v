@@ -1,4 +1,4 @@
-From st.lam Require Import lang tactics lib.fixlam.
+From st.STLCmuVS Require Import lang tactics lib.fixSTLCmuVS.
 
 Fixpoint encode_help (vs : list val) : val :=
   match vs with
@@ -104,10 +104,10 @@ Definition bind_v (v : expr) : val (* : (τ → H → H × τ') → H → H × �
 Definition bind : val (* : (H → H × τ) → (τ → H → H × τ') → H → H × τ' *):=
   LamV (* a : H → H × τ *)(bind_v %0)%Eₙₒ.
 
-Lemma bind_step (v : val) : lam_step (bind v) (bind_v v).
+Lemma bind_step (v : val) : STLCmuVS_step (bind v) (bind_v v).
 Proof. apply head_prim_step. eapply App_Lam_head_step'. by asimpl. by rewrite to_of_val. Qed.
 
-Lemma bind_v_step (v f : val) : lam_step (bind_v v f) (bind_v_f v f).
+Lemma bind_v_step (v f : val) : STLCmuVS_step (bind_v v f) (bind_v_f v f).
 Proof. apply head_prim_step. eapply App_Lam_head_step'. by asimpl. by rewrite to_of_val. Qed.
 
 Definition runst : val (* : (H → H × τ) → τ *):=

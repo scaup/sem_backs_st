@@ -1,5 +1,5 @@
-From st.lam Require Import types lang typing tactics.
-From st.lam.lib Require Import omega fixlam.
+From st.STLCmuVS Require Import types lang typing tactics.
+From st.STLCmuVS.lib Require Import omega fixSTLCmuVS.
 
 (* Local Open Scope Eₙₒ. *)
 (* Local Open Scope Tₙₒ. *)
@@ -92,7 +92,7 @@ Definition extract (tc : type_constructor) : val := LamV (CaseTC tc (Unfold %0))
 Lemma extract_Closed (tc : type_constructor) : Closed (of_val (extract tc)).
 Proof. destruct tc; intro σ; asimpl; done. Qed.
 
-Lemma inject_step tc e (v : val) : e = of_val v → lam_step (inject tc e) (inject_val tc v).
+Lemma inject_step tc e (v : val) : e = of_val v → STLCmuVS_step (inject tc e) (inject_val tc v).
 Proof.
   intro. rewrite H /inject /inject_val.
   assert (of_val (FoldV (InjVTC tc v)) = Fold (InjTC tc v)) as ->. destruct tc; by simpl.
@@ -101,12 +101,12 @@ Proof.
   auto_head_step.
 Qed.
 
-Lemma inject_step' tc (v : val) : lam_step (inject tc (of_val v)) (inject_val tc v).
+Lemma inject_step' tc (v : val) : STLCmuVS_step (inject tc (of_val v)) (inject_val tc v).
 Proof.
   apply head_prim_step. simpl. assert (Fold (InjVTC tc v) = (Fold (InjTC tc (Var 0)).[of_val v/])) as ->. destruct tc; by asimpl. auto_head_step.
 Qed.
 
-Lemma extract_step tc (v : val) : lam_step (extract tc (of_val v)) (CaseTC tc (Unfold v)).
+Lemma extract_step tc (v : val) : STLCmuVS_step (extract tc (of_val v)) (CaseTC tc (Unfold v)).
 Proof.
   apply head_prim_step. simpl. assert (CaseTC tc (Unfold v) = (CaseTC tc (Unfold (Var 0))).[of_val v/]) as ->. asimpl. destruct tc; by asimpl. auto_head_step.
 Qed.

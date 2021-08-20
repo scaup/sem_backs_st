@@ -1,7 +1,7 @@
 From iris Require Import program_logic.weakestpre.
 From iris Require Import base_logic.lib.invariants.
 From st.STLCmuST Require Import lang types typing.
-From st.lam Require Import lang wkpre generic.lift tactics.
+From st.STLCmuVS Require Import lang wkpre generic.lift tactics.
 From st.backtranslations.st_sem.well_defined.logrel Require Import definition.
 From iris.proofmode Require Import tactics.
 From st.backtranslations.st_sem Require Import ghost heap_emul.base heap_emul.spec expressions.
@@ -104,8 +104,8 @@ Section compat_lemmas.
     change ((write ?e1 ?e2).[?σ]) with (write e1.[σ] e2.[σ]).
     iApply (lift_bind' _ _ _ [AppRCtx _; AppLCtx _] [AppRCtx _; AppLCtx _] with "H1"). simpl.
     iIntros (v1 v1') "#Hv1v1'". iClear "H1".
-    iApply lift_step. apply (@lam_step_ctx (fill_item (AppLCtx _)) (ectxi_lang_ctx_item _)). apply write_step. simpl.
-    iApply lift_step_later. apply (@lam_step_ctx (fill_item (AppLCtx _)) (ectxi_lang_ctx_item _)). apply write_step. simpl.
+    iApply lift_step. apply (@STLCmuVS_step_ctx (fill_item (AppLCtx _)) (ectxi_lang_ctx_item _)). apply write_step. simpl.
+    iApply lift_step_later. apply (@STLCmuVS_step_ctx (fill_item (AppLCtx _)) (ectxi_lang_ctx_item _)). apply write_step. simpl.
     iApply (lift_bind' _ _ _ [AppRCtx _] [AppRCtx _] with "H2"). iNext.
     iIntros (v2 v2') "#Hv2v2'". simpl.
     iApply lift_step. apply write_i_step.
@@ -148,8 +148,8 @@ Section compat_lemmas.
     change ((bind ?e1 ?e2).[?σ]) with (bind e1.[σ] e2.[σ]).
     iApply (lift_bind' _ _ _ [AppRCtx _; AppLCtx _] [AppRCtx _; AppLCtx _] with "H1"). simpl.
     iIntros (v1 v1') "#Hv1v1'". iClear "H1".
-    iApply lift_step. apply (@lam_step_ctx (fill_item (AppLCtx _)) (ectxi_lang_ctx_item _)). apply bind_step. simpl.
-    iApply lift_step_later. apply (@lam_step_ctx (fill_item (AppLCtx _)) (ectxi_lang_ctx_item _)). apply bind_step. simpl.
+    iApply lift_step. apply (@STLCmuVS_step_ctx (fill_item (AppLCtx _)) (ectxi_lang_ctx_item _)). apply bind_step. simpl.
+    iApply lift_step_later. apply (@STLCmuVS_step_ctx (fill_item (AppLCtx _)) (ectxi_lang_ctx_item _)). apply bind_step. simpl.
     iApply (lift_bind' _ _ _ [AppRCtx _] [AppRCtx _] with "H2"). iNext.
     iIntros (v2 v2') "#Hv2v2'". simpl.
     iApply lift_step. apply bind_v_step.
@@ -168,9 +168,9 @@ Section compat_lemmas.
     iEval simpl.
     iApply wp_step_later.
     apply head_prim_step. change ((encode ps1.*1, r1)%Eₙₒ) with (of_val (encode ps1.*1, r1)%Vₙₒ). eapply LetIn_head_step. by rewrite to_of_val. iNext. asimpl.
-    iApply wp_step_later. apply (@lam_step_ctx (fill_item $ LetInCtx _) (ectxi_lang_ctx_item _)). apply head_prim_step. auto_head_step. simpl.
+    iApply wp_step_later. apply (@STLCmuVS_step_ctx (fill_item $ LetInCtx _) (ectxi_lang_ctx_item _)). apply head_prim_step. auto_head_step. simpl.
     iApply wp_step_later. apply head_prim_step. auto_head_step. asimpl.
-    iApply wp_step_later. apply (@lam_step_ctx (fill_item $ LetInCtx _) (ectxi_lang_ctx_item _)). apply head_prim_step. auto_head_step. simpl.
+    iApply wp_step_later. apply (@STLCmuVS_step_ctx (fill_item $ LetInCtx _) (ectxi_lang_ctx_item _)). apply head_prim_step. auto_head_step. simpl.
     iApply wp_step_later. apply head_prim_step. auto_head_step. asimpl.
     repeat iNext.
     iEval (rewrite valrel_typed_TArrow_unfold) in "Hv2v2'".
@@ -182,15 +182,15 @@ Section compat_lemmas.
     iExists p, p', ps2. iFrame "Hauth2 Hpp'". iSplit; auto. iPureIntro.
     eapply rtc_l. apply head_prim_step. auto_head_step. asimpl.
     eapply rtc_transitive.
-    by apply (@rtc_lam_step_ctx (fill_item $ LetInCtx _) (ectxi_lang_ctx_item _)). simpl.
+    by apply (@rtc_STLCmuVS_step_ctx (fill_item $ LetInCtx _) (ectxi_lang_ctx_item _)). simpl.
     change (Pair (of_val ?v1) (of_val ?v2)) with (of_val (PairV v1 v2)).
     eapply rtc_l. apply head_prim_step. auto_head_step. asimpl.
-    eapply rtc_l. apply (@lam_step_ctx (fill_item $ LetInCtx _) (ectxi_lang_ctx_item _)). apply head_prim_step. auto_head_step. asimpl.
+    eapply rtc_l. apply (@STLCmuVS_step_ctx (fill_item $ LetInCtx _) (ectxi_lang_ctx_item _)). apply head_prim_step. auto_head_step. asimpl.
     eapply rtc_l. apply head_prim_step. auto_head_step. asimpl.
-    eapply rtc_l. apply (@lam_step_ctx (fill_item $ LetInCtx _) (ectxi_lang_ctx_item _)). apply head_prim_step. auto_head_step. asimpl.
+    eapply rtc_l. apply (@STLCmuVS_step_ctx (fill_item $ LetInCtx _) (ectxi_lang_ctx_item _)). apply head_prim_step. auto_head_step. asimpl.
     eapply rtc_l. apply head_prim_step. auto_head_step. asimpl.
     eapply rtc_transitive.
-    by apply (@rtc_lam_step_ctx (fill_item $ AppLCtx _) (ectxi_lang_ctx_item _)). by simpl.
+    by apply (@rtc_STLCmuVS_step_ctx (fill_item $ AppLCtx _) (ectxi_lang_ctx_item _)). by simpl.
   Qed.
 
   Lemma compat_retrn Γ e e' ρ τ :
@@ -303,10 +303,10 @@ Section compat_lemmas.
     iPureIntro.
     change (Lam ?e) with (of_val (LamV e)).
     eapply rtc_transitive.
-    by apply (@rtc_lam_step_ctx (fill_item $ AppRCtx _) (ectxi_lang_ctx_item _)). simpl.
+    by apply (@rtc_STLCmuVS_step_ctx (fill_item $ AppRCtx _) (ectxi_lang_ctx_item _)). simpl.
     eapply rtc_l. apply head_prim_step. auto_head_step. asimpl. rewrite encode_empty_subst.
     eapply rtc_transitive.
-    by apply (@rtc_lam_step_ctx (fill_item $ SndCtx) (ectxi_lang_ctx_item _)). simpl.
+    by apply (@rtc_STLCmuVS_step_ctx (fill_item $ SndCtx) (ectxi_lang_ctx_item _)). simpl.
     change (Pair (of_val ?v1) (of_val ?v2)) with (of_val (PairV v1 v2)).
     apply rtc_once. apply head_prim_step. auto_head_step.
     by iApply valrel_typed_cons_ren.

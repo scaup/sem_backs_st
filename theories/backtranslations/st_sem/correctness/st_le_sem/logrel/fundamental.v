@@ -7,7 +7,7 @@ Local Notation "l ↦ v" := (mapsto l (DfracOwn 1) v)
 
 From st.prelude Require Import big_op_three.
 
-From st.lam Require Import lang contexts.
+From st.STLCmuVS Require Import lang contexts.
 From st.STLCmuST Require Import wkpre lang types typing contexts.
 
 From st.backtranslations.st_sem Require Import expressions ghost heap_emul.base contexts.
@@ -98,7 +98,7 @@ Section fundamental_theorem.
   Proof.
     intro H. induction H.
     - simpl. by intros e e' Hee'.
-    - simpl. iIntros (e e' Hee' Δ vs vs') "Hvs". change (k :: K) with ([k] ++ K). rewrite -lam.contexts.fill_ctx_app -STLCmuST.contexts.fill_ctx_app.
+    - simpl. iIntros (e e' Hee' Δ vs vs') "Hvs". change (k :: K) with ([k] ++ K). rewrite -STLCmuVS.contexts.fill_ctx_app -STLCmuST.contexts.fill_ctx_app.
       iApply (ctx_item_fundamental _ _ _ _ k H); auto.
   Qed.
 

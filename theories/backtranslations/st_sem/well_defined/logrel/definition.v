@@ -1,7 +1,7 @@
 From iris Require Import program_logic.weakestpre.
 From iris.proofmode Require Import tactics.
 From st.STLCmuST Require Import types.
-From st.lam Require Import lang wkpre generic.lift contexts scopedness.
+From st.STLCmuVS Require Import lang wkpre generic.lift contexts scopedness.
 From iris.base_logic.lib Require Import invariants.
 From st.backtranslations.st_sem Require Import ghost heap_emul.base.
 From st.prelude Require Import big_op_three.
@@ -47,7 +47,7 @@ Section value_relation.
                                                 let ws := psₜ.*1 in
                                                 let ws' := psₜ.*2 in
                                                 ⌜ x = (encode ws, w)%Vₙₒ ⌝ ∧
-                                                ⌜ rtc lam_step (v' (encode vs')) (encode ws', w')%Vₙₒ ⌝ ∧
+                                                ⌜ rtc STLCmuVS_step (v' (encode vs')) (encode ws', w')%Vₙₒ ⌝ ∧
                                                 valrel_typed_gen_pre Ψ τ' w w'
                                            }}
                )
@@ -130,7 +130,7 @@ Section value_relation.
                                                 let ws := psₜ.*1 in
                                                 let ws' := psₜ.*2 in
                                                 ⌜ x = (encode ws, w)%Vₙₒ ⌝ ∧
-                                                ⌜ rtc lam_step (v' (encode vs')) (encode ws', w')%Vₙₒ ⌝ ∧
+                                                ⌜ rtc STLCmuVS_step (v' (encode vs')) (encode ws', w')%Vₙₒ ⌝ ∧
                                                 valrel_typed τ w w'
                                            }}
                )

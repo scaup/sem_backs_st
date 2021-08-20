@@ -1,4 +1,4 @@
-From st.lam Require Import types lang tactics typing.
+From st.STLCmuVS Require Import types lang tactics typing.
 
 Local Open Scope expr_no_st_scope.
 Local Open Scope types_no_st_scope.
@@ -25,8 +25,8 @@ Proof.
   asimpl. apply Lam_typed. eapply App_typed. econstructor. erewrite help. apply Unfold_typed. by constructor. by constructor. by constructor.
 Qed.
 
-Lemma FixArrow_eval f : nsteps lam_step 2 (FixArrow f) (f (Lam ((FixArrow f).[ren (+1)] %0)))%Eₙₒ.
-Proof. do 2 (eapply nsteps_l; first auto_lam_step; asimpl). by apply nsteps_O. Qed.
+Lemma FixArrow_eval f : nsteps STLCmuVS_step 2 (FixArrow f) (f (Lam ((FixArrow f).[ren (+1)] %0)))%Eₙₒ.
+Proof. do 2 (eapply nsteps_l; first auto_STLCmuVS_step; asimpl). by apply nsteps_O. Qed.
 
 Definition Rec (e : {bind 2 of expr}) : val :=
   LamV ((FixArrow (Lam (Lam e))).[ren (+1)] %0)%Eₙₒ.
@@ -52,16 +52,16 @@ Qed.
 
 Lemma App_Rec_nsteps e1 e2 v2 :
    to_val e2 = Some v2 →
-   nsteps lam_step 5 (App (Rec e1) e2) e1.[e2, (of_val $ Rec e1)/].
+   nsteps STLCmuVS_step 5 (App (Rec e1) e2) e1.[e2, (of_val $ Rec e1)/].
 Proof.
   intros.
-  eapply nsteps_l. auto_lam_step. simplify_custom.
+  eapply nsteps_l. auto_STLCmuVS_step. simplify_custom.
   change 4 with (2 + 2)%nat.
-  eapply nsteps_trans. apply (nsteps_lam_step_ctx (fill_item (AppLCtx _))). apply FixArrow_eval.
+  eapply nsteps_trans. apply (nsteps_STLCmuVS_step_ctx (fill_item (AppLCtx _))). apply FixArrow_eval.
   rewrite FixArrow_subst. asimpl.
-  eapply nsteps_l. auto_lam_step. simplify_custom.
+  eapply nsteps_l. auto_STLCmuVS_step. simplify_custom.
   rewrite FixArrow_subst. asimpl.
-  eapply nsteps_l. auto_lam_step. simplify_custom.
+  eapply nsteps_l. auto_STLCmuVS_step. simplify_custom.
   rewrite FixArrow_subst. asimpl.
   rewrite (of_to_val _ _ H) /Rec.
   apply nsteps_O.
@@ -71,20 +71,20 @@ Global Opaque Rec.
 
 (* Lemma App_Rec_nsteps e1 e2 v2 : *)
 (*    to_val e2 = Some v2 → *)
-(*    nsteps lam_step 5 (App (Rec e1) e2) e1.[(Rec e1), e2/]. *)
+(*    nsteps STLCmuVS_step 5 (App (Rec e1) e2) e1.[(Rec e1), e2/]. *)
 (* Proof. *)
 (*   intros. *)
-(*   eapply nsteps_l. auto_lam_step. simplify_custom. *)
+(*   eapply nsteps_l. auto_STLCmuVS_step. simplify_custom. *)
 (*   change 4 with (2 + 2)%nat. *)
-(*   eapply nsteps_trans. apply (nsteps_lam_step_ctx (fill_item (AppLCtx _))). apply FixArrow_eval. *)
+(*   eapply nsteps_trans. apply (nsteps_STLCmuVS_step_ctx (fill_item (AppLCtx _))). apply FixArrow_eval. *)
 (*   rewrite FixArrow_subst. asimpl. *)
-(*   eapply nsteps_l. auto_lam_step. simplify_custom. *)
+(*   eapply nsteps_l. auto_STLCmuVS_step. simplify_custom. *)
 (*   rewrite FixArrow_subst. asimpl. *)
-(*   eapply nsteps_l. auto_lam_step. simplify_custom. *)
+(*   eapply nsteps_l. auto_STLCmuVS_step. simplify_custom. *)
 (*   rewrite FixArrow_subst. asimpl. *)
 
-(* Lemma FixArrow_eval f : nsteps lam_step 2 (FixArrow f) (f (Lam ((FixArrow f).[ren (+1)] %0)))%Eₙₒ. *)
-(* Proof. do 2 (eapply nsteps_l; first auto_lam_step; asimpl). by apply nsteps_O. Qed. *)
+(* Lemma FixArrow_eval f : nsteps STLCmuVS_step 2 (FixArrow f) (f (Lam ((FixArrow f).[ren (+1)] %0)))%Eₙₒ. *)
+(* Proof. do 2 (eapply nsteps_l; first auto_STLCmuVS_step; asimpl). by apply nsteps_O. Qed. *)
 
 
 
@@ -93,17 +93,17 @@ Global Opaque Rec.
 (* Definition FixLam (e : expr) := *)
 (*   (Lam ((FixArrow (FixLamBodyHelp e)).[ren (+1)] %0) ())%Eₙₒ. *)
 
-(* Lemma FixLam_eval e : nsteps lam_step 5 (FixLam e) (e.[FixLam e/]). *)
+(* Lemma FixLam_eval e : nsteps STLCmuVS_step 5 (FixLam e) (e.[FixLam e/]). *)
 (* Proof. *)
 (*   eapply nsteps_l. apply head_prim_step. auto_head_step. *)
-(*   cut (nsteps lam_step 4 ((FixArrow (FixLamBodyHelp e)) ()) e.[FixLam e/])%Eₙₒ. asimpl. *)
+(*   cut (nsteps STLCmuVS_step 4 ((FixArrow (FixLamBodyHelp e)) ()) e.[FixLam e/])%Eₙₒ. asimpl. *)
 (*   rewrite /FixArrow. by asimpl. *)
 (*   assert (4 = (2 + 2)%nat) as ->. done. *)
 (*   eapply nsteps_trans. *)
-(*   eapply (nsteps_congruence (fill [AppLCtx ()%Eₙₒ])). intros. apply lam_step_ctx. apply ectx_lang_ctx. apply H. *)
+(*   eapply (nsteps_congruence (fill [AppLCtx ()%Eₙₒ])). intros. apply STLCmuVS_step_ctx. apply ectx_lang_ctx. apply H. *)
 (*   apply FixArrow_eval. *)
-(*   eapply nsteps_l. auto_lam_step. asimpl. *)
-(*   eapply nsteps_l. auto_lam_step. asimpl. *)
+(*   eapply nsteps_l. auto_STLCmuVS_step. asimpl. *)
+(*   eapply nsteps_l. auto_STLCmuVS_step. asimpl. *)
 (*   rewrite /FixLam /FixLamBodyHelp. asimpl. apply nsteps_O. *)
 (* Qed. *)
 

@@ -3,8 +3,8 @@ From iris.proofmode Require Import tactics.
 
 From st.prelude Require Import forall_three big_op_three.
 
-From st.lam Require Import contexts lang contexts_subst types scopedness types typing tactics.
-From st.lam.logrel Require Import definitions fundamental generic.lift compat_lemmas.
+From st.STLCmuVS Require Import contexts lang contexts_subst types scopedness types typing tactics.
+From st.STLCmuVS.logrel Require Import definitions fundamental generic.lift compat_lemmas.
 
 From st.backtranslations.un_syn Require Import expressions contexts universe.base.
 From st.backtranslations.un_syn.logrel Require Import definitions un_le_syn.fundamental.
@@ -104,9 +104,9 @@ Section ga_ctx_le_ep_ctx_S_n.
     (* two steps *)
     Opaque LamGammaV_S.
     rewrite !pn !fill_LamGamma_ctx -!LamGammaV_S_rw -!pn.
-    iApply lift_step. auto_lam_step. iEval simplify_custom.
+    iApply lift_step. auto_STLCmuVS_step. iEval simplify_custom.
     change (Lam (LamGamma n ?e)) with (LamGamma (S n) e). rewrite !pn -!LamGammaV_S_rw -!pn.
-    iApply lift_step_later. auto_lam_step. iEval simplify_custom.
+    iApply lift_step_later. auto_STLCmuVS_step. iEval simplify_custom.
     change (Lam (LamGamma n ?e)) with (LamGamma (S n) e). rewrite !pn -!LamGammaV_S_rw -!pn.
     rewrite ga_pair_closed; try by intro σ; asimpl.
     rewrite ep_pair_Closed; try by intro σ; asimpl.

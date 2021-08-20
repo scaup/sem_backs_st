@@ -3,8 +3,8 @@ From iris.proofmode Require Import tactics.
 
 From st.prelude Require Import forall_three big_op_three.
 
-From st.lam Require Import contexts lang contexts_subst types scopedness types typing tactics.
-From st.lam.logrel Require Import definitions fundamental generic.lift compat_lemmas.
+From st.STLCmuVS Require Import contexts lang contexts_subst types scopedness types typing tactics.
+From st.STLCmuVS.logrel Require Import definitions fundamental generic.lift compat_lemmas.
 
 From st.backtranslations.un_syn Require Import expressions contexts universe.base.
 From st.backtranslations.un_syn.logrel Require Import definitions syn_le_un.fundamental.
@@ -44,7 +44,7 @@ Section syn_le_un_S_n.
   Context (Γ : list type).
 
   Lemma subst_list_val_anti_steps e vs (Hl : length vs = length Γ) :
-    rtc lam_step (wrap_funs_vals (LamGamma (length Γ) e) (zip (replicate (length vs) (LamV (Var 0))) vs))
+    rtc STLCmuVS_step (wrap_funs_vals (LamGamma (length Γ) e) (zip (replicate (length vs) (LamV (Var 0))) vs))
       (e.[subst_list_val vs]).
   Proof.
     apply wrap_funs_vals_eval'.
@@ -89,7 +89,7 @@ Section syn_le_un_S_n.
       iApply (lift_bind _ [AppLCtx _] [AppLCtx _] with "HF").
       iIntros (f f') "#Hff". simpl.
       iApply (lift_bind _ [AppRCtx _] [AppRCtx _]).
-      iApply (lift_step). auto_lam_step. simplify_custom.
+      iApply (lift_step). auto_STLCmuVS_step. simplify_custom.
       iApply project_connective; auto. by inversion HC2.
       iIntros (w w') "Hww".
       simpl. rewrite -GammaType_snoc valrel_typed_TArrow_unfold. by iApply "Hff".
@@ -115,7 +115,7 @@ Section syn_le_un_S_n.
         by apply universe_back_ctx_typed. by rewrite replicate_length. }
     (* step *)
     iIntros (e e' pe pe' Hee'). apply open_exprel_typed_nil.
-    iApply lift_step_later. simpl. rewrite -> pn at 1. rewrite fill_LamGamma_ctx. rewrite -LamGammaV_S_rw. auto_lam_step. iEval simplify_custom. change (Lam ?e) with (of_val (LamV e)). rewrite LamGammaV_S_rw -pn. rewrite ep_pair_Closed; [|by intro σ; asimpl]. iNext.
+    iApply lift_step_later. simpl. rewrite -> pn at 1. rewrite fill_LamGamma_ctx. rewrite -LamGammaV_S_rw. auto_STLCmuVS_step. iEval simplify_custom. change (Lam ?e) with (of_val (LamV e)). rewrite LamGammaV_S_rw -pn. rewrite ep_pair_Closed; [|by intro σ; asimpl]. iNext.
     (* connective lemma *)
     iApply (project_connective_expr TUnit). by intro σ; asimpl.
     (* rewriting substitutions *)

@@ -1,6 +1,6 @@
 From iris Require Import program_logic.weakestpre.
 From iris.proofmode Require Import tactics.
-From st.lam Require Import lang wkpre generic.lift types reducibility tactics ghost_steps.
+From st.STLCmuVS Require Import lang wkpre generic.lift types reducibility tactics virt_steps.
 From st.backtranslations.un_syn Require Import logrel.definitions expressions universe.base universe.paths.
 
 (* uninteresting tactic *)
@@ -20,7 +20,7 @@ Section un_le_syn.
   Instance rfn : refinement := un_le_syn.
 
   Context `{Σ : !gFunctors}.
-  Context `{irisG_inst : !irisG lam_lang Σ}.
+  Context `{irisG_inst : !irisG STLCmuVS_lang Σ}.
 
   (* Partial map, mapping destructor (one-level) evaluation contexts to the corresponding type constructor. *)
   Definition ectx_item_tc (Ki : ectx_item) : option type_constructor :=
@@ -54,32 +54,32 @@ Section un_le_syn.
       ((by inversion H) ||
        (inversion H as [eq]); simplify_eq; iIntros "[#Hv'u H]"; iEval (simpl); iEval (rewrite valrel_unfold /=) in "Hv'u"; iDestruct "Hv'u" as (tc v') "[-> HHH]").
     - destruct (decide (tc = TCArrow)) as [-> | bb].
-      + iApply lift_rtc_steps. apply (rtc_lam_step_ctx (fill Kₛ)). eapply rtc_l. apply extract_step. apply eval_same_tc. by iApply "H".
+      + iApply lift_rtc_steps. apply (rtc_STLCmuVS_step_ctx (fill Kₛ)). eapply rtc_l. apply extract_step. apply eval_same_tc. by iApply "H".
       + iApply (wp_bind (fill (AppRCtx _ :: Kᵢ))). iApply wp_wand. iApply wp_Maybestuck_True. iIntros (w _). simpl.
         iApply (wp_bind (fill Kᵢ)). stuck_cases tc.
     - destruct (decide (tc = TCProd)) as [-> | bb].
-      + iApply lift_rtc_steps. apply (rtc_lam_step_ctx (fill Kₛ)). eapply rtc_l. apply extract_step. apply eval_same_tc. by iApply "H".
+      + iApply lift_rtc_steps. apply (rtc_STLCmuVS_step_ctx (fill Kₛ)). eapply rtc_l. apply extract_step. apply eval_same_tc. by iApply "H".
       + iApply (wp_bind (fill Kᵢ)). stuck_cases tc.
     - destruct (decide (tc = TCProd)) as [-> | bb].
-      + iApply lift_rtc_steps. apply (rtc_lam_step_ctx (fill Kₛ)). eapply rtc_l. apply extract_step. apply eval_same_tc. by iApply "H".
+      + iApply lift_rtc_steps. apply (rtc_STLCmuVS_step_ctx (fill Kₛ)). eapply rtc_l. apply extract_step. apply eval_same_tc. by iApply "H".
       + iApply (wp_bind (fill Kᵢ)). stuck_cases tc.
     - destruct (decide (tc = TCSum)) as [-> | bb].
-      + iApply lift_rtc_steps. apply (rtc_lam_step_ctx (fill Kₛ)). eapply rtc_l. apply extract_step. apply eval_same_tc. by iApply "H".
+      + iApply lift_rtc_steps. apply (rtc_STLCmuVS_step_ctx (fill Kₛ)). eapply rtc_l. apply extract_step. apply eval_same_tc. by iApply "H".
       + iApply (wp_bind (fill Kᵢ)). stuck_cases tc.
     - destruct (decide (tc = TCBool)) as [-> | bb].
-      + iApply lift_rtc_steps. apply (rtc_lam_step_ctx (fill Kₛ)). eapply rtc_l. apply extract_step. apply eval_same_tc. by iApply "H".
+      + iApply lift_rtc_steps. apply (rtc_STLCmuVS_step_ctx (fill Kₛ)). eapply rtc_l. apply extract_step. apply eval_same_tc. by iApply "H".
       + iApply (wp_bind (fill Kᵢ)). stuck_cases tc.
     - destruct (decide (tc = TCInt)) as [-> | bb].
-      + iApply lift_rtc_steps. apply (rtc_lam_step_ctx (fill Kₛ)). eapply rtc_l. apply extract_step. apply eval_same_tc. by iApply "H".
+      + iApply lift_rtc_steps. apply (rtc_STLCmuVS_step_ctx (fill Kₛ)). eapply rtc_l. apply extract_step. apply eval_same_tc. by iApply "H".
       + iApply (wp_bind (fill (BinOpRCtx _ _ :: Kᵢ))). iApply wp_wand. iApply wp_Maybestuck_True. iIntros (w _). simpl. iApply (wp_bind (fill Kᵢ)). stuck_cases tc.
     - destruct (decide (tc = TCInt)) as [-> | bb].
-      + iApply lift_rtc_steps. apply (rtc_lam_step_ctx (fill Kₛ)). eapply rtc_l. apply extract_step. apply eval_same_tc. by iApply "H".
+      + iApply lift_rtc_steps. apply (rtc_STLCmuVS_step_ctx (fill Kₛ)). eapply rtc_l. apply extract_step. apply eval_same_tc. by iApply "H".
       + iApply (wp_bind (fill Kᵢ)). stuck_cases tc.
     - destruct (decide (tc = TCUnit)) as [-> | bb].
-      + iApply lift_rtc_steps. apply (rtc_lam_step_ctx (fill Kₛ)). eapply rtc_l. apply extract_step. apply eval_same_tc. by iApply "H".
+      + iApply lift_rtc_steps. apply (rtc_STLCmuVS_step_ctx (fill Kₛ)). eapply rtc_l. apply extract_step. apply eval_same_tc. by iApply "H".
       + iApply (wp_bind (fill Kᵢ)). stuck_cases tc.
     - destruct (decide (tc = TCRec)) as [-> | bb].
-      + iApply lift_rtc_steps. apply (rtc_lam_step_ctx (fill Kₛ)). eapply rtc_l. apply extract_step. apply eval_same_tc. by iApply "H".
+      + iApply lift_rtc_steps. apply (rtc_STLCmuVS_step_ctx (fill Kₛ)). eapply rtc_l. apply extract_step. apply eval_same_tc. by iApply "H".
       + iApply (wp_bind (fill Kᵢ)). stuck_cases tc.
   Qed.
 
@@ -116,7 +116,7 @@ Section un_le_syn.
     intros e1 e1' e2 e2' IH1 IH2.
     iIntros (vs vs' Hlvs) "#Hvv's". asimpl.
     iApply (lift_bind _ _ _ [LetInCtx _] [LetInCtx _]). iSplitL "". iApply IH1; auto.
-    iIntros (u v') "Huv'/=". iApply lift_step_later. asimpl. auto_lam_step. iApply lift_step. auto_lam_step. iNext. simplify_custom. asimpl. do 2 rewrite subst_list_val_cons.
+    iIntros (u v') "Huv'/=". iApply lift_step_later. asimpl. auto_STLCmuVS_step. iApply lift_step. auto_STLCmuVS_step. iNext. simplify_custom. asimpl. do 2 rewrite subst_list_val_cons.
     iApply IH2; auto. simpl. auto.
   Qed.
 
@@ -131,7 +131,7 @@ Section un_le_syn.
     rewrite valrel_unfold. iExists TCArrow. fold valrel. iExists (LamV e'.[up (subst_list_val vs')]). iSplit; auto.
     simpl. iExists _. repeat iSplit; auto.
     do 2 iModIntro. iIntros (w w') "#Hww'".
-    iApply lift_step. auto_lam_step.
+    iApply lift_step. auto_STLCmuVS_step.
     simplify_custom. asimpl. do 2 rewrite subst_list_val_cons.
     iApply IH. by simpl. simpl. auto.
   Qed.
@@ -148,7 +148,7 @@ Section un_le_syn.
     change (Lam e) with (of_val $ LamV e).
     (* change (Lam e') with (of_val $ LamV e'). *)
     iApply (lift_bind _ _ _ [AppRCtx _] [AppRCtx _]). iSplitL "". iApply IH2; auto. simpl.
-    iIntros (u w') "#Huw'/=". iApply lift_step_later. auto_lam_step. simplify_custom.
+    iIntros (u w') "#Huw'/=". iApply lift_step_later. auto_STLCmuVS_step. simplify_custom.
     iNext. by iApply "H".
   Qed.
 
@@ -185,7 +185,7 @@ Section un_le_syn.
     iApply (ectx_item_extract_bind _ (BinOpLCtx _ _) [] [BinOpLCtx _ _]); auto. iSplitL "". iApply IH1; auto. iIntros (v v') "#Hvv'".
     iApply (ectx_item_extract_bind _ (BinOpRCtx _ _) [] [BinOpRCtx _ _]); auto. iSplitL "". iApply IH2; auto. iIntros (w w') "#Hww'".
     iDestruct "Hvv'" as (a) "[-> ->]". iDestruct "Hww'" as (b) "[-> ->]".
-    iApply lift_step_later. auto_lam_step. iNext. iApply lift_step. auto_lam_step. simpl. iApply lift_val. simpl. destruct op; iExists _; iSplit; auto.
+    iApply lift_step_later. auto_STLCmuVS_step. iNext. iApply lift_step. auto_STLCmuVS_step. simpl. iApply lift_val. simpl. destruct op; iExists _; iSplit; auto.
     iIntros (v v') "Hvv'". simpl. iApply lift_step. apply inject_step'. iApply lift_val. rewrite valrel_unfold; iExists _; iExists _. iSplitR. auto. auto.
   Qed.
 
@@ -200,8 +200,8 @@ Section un_le_syn.
     (* if *) rewrite /= extract_Closed.
     iApply (ectx_item_extract_bind _ (IfCtx _ _) [] [IfCtx _ _]); auto. iSplitL "". iApply IHe1; auto.
     iIntros (v v') "Hvv'". simpl. iDestruct "Hvv'" as (b) "[-> ->]". destruct b.
-    + iApply lift_step_later. auto_lam_step. iNext. iApply lift_step. auto_lam_step. simpl. iApply IHe2; auto.
-    + iApply lift_step_later. auto_lam_step. iNext. iApply lift_step. auto_lam_step. simpl. iApply IHe3; auto.
+    + iApply lift_step_later. auto_STLCmuVS_step. iNext. iApply lift_step. auto_STLCmuVS_step. simpl. iApply IHe2; auto.
+    + iApply lift_step_later. auto_STLCmuVS_step. iNext. iApply lift_step. auto_STLCmuVS_step. simpl. iApply IHe3; auto.
   Qed.
 
   Lemma compat_Seq:
@@ -214,7 +214,7 @@ Section un_le_syn.
     rewrite /= extract_Closed.
     iApply (ectx_item_extract_bind _ (SeqCtx _) [] [SeqCtx _]); auto. iSplitL "". iApply IHe1; auto.
     iIntros (v v') "[-> ->]". simpl.
-    iApply lift_step. auto_lam_step. simpl. iApply lift_step_later. auto_lam_step. simpl.
+    iApply lift_step. auto_STLCmuVS_step. simpl. iApply lift_step_later. auto_STLCmuVS_step. simpl.
     iApply IHe2; auto.
   Qed.
 
@@ -241,7 +241,7 @@ Section un_le_syn.
     asimpl. rewrite extract_Closed.
     iApply (ectx_item_extract_bind _ FstCtx [] [FstCtx]); auto. iSplitL "". iApply IHe; auto.
     iIntros (v v') "Hvv'". simpl. iDestruct "Hvv'" as (v1 v2 v1' v2') "(-> & -> & #H1 & #H2)".
-    iApply lift_step_later. auto_lam_step. iNext. iApply lift_step. auto_lam_step. simplify_custom. by iApply lift_val.
+    iApply lift_step_later. auto_STLCmuVS_step. iNext. iApply lift_step. auto_STLCmuVS_step. simplify_custom. by iApply lift_val.
   Qed.
 
   Lemma compat_Snd:
@@ -252,7 +252,7 @@ Section un_le_syn.
     asimpl. rewrite extract_Closed.
     iApply (ectx_item_extract_bind _ SndCtx [] [SndCtx]); auto. iSplitL "". iApply IHe; auto.
     iIntros (v v') "Hvv'". simpl. iDestruct "Hvv'" as (v1 v2 v1' v2') "(-> & -> & #H1 & #H2)".
-    iApply lift_step_later. auto_lam_step. iNext. iApply lift_step. auto_lam_step. simplify_custom. by iApply lift_val.
+    iApply lift_step_later. auto_STLCmuVS_step. iNext. iApply lift_step. auto_STLCmuVS_step. simplify_custom. by iApply lift_val.
   Qed.
 
   Lemma compat_InjL:
@@ -291,8 +291,8 @@ Section un_le_syn.
     rewrite /= extract_Closed.
     iApply (ectx_item_extract_bind _ (CaseCtx _ _) [] [CaseCtx _ _]); auto. iSplitL "". iApply IHe0; auto.
     iIntros (v v') "Hvv'". simpl. iDestruct "Hvv'" as (vi vi') "[(-> & -> & #H1) | (-> & -> & #H2)]".
-    + iApply lift_step_later. auto_lam_step. iNext. iApply lift_step. auto_lam_step. simplify_custom. asimpl. do 2 rewrite subst_list_val_cons. iApply IHe1; auto. simpl. auto.
-    + iApply lift_step_later. auto_lam_step. iNext. iApply lift_step. auto_lam_step. simplify_custom. asimpl. do 2 rewrite subst_list_val_cons. iApply IHe2; auto. simpl. auto.
+    + iApply lift_step_later. auto_STLCmuVS_step. iNext. iApply lift_step. auto_STLCmuVS_step. simplify_custom. asimpl. do 2 rewrite subst_list_val_cons. iApply IHe1; auto. simpl. auto.
+    + iApply lift_step_later. auto_STLCmuVS_step. iNext. iApply lift_step. auto_STLCmuVS_step. simplify_custom. asimpl. do 2 rewrite subst_list_val_cons. iApply IHe2; auto. simpl. auto.
   Qed.
 
   Lemma compat_Fold:
@@ -314,12 +314,12 @@ Section un_le_syn.
     rewrite /= extract_Closed.
     iApply (ectx_item_extract_bind _ UnfoldCtx [] [UnfoldCtx]); auto. iSplitL "". iApply IHe; auto.
     iIntros (v v') "Hvv'". simpl. iDestruct "Hvv'" as (w w') "(-> & -> & #H)".
-    iApply lift_step_later. auto_lam_step. iNext. iApply lift_step. auto_lam_step. simplify_custom. by iApply lift_val.
+    iApply lift_step_later. auto_STLCmuVS_step. iNext. iApply lift_step. auto_STLCmuVS_step. simplify_custom. by iApply lift_val.
   Qed.
 
 
-  Lemma compat_GhostStep_help : ∀ v v',
-      valrel v v' ⊢ valrel (GhostStepped v) v'.
+  Lemma compat_VirtStep_help : ∀ v v',
+      valrel v v' ⊢ valrel (VirtStepped v) v'.
   Proof.
     iLöb as "IHlob".
     iIntros (v v') "#Hvv'".
@@ -344,31 +344,31 @@ Section un_le_syn.
       iExists _; iSplit; eauto. simpl. iExists _. iSplit; eauto. iNext.
       iDestruct "H" as "#H". iModIntro.
       iIntros (w w') "Hww'".
-      iAssert (valrel (GhostStepped w) w') with "[Hww']" as "Hwws'". by iApply "IHlob".
-      iSpecialize ("H" $! (GhostStepped w) w' with "Hwws'").
+      iAssert (valrel (VirtStepped w) w') with "[Hww']" as "Hwws'". by iApply "IHlob".
+      iSpecialize ("H" $! (VirtStepped w) w' with "Hwws'").
       asimpl. change (Lam e) with (of_val (LamV e)). iApply lift_rtc_steps_impl.
       eapply rtc_transitive.
-      apply (rtc_lam_step_ctx (fill [AppRCtx _; GhostStepCtx])). apply GhostStep_eval. simpl.
+      apply (rtc_STLCmuVS_step_ctx (fill [AppRCtx _; VirtStepCtx])). apply VirtStep_eval. simpl.
       change (Lam e) with (of_val (LamV e)).
-      apply (rtc_lam_step_ctx (fill [GhostStepCtx])).
-      eapply rtc_once. auto_lam_step. simplify_custom.
-      iApply (lift_bind _ _ _ [GhostStepCtx] []). iFrame "H".
-      iIntros (v v') "#Hvv'". iApply lift_rtc_steps_impl. apply GhostStep_eval.
+      apply (rtc_STLCmuVS_step_ctx (fill [VirtStepCtx])).
+      eapply rtc_once. auto_STLCmuVS_step. simplify_custom.
+      iApply (lift_bind _ _ _ [VirtStepCtx] []). iFrame "H".
+      iIntros (v v') "#Hvv'". iApply lift_rtc_steps_impl. apply VirtStep_eval.
       iApply lift_val. by iApply "IHlob".
     - iDestruct "Hcan" as (x x') "(-> & -> & #H)";
         iEval (rewrite valrel_unfold); fold valrel; iExists TCRec.
       iExists _; eauto. iSplit; eauto. iExists _, _. repeat iSplit; eauto. by iApply "IHlob".
   Qed.
 
-  Lemma compat_GhostStep e e' :
+  Lemma compat_VirtStep e e' :
     open_exprel n e e' →
-    open_exprel n (GhostStep e) e'.
+    open_exprel n (VirtStep e) e'.
   Proof.
     iIntros (IHe vs vs' Hlvs) "#Hvv's". asimpl.
-    iApply (lift_bind _ _ _ [GhostStepCtx] []). iSplitL "". iApply IHe; auto.
+    iApply (lift_bind _ _ _ [VirtStepCtx] []). iSplitL "". iApply IHe; auto.
     iIntros (v v') "#Hvv'". iClear "Hvv's". simpl.
-    iApply lift_rtc_steps_impl. apply GhostStep_eval.
-    iApply lift_val. by iApply compat_GhostStep_help.
+    iApply lift_rtc_steps_impl. apply VirtStep_eval.
+    iApply lift_val. by iApply compat_VirtStep_help.
   Qed.
 
 End un_le_syn.

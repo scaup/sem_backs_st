@@ -1,6 +1,6 @@
 From iris Require Import program_logic.weakestpre.
 From iris.proofmode Require Import tactics.
-From st.lam Require Import lang types typing wkpre generic.lift contexts logrel.definitions tactics.
+From st.STLCmuVS Require Import lang types typing wkpre generic.lift contexts logrel.definitions tactics.
 From st.prelude Require Import big_op_three.
 From st Require Import resources.
 
@@ -61,8 +61,8 @@ Section definition.
     iApply (lift_bind [BinOpLCtx op _] [BinOpLCtx op _]). by iApply IHe1. iIntros (v1 v1') "#Hv1".
     iApply (lift_bind [BinOpRCtx op _] [BinOpRCtx op _]). by iApply IHe2. iIntros (v2 v2') "#Hv2".
     rewrite !valrel_typed_TInt_unfold. iDestruct "Hv1" as (z1) "[-> ->]". iDestruct "Hv2" as (z2) "[-> ->]".
-    iApply lift_step. auto_lam_step.
-    iApply lift_step_later. auto_lam_step. iNext. simpl.
+    iApply lift_step. auto_STLCmuVS_step.
+    iApply lift_step_later. auto_STLCmuVS_step. iNext. simpl.
     iApply lift_val.
     destruct op; simpl; (rewrite valrel_typed_TInt_unfold || rewrite valrel_typed_TBool_unfold); by iExists _.
   Qed.
@@ -75,8 +75,8 @@ Section definition.
     iIntros (vs vs') "#Hvsvs".
     iApply (lift_bind [SeqCtx _] [SeqCtx _]). by iApply IHe1. iIntros (v1 v1') "#Hv1".
     rewrite !valrel_typed_TUnit_unfold. iDestruct "Hv1" as "[-> ->]".
-    iApply lift_step. auto_lam_step.
-    iApply lift_step_later. auto_lam_step. iNext. simpl.
+    iApply lift_step. auto_STLCmuVS_step.
+    iApply lift_step_later. auto_STLCmuVS_step. iNext. simpl.
     by iApply IHe2.
   Qed.
 
@@ -99,8 +99,8 @@ Section definition.
     iIntros (vs vs') "#Hvsvs".
     iApply (lift_bind [FstCtx] [FstCtx]). by iApply IHe. iIntros (v v') "#Hv".
     rewrite !valrel_typed_TProd_unfold. iDestruct "Hv" as (v1 v2 v1' v2') "(-> & -> & H1 & H2)".
-    iApply lift_step. auto_lam_step.
-    iApply lift_step_later. auto_lam_step. iNext. simplify_custom. by iApply lift_val.
+    iApply lift_step. auto_STLCmuVS_step.
+    iApply lift_step_later. auto_STLCmuVS_step. iNext. simplify_custom. by iApply lift_val.
   Qed.
 
   Lemma compat_Snd (Γ : list type) (e e' : expr) (τ1 τ2 : type) :
@@ -110,8 +110,8 @@ Section definition.
     iIntros (vs vs') "#Hvsvs".
     iApply (lift_bind [SndCtx] [SndCtx]). by iApply IHe. iIntros (v v') "#Hv".
     rewrite !valrel_typed_TProd_unfold. iDestruct "Hv" as (v1 v2 v1' v2') "(-> & -> & H1 & H2)".
-    iApply lift_step. auto_lam_step.
-    iApply lift_step_later. auto_lam_step. iNext. simplify_custom. by iApply lift_val.
+    iApply lift_step. auto_STLCmuVS_step.
+    iApply lift_step_later. auto_STLCmuVS_step. iNext. simplify_custom. by iApply lift_val.
   Qed.
 
   Lemma compat_InjL (Γ : list type) (e e' : expr) (τ1 τ2 : type) :
@@ -143,9 +143,9 @@ Section definition.
     iIntros (vs vs') "#Hvsvs".
     iApply (lift_bind [CaseCtx _ _] [CaseCtx _ _]). by iApply IHe0. iIntros (v v') "#Hv".
     rewrite !valrel_typed_TSum_unfold. iDestruct "Hv" as (vi vi') "[(-> & -> & H) | (-> & -> & H)]".
-    - iApply lift_step. auto_lam_step. iApply lift_step_later. auto_lam_step. iNext. simplify_custom.
+    - iApply lift_step. auto_STLCmuVS_step. iApply lift_step_later. auto_STLCmuVS_step. iNext. simplify_custom.
       rewrite !subst_list_val_cons. iApply IHe1. simpl. auto.
-    - iApply lift_step. auto_lam_step. iApply lift_step_later. auto_lam_step. iNext. simplify_custom.
+    - iApply lift_step. auto_STLCmuVS_step. iApply lift_step_later. auto_STLCmuVS_step. iNext. simplify_custom.
       rewrite !subst_list_val_cons. iApply IHe2. simpl. auto.
   Qed.
 
@@ -157,7 +157,7 @@ Section definition.
     iIntros (vs vs') "#Hvsvs".
     iApply (lift_bind [IfCtx _ _] [IfCtx _ _]). by iApply IHe0. iIntros (v v') "#Hv".
     rewrite !valrel_typed_TBool_unfold. iDestruct "Hv" as (b) "[-> ->]".
-    destruct b; (iApply lift_step; first by auto_lam_step); (iApply lift_step_later; first by auto_lam_step); iNext; simpl;
+    destruct b; (iApply lift_step; first by auto_STLCmuVS_step); (iApply lift_step_later; first by auto_STLCmuVS_step); iNext; simpl;
       [by iApply IHe1 | by iApply IHe2].
   Qed.
 
@@ -168,7 +168,7 @@ Section definition.
     intros IHe1 IHe2.
     iIntros (vs vs') "#Hvsvs".
     iApply (lift_bind [LetInCtx _] [LetInCtx _]). by iApply IHe1. iIntros (v1 v1') "#Hv1".
-    iApply lift_step; first by auto_lam_step. iApply lift_step_later; first by auto_lam_step. iNext. simplify_custom.
+    iApply lift_step; first by auto_STLCmuVS_step. iApply lift_step_later; first by auto_STLCmuVS_step. iNext. simplify_custom.
     rewrite !subst_list_val_cons. iApply IHe2. simpl. auto.
   Qed.
 
@@ -180,7 +180,7 @@ Section definition.
     iIntros (vs vs') "#Hvsvs". simpl.
     change (Lam ?e) with (of_val (LamV e)). iApply lift_val.
     rewrite valrel_typed_TArrow_unfold. iModIntro. iIntros (w w') "Hww".
-    iApply lift_step; first by auto_lam_step. iApply lift_step_later; first by auto_lam_step. iNext. simplify_custom.
+    iApply lift_step; first by auto_STLCmuVS_step. iApply lift_step_later; first by auto_STLCmuVS_step. iNext. simplify_custom.
     rewrite !subst_list_val_cons. iApply IHe. simpl. auto.
   Qed.
 
@@ -212,7 +212,7 @@ Section definition.
     iIntros (vs vs') "#Hvsvs". simpl.
     iApply (lift_bind [UnfoldCtx] [UnfoldCtx]). by iApply IHe. iIntros (v v') "#Hv".
     rewrite valrel_typed_TRec_unfold. iDestruct "Hv" as (w w') "(-> & -> & Hw)".
-    iApply lift_step; first by auto_lam_step. iApply lift_step_later; first by auto_lam_step. iNext. simplify_custom.
+    iApply lift_step; first by auto_STLCmuVS_step. iApply lift_step_later; first by auto_STLCmuVS_step. iNext. simplify_custom.
     by iApply lift_val.
   Qed.
 

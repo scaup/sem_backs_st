@@ -1,4 +1,4 @@
-From st.lam Require Import lang types typing.
+From st.STLCmuVS Require Import lang types typing.
 
 Inductive expr_scoped (n : nat) : expr → Prop :=
  | Var_scoped x :
@@ -57,9 +57,9 @@ Inductive expr_scoped (n : nat) : expr → Prop :=
  | Unfold_scoped e :
      expr_scoped n e →
      expr_scoped n (Unfold e)
- | GhostStep_scoped e :
+ | VirtStep_scoped e :
      expr_scoped n e →
-     expr_scoped n (GhostStep e).
+     expr_scoped n (VirtStep e).
 
 Lemma expr_Closed_n (e : expr) : ∀ n, Closed_n n e <-> expr_scoped n e.
 Proof.
@@ -83,7 +83,7 @@ Qed.
 Lemma expr_typed_scoped Γ (e : expr) τ : typed Γ e τ → expr_scoped (length Γ) e.
 Proof. intro de. apply expr_Closed_n. intro σ. by eapply typed_n_closed. Qed.
 
-From st.lam Require Import contexts.
+From st.STLCmuVS Require Import contexts.
 
 Inductive ctx_item_scoped : ctx_item → nat → nat → Prop :=
   | CTX_Lam_scoped n :
@@ -148,8 +148,8 @@ Inductive ctx_item_scoped : ctx_item → nat → nat → Prop :=
       ctx_item_scoped CTX_Fold n n
   | CTX_Unfold_scoped n :
       ctx_item_scoped CTX_Unfold n n
-  | CTX_GhostStep_scoped n :
-      ctx_item_scoped CTX_GhostStep n n.
+  | CTX_VirtStep_scoped n :
+      ctx_item_scoped CTX_VirtStep n n.
 
 Notation "|s> n ⊢ₙₒ e" := (expr_scoped n e) (at level 74, n, e at next level).
 Notation "|sCi> n ⊢ₙₒ Ci ☾ m ☽" := (ctx_item_scoped Ci m n) (at level 74, n, Ci, m at next level).

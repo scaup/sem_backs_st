@@ -1,4 +1,4 @@
-From st.lam Require Import lang tactics lib.fixlam.
+From st.STLCmuVS Require Import lang tactics lib.fixSTLCmuVS.
 From iris.base_logic.lib Require Export ghost_map.
 From iris.proofmode Require Import tactics.
 Require Export st.backtranslations.st_sem.list_gmap.
@@ -6,7 +6,7 @@ Require Export st.backtranslations.st_sem.list_gmap.
 Section ghost.
 
   Context `{Σ : !gFunctors}.
-  Context `{irisG_inst : !irisG lam_lang Σ}.
+  Context `{irisG_inst : !irisG STLCmuVS_lang Σ}.
   Context `{ghost_mapG_inst : !ghost_mapG Σ nat V}.
 
   Definition auth_list (γ : gname) (vs : list V) : iProp Σ :=

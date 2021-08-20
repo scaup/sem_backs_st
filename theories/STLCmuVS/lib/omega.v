@@ -1,4 +1,4 @@
-From st.lam Require Import types lang typing tactics.
+From st.STLCmuVS Require Import types lang typing tactics.
 
 Definition Ω : expr :=
   (Lam (Unfold %0 %0)
@@ -19,10 +19,10 @@ Proof.
   by econstructor.
 Qed.
 
-Lemma Ω_loop : nsteps lam_step 2 Ω Ω.
-Proof. do 2 (eapply nsteps_l; first auto_lam_step; simpl). by apply nsteps_O. Qed.
+Lemma Ω_loop : nsteps STLCmuVS_step 2 Ω Ω.
+Proof. do 2 (eapply nsteps_l; first auto_STLCmuVS_step; simpl). by apply nsteps_O. Qed.
 
-(* From st.lam Require Import wkpre. *)
+(* From st.STLCmuVS Require Import wkpre. *)
 (* From iris Require Import program_logic.weakestpre. *)
 (* From iris.proofmode Require Import tactics. *)
 

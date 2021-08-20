@@ -1,5 +1,5 @@
 From st.STLCmuST Require Import typing lang contexts.
-From st.lam Require Import lang scopedness contexts.
+From st.STLCmuVS Require Import lang scopedness contexts.
 From st.backtranslations.st_sem Require Import heap_emul.base expressions contexts.
 
 Opaque alloc read write bind retrn runst.

@@ -9,7 +9,7 @@ From st.prelude Require Import big_op_three.
 
 From st.STLCmuST Require Import lang types typing.
 
-From st.lam Require Import lang wkpre tactics.
+From st.STLCmuVS Require Import lang wkpre tactics.
 From st.backtranslations.st_sem Require Import help expressions ghost heap_emul.base heap_emul.spec.
 From st.backtranslations.st_sem.correctness.sem_le_st.logrel Require Import lift definition compat_help.
 From st Require Import resources.
@@ -109,11 +109,11 @@ Section compat_lemmas.
     iDestruct (H1 with "Hvsvs'") as "H1". clear H1. iDestruct (H2 with "Hvsvs'") as "H2". clear H2.
     iClear "Hvsvs'".
     change ((write ?e1 ?e2).[?σ]) with (write e1.[σ] e2.[σ]).
-    iApply (lift_bind _ [lam.lang.AppRCtx _; lam.lang.AppLCtx _] [WriteLCtx _] with "H1"). simpl.
+    iApply (lift_bind _ [STLCmuVS.lang.AppRCtx _; STLCmuVS.lang.AppLCtx _] [WriteLCtx _] with "H1"). simpl.
     iIntros (v1 v1') "#Hv1v1'". iClear "H1".
     iApply lift_step_later.
-    apply (@lam_step_ctx (lam.lang.fill_item (lam.lang.AppLCtx _)) (ectxi_lang_ctx_item _)). apply write_step. simpl.
-    iApply (lift_bind _ [lam.lang.AppRCtx _] [WriteRCtx _] with "H2"). iClear "H2". iNext.
+    apply (@STLCmuVS_step_ctx (STLCmuVS.lang.fill_item (STLCmuVS.lang.AppLCtx _)) (ectxi_lang_ctx_item _)). apply write_step. simpl.
+    iApply (lift_bind _ [STLCmuVS.lang.AppRCtx _] [WriteRCtx _] with "H2"). iClear "H2". iNext.
     iIntros (v2 v2') "#Hv2v2'". simpl.
     iApply lift_step_later. apply write_i_step. iNext.
     change (Write v1' v2') with (lang.of_val $ WriteV v1' v2').
@@ -165,10 +165,10 @@ Section compat_lemmas.
     iClear "Hvsvs'".
     change ((bind ?e1 ?e2).[?σ]) with (bind e1.[σ] e2.[σ]).
     change ((Bind ?e1 ?e2).[?σ]) with (Bind e1.[σ] e2.[σ]).
-    iApply (lift_bind _ [lam.lang.AppRCtx _; lam.lang.AppLCtx _] [BindLCtx _] with "H1"). simpl.
+    iApply (lift_bind _ [STLCmuVS.lang.AppRCtx _; STLCmuVS.lang.AppLCtx _] [BindLCtx _] with "H1"). simpl.
     iIntros (v1 v1') "#Hv1v1'". iClear "H1".
-    iApply lift_step_later. apply (@lam_step_ctx (lam.lang.fill_item (lam.lang.AppLCtx _)) (ectxi_lang_ctx_item _)). apply bind_step. iNext. simpl.
-    iApply (lift_bind _ [lam.lang.AppRCtx _] [BindRCtx _] with "H2").
+    iApply lift_step_later. apply (@STLCmuVS_step_ctx (STLCmuVS.lang.fill_item (STLCmuVS.lang.AppLCtx _)) (ectxi_lang_ctx_item _)). apply bind_step. iNext. simpl.
+    iApply (lift_bind _ [STLCmuVS.lang.AppRCtx _] [BindRCtx _] with "H2").
     iIntros (v2 v2') "#Hv2v2'". simpl.
     iApply lift_step_later. apply bind_v_step. iNext.
     change (Bind (lang.of_val ?v1) (lang.of_val ?v2)) with (lang.of_val $ BindV v1 v2).
@@ -186,12 +186,12 @@ Section compat_lemmas.
     iApply wp_step_later.
     { apply head_prim_step. econstructor. by rewrite to_of_val. } iNext. asimpl.
     iApply wp_step_later.
-    { eapply (@lam_step_ctx (fill [LetInCtx _]) (ectx_lang_ctx _)).
+    { eapply (@STLCmuVS_step_ctx (fill [LetInCtx _]) (ectx_lang_ctx _)).
       apply head_prim_step. econstructor; by rewrite to_of_val. } simpl.
     iApply wp_step_later.
     { apply head_prim_step. econstructor. by rewrite to_of_val. } iNext. iNext. asimpl.
     iApply wp_step_later.
-    { eapply (@lam_step_ctx (fill [LetInCtx _]) (ectx_lang_ctx _)).
+    { eapply (@STLCmuVS_step_ctx (fill [LetInCtx _]) (ectx_lang_ctx _)).
       apply head_prim_step. econstructor; by rewrite to_of_val. } asimpl. iNext.
     iApply wp_step_later.
     { apply head_prim_step. econstructor. by rewrite to_of_val. } iNext. asimpl.
@@ -217,15 +217,15 @@ Section compat_lemmas.
     iDestruct (Hee' with "Hvsvs'") as "Hee'". clear Hee'. iClear "Hvsvs'".
     change (Return ?e).[?σ] with (Return e.[σ]).
     change (retrn ?e).[?σ] with (retrn e.[σ]).
-    iApply (lift_bind _ [lam.lang.AppRCtx _] [ReturnCtx] with "Hee'").
+    iApply (lift_bind _ [STLCmuVS.lang.AppRCtx _] [ReturnCtx] with "Hee'").
     simpl. iIntros (v v') "#Hvv'". iClear "Hee'".
-    iApply lift_step_later. apply head_prim_step. econstructor. by rewrite lam.lang.to_of_val. asimpl.
-    change (Return (lang.of_val ?v)) with (lang.of_val $ ReturnV v). change (lam.lang.Lam ?e) with (lam.lang.of_val $ lam.lang.LamV e).
+    iApply lift_step_later. apply head_prim_step. econstructor. by rewrite STLCmuVS.lang.to_of_val. asimpl.
+    change (Return (lang.of_val ?v)) with (lang.of_val $ ReturnV v). change (STLCmuVS.lang.Lam ?e) with (STLCmuVS.lang.of_val $ STLCmuVS.lang.LamV e).
     iApply lift_val.
     (* ok *)
     rewrite valrel_typed_TST_unfold. destruct ρ; auto. destruct (Δ !! X) as [[γ γ']|] eqn:eq; auto.
     iIntros (ps σ). do 2 iModIntro. iIntros "Hσ AuthLoc AuthVal".
-    iApply wp_step_later. apply head_prim_step. eapply App_Lam_head_step'. by asimpl. by rewrite lam.lang.to_of_val. iNext.
+    iApply wp_step_later. apply head_prim_step. eapply App_Lam_head_step'. by asimpl. by rewrite STLCmuVS.lang.to_of_val. iNext.
     change ((of_val ?v1, of_val ?v2)%Eₙₒ) with (of_val (v1, v2)%Vₙₒ). iApply wp_value'.
     iExists v, v', ps, σ. iFrame. iFrame "Hvv'".
     iSplit; auto. iPureIntro. apply rtc_once. apply head_prim_step. econstructor. by rewrite lang.to_of_val.
@@ -241,7 +241,7 @@ Section compat_lemmas.
     change (runst ?e).[?σ] with (runst e.[σ]).
     change (RunST ?e).[?σ] with (RunST e.[σ]).
     iIntros (σ) "Hσ".
-    iMod (@ghost_empty _ lam.lang.val) as (γ) "AuthVals". iMod (@ghost_empty _ loc) as (γ') "AuthLocs".
+    iMod (@ghost_empty _ STLCmuVS.lang.val) as (γ) "AuthVals". iMod (@ghost_empty _ loc) as (γ') "AuthLocs".
     iDestruct (Hee' ((γ, γ') :: Δ) vs vs') as "Hee'". clear Hee'.
     rewrite -big_sepL3_fmap_l.
     (* change (Lam ?e) with (of_val $ LamV e). *)
@@ -249,10 +249,10 @@ Section compat_lemmas.
     iApply (wp_wand with "[Hσ]"). iApply "Hee'"; auto. iApply (big_sepL3_impl with "Hvsvs'"). iModIntro. iIntros (τ' v v') "H". by iApply valrel_typed_cons_ren.
     iIntros (v) "H". iDestruct "H" as (v' σ') "(Hσ' & %Hsteps & #Hvv')". iClear "Hvsvs' Hee'". simpl.
     rewrite valrel_typed_TST_unfold /=. iSpecialize ("Hvv'" $! [] σ' with "Hσ' AuthVals AuthLocs").
-    iApply wp_step_later. apply head_prim_step. econstructor. by rewrite lam.lang.to_of_val. asimpl. iNext. rewrite encode_empty_subst.
+    iApply wp_step_later. apply head_prim_step. econstructor. by rewrite STLCmuVS.lang.to_of_val. asimpl. iNext. rewrite encode_empty_subst.
     iApply (wp_bind' [SndCtx]).
     iApply (wp_wand with "Hvv'"). simpl. iIntros (x) "Hdes". iDestruct "Hdes" as (w w' ps σ'') "(-> & Hσ'' & AuthVals & AuthLocs & %Hsteps' & #Hrr')".
-    iApply wp_step_later. apply head_prim_step. econstructor; fold of_val; by rewrite lam.lang.to_of_val. fold of_val. iNext.
+    iApply wp_step_later. apply head_prim_step. econstructor; fold of_val; by rewrite STLCmuVS.lang.to_of_val. fold of_val. iNext.
     iApply wp_value'. iExists w', σ''. iFrame. iSplit.
     iPureIntro. eapply rtc_transitive; eauto. by apply (fill_STLCmuST_step_rtc [RunSTCtx]).
     by iApply valrel_typed_cons_ren.
@@ -276,7 +276,7 @@ Section compat_lemmas.
     rewrite !valrel_typed_TSTRef_unfold. destruct ρ; auto; destruct (Δ !! X) as [[γ γ']|] eqn:eq; auto.
     iDestruct "Hv1v1'" as (i1 l1) "(-> & -> & Hl1 & Hinv1)".
     iDestruct "Hv2v2'" as (i2 l2) "(-> & -> & Hl2 & Hinv2)".
-    iApply lift_step_later. apply head_prim_step. econstructor; by rewrite lam.lang.to_of_val.
+    iApply lift_step_later. apply head_prim_step. econstructor; by rewrite STLCmuVS.lang.to_of_val.
     iApply lift_pure_step. apply pure_step_eq_loc. iNext. iApply lift_val_fupd.
     setoid_rewrite valrel_typed_TBool_unfold.
     iExists (bool_decide (l1 = l2)). iSplitL ""; auto.

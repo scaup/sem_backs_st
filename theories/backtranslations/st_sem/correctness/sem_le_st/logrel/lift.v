@@ -4,7 +4,7 @@ From iris_string_ident Require Import ltac2_string_ident.
 From iris.base_logic.lib Require Import gen_heap.
 
 From st.STLCmuST Require Import lang.
-From st.lam Require Import lang wkpre.
+From st.STLCmuVS Require Import lang wkpre.
 From st Require Import resources.
 
 Section lift.
@@ -46,7 +46,7 @@ Section lift.
   Lemma lift_pure_step Φ eᵢ e e' (H : pure_step e e') : lift Φ eᵢ e' ⊢ lift Φ eᵢ e.
   Proof. iApply lift_pure_step_rtc. by apply rtc_once. Qed.
 
-  Lemma lift_step_later Φ e e' eₛ (H : lam_step e e') : ▷ lift Φ e' eₛ ⊢ lift Φ e eₛ.
+  Lemma lift_step_later Φ e e' eₛ (H : STLCmuVS_step e e') : ▷ lift Φ e' eₛ ⊢ lift Φ e eₛ.
   Proof. iIntros "H". iIntros (σ) "Hσ". iApply wp_step_later. eauto. by iApply "H". Qed.
 
   Lemma lift_val (Ψ : valO -n> STLCmuST.lang.valO -n> iPropO Σ) vᵢ vₛ : (Ψ vᵢ vₛ) ⊢ lift Ψ vᵢ vₛ.

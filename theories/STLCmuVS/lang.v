@@ -37,8 +37,8 @@ Inductive expr :=
 (** Polymorphic Types *)
 (* | TLam (e : expr) *)
 (* | TApp (e : expr). *)
-(* Ghost Step *)
-| GhostStep (e : expr).
+(* Virt Step *)
+| VirtStep (e : expr).
 
 Coercion LitInt : Z >-> base_lit.
 Coercion LitBool : bool >-> base_lit.
@@ -227,7 +227,7 @@ Inductive ectx_item :=
 | SeqCtx (e2 : expr)
 | FoldCtx
 | UnfoldCtx
-| GhostStepCtx.
+| VirtStepCtx.
 
 Definition fill_item (Ki : ectx_item) (e : expr) : expr :=
  match Ki with
@@ -249,7 +249,7 @@ Definition fill_item (Ki : ectx_item) (e : expr) : expr :=
  | SeqCtx e2 => Seq e e2
  | FoldCtx => Fold e
  | UnfoldCtx => Unfold e
- | GhostStepCtx => GhostStep e
+ | VirtStepCtx => VirtStep e
  end.
 
 (** The stepping relation *)
@@ -313,23 +313,23 @@ Inductive head_step : expr → state → list Empty_set → expr → state → l
 (* Polymorphic Types *)
 (* | TBeta e σ : *)
    (* head_step (TApp (TLam e)) σ [] e σ []. *)
-| GhostStep_Lam_head_step e σ :
-   head_step (GhostStep (Lam e)) σ [] (Lam (GhostStep ((Lam e).[ren (+1)] (GhostStep %0))))%Eₙₒ σ []
-| GhostStep_Lit_head_step bl σ :
-   head_step (GhostStep (Lit bl)) σ [] (Lit bl) σ []
-| GhostStep_Pair_head_step e1 v1 e2 v2 σ :
+| VirtStep_Lam_head_step e σ :
+   head_step (VirtStep (Lam e)) σ [] (Lam (VirtStep ((Lam e).[ren (+1)] (VirtStep %0))))%Eₙₒ σ []
+| VirtStep_Lit_head_step bl σ :
+   head_step (VirtStep (Lit bl)) σ [] (Lit bl) σ []
+| VirtStep_Pair_head_step e1 v1 e2 v2 σ :
    to_val e1 = Some v1 →
    to_val e2 = Some v2 →
-   head_step (GhostStep (Pair e1 e2)) σ [] (Pair (GhostStep e1) (GhostStep e2)) σ []
-| GhostStep_InjL_head_step e v σ :
+   head_step (VirtStep (Pair e1 e2)) σ [] (Pair (VirtStep e1) (VirtStep e2)) σ []
+| VirtStep_InjL_head_step e v σ :
    to_val e = Some v →
-   head_step (GhostStep (InjL e)) σ [] (InjL (GhostStep e)) σ []
-| GhostStep_InjR_head_step e v σ :
+   head_step (VirtStep (InjL e)) σ [] (InjL (VirtStep e)) σ []
+| VirtStep_InjR_head_step e v σ :
    to_val e = Some v →
-   head_step (GhostStep (InjR e)) σ [] (InjR (GhostStep e)) σ []
-| GhostStep_Fold_head_step e v σ :
+   head_step (VirtStep (InjR e)) σ [] (InjR (VirtStep e)) σ []
+| VirtStep_Fold_head_step e v σ :
    to_val e = Some v →
-   head_step (GhostStep (Fold e)) σ [] (Fold (GhostStep e)) σ [].
+   head_step (VirtStep (Fold e)) σ [] (Fold (VirtStep e)) σ [].
 
 Lemma App_Lam_head_step' (e' e1 e2 : expr) v2 (eq : e1.[e2/] = e') σ (H : to_val e2 = Some v2) :
   head_step (Lam e1 e2) σ [] e' σ [].
@@ -365,9 +365,9 @@ Proof.
  head_ctx_step_val, fill_item_inj.
 Qed.
 
-Canonical Structure lam_ectxi_lang : ectxiLanguage := EctxiLanguage st_ectxi_lang_mixin.
-Canonical Structure lam_ectx_lang : ectxLanguage := EctxLanguageOfEctxi lam_ectxi_lang.
-Canonical Structure lam_lang : language := LanguageOfEctx lam_ectx_lang.
+Canonical Structure STLCmuVS_ectxi_lang : ectxiLanguage := EctxiLanguage st_ectxi_lang_mixin.
+Canonical Structure STLCmuVS_ectx_lang : ectxLanguage := EctxLanguageOfEctxi STLCmuVS_ectxi_lang.
+Canonical Structure STLCmuVS_lang : language := LanguageOfEctx STLCmuVS_ectx_lang.
 
 Lemma fill_val (e : expr) (K : list ectx_item):
   is_Some (to_val (fill K e)) -> is_Some (to_val e).
@@ -378,15 +378,15 @@ Proof.
     congruence.
 Qed.
 
-Canonical Structure valO := valO lam_lang.
-Canonical Structure exprO := exprO lam_lang.
+Canonical Structure valO := valO STLCmuVS_lang.
+Canonical Structure exprO := exprO STLCmuVS_lang.
 
 (* Arguments val_stuck {_ _ _ _ _} _. *)
 (* Arguments fill_val {_ _} _. *)
 
 (* Wrapper around prim_step *)
 
-Definition lam_step (e1 e2 : expr) : Prop := prim_step e1 tt [] e2 tt [].
+Definition STLCmuVS_step (e1 e2 : expr) : Prop := prim_step e1 tt [] e2 tt [].
 
 (* We do not use forks, nor prophecy variables. *)
 
@@ -438,38 +438,38 @@ Qed.
 
 (* Wrappers around lemmas *)
 
-Lemma lam_pure e1 e2 : lam_step e1 e2 <-> pure_step e1 e2.
+Lemma STLCmuVS_pure e1 e2 : STLCmuVS_step e1 e2 <-> pure_step e1 e2.
 Proof.
   split. apply prim_step_pure. intro H. inversion H.
   destruct (pure_step_safe tt) as [e2' [σ [efs Hp]]].
   destruct σ. by destruct (pure_step_det _ _ _ _ _ Hp) as [a [b [-> ->]]].
 Qed.
 
-Lemma lam_step_ctx K `{!LanguageCtx K} e1 e2 : lam_step e1 e2 → lam_step (K e1) (K e2).
-Proof. intro. apply lam_pure. apply pure_step_ctx. auto. by apply lam_pure. Qed.
+Lemma STLCmuVS_step_ctx K `{!LanguageCtx K} e1 e2 : STLCmuVS_step e1 e2 → STLCmuVS_step (K e1) (K e2).
+Proof. intro. apply STLCmuVS_pure. apply pure_step_ctx. auto. by apply STLCmuVS_pure. Qed.
 
-Lemma rtc_lam_step_ctx K `{!LanguageCtx K} e1 e2 : rtc lam_step e1 e2 → rtc lam_step (K e1) (K e2).
-Proof. eauto using rtc_congruence, lam_step_ctx. Qed.
+Lemma rtc_STLCmuVS_step_ctx K `{!LanguageCtx K} e1 e2 : rtc STLCmuVS_step e1 e2 → rtc STLCmuVS_step (K e1) (K e2).
+Proof. eauto using rtc_congruence, STLCmuVS_step_ctx. Qed.
 
-Lemma nsteps_lam_step_ctx K `{!LanguageCtx K} n e1 e2 : nsteps lam_step n e1 e2 → nsteps lam_step n (K e1) (K e2).
-Proof. eauto using nsteps_congruence, lam_step_ctx. Qed.
+Lemma nsteps_STLCmuVS_step_ctx K `{!LanguageCtx K} n e1 e2 : nsteps STLCmuVS_step n e1 e2 → nsteps STLCmuVS_step n (K e1) (K e2).
+Proof. eauto using nsteps_congruence, STLCmuVS_step_ctx. Qed.
 
-Lemma nsteps_PureExec (e1 e2 : expr) n : nsteps lam_step n e1 e2 <-> PureExec True n e1 e2.
+Lemma nsteps_PureExec (e1 e2 : expr) n : nsteps STLCmuVS_step n e1 e2 <-> PureExec True n e1 e2.
 Proof.
-  split. intros s t. eapply nsteps_congruence with (f := id). by apply lam_pure. auto.
-  intro H. eapply nsteps_congruence with (f := id). apply lam_pure. apply pure_exec. auto.
+  split. intros s t. eapply nsteps_congruence with (f := id). by apply STLCmuVS_pure. auto.
+  intro H. eapply nsteps_congruence with (f := id). apply STLCmuVS_pure. apply pure_exec. auto.
 Qed.
 
-Lemma rtc_PureExec (e1 e2 : expr) : rtc lam_step e1 e2 <-> ∃ n, PureExec True n e1 e2.
+Lemma rtc_PureExec (e1 e2 : expr) : rtc STLCmuVS_step e1 e2 <-> ∃ n, PureExec True n e1 e2.
 Proof.
   split.
   intro H. assert (H' : rtc pure_step e1 e2).
-  eapply rtc_subrel. by apply lam_pure. auto. destruct (rtc_nsteps _ _ H') as [n H'']. exists n. intros _. done.
+  eapply rtc_subrel. by apply STLCmuVS_pure. auto. destruct (rtc_nsteps _ _ H') as [n H'']. exists n. intros _. done.
   intro d. destruct d as [n H]. eapply nsteps_rtc. by apply nsteps_PureExec.
 Qed.
 
-Lemma step_PureExec (e1 e2 : expr) : lam_step e1 e2 → PureExec True 1 e1 e2.
-Proof. intros s t. apply nsteps_once. by apply lam_pure. Qed.
+Lemma step_PureExec (e1 e2 : expr) : STLCmuVS_step e1 e2 → PureExec True 1 e1 e2.
+Proof. intros s t. apply nsteps_once. by apply STLCmuVS_pure. Qed.
 
-Definition lam_halts (e : lam.lang.expr) : Prop :=
-  ∃ (v : lam.lang.val), rtc lam_step e (lam.lang.of_val v).
+Definition STLCmuVS_halts (e : STLCmuVS.lang.expr) : Prop :=
+  ∃ (v : STLCmuVS.lang.val), rtc STLCmuVS_step e (STLCmuVS.lang.of_val v).

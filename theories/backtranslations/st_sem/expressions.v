@@ -1,5 +1,5 @@
 From st.STLCmuST Require Import lang.
-From st.lam Require Import lang.
+From st.STLCmuVS Require Import lang.
 From st.backtranslations.st_sem Require Import heap_emul.base.
 
 Reserved Notation "<< e >>" (at level 4, e at next level).

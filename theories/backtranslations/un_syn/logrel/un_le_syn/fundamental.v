@@ -1,6 +1,6 @@
 From iris Require Import program_logic.weakestpre.
 From iris.proofmode Require Import tactics.
-From st.lam Require Import lang scopedness wkpre generic.lift types reducibility tactics contexts.
+From st.STLCmuVS Require Import lang scopedness wkpre generic.lift types reducibility tactics contexts.
 From st.backtranslations.un_syn Require Import logrel.definitions expressions contexts universe.base universe.paths un_le_syn.compat_lemmas.
 
 Section un_le_syn.
@@ -8,7 +8,7 @@ Section un_le_syn.
   Instance rfn : refinement := un_le_syn.
 
   Context `{Σ : !gFunctors}.
-  Context `{irisG_inst : !irisG lam_lang Σ}.
+  Context `{irisG_inst : !irisG STLCmuVS_lang Σ}.
 
   Lemma universe_back_expr_in_relation n (e : expr) (pne : expr_scoped n e) :
     open_exprel n e (universe_back_expr e).
@@ -30,7 +30,7 @@ Section un_le_syn.
     - by apply compat_Case.
     - by apply compat_Fold.
     - by apply compat_Unfold.
-    - by apply compat_GhostStep.
+    - by apply compat_VirtStep.
   Qed.
 
   Lemma universe_back_ctx_item_in_relation n m (Ci : ctx_item) (pCi : ctx_item_scoped Ci n m) :
@@ -58,7 +58,7 @@ Section un_le_syn.
     - apply compat_If; auto; by apply universe_back_expr_in_relation.
     - by apply compat_Fold.
     - by apply compat_Unfold.
-    - by apply compat_GhostStep.
+    - by apply compat_VirtStep.
   Qed.
 
   Lemma universe_back_ctx_in_relation n m (C : ctx) (pC : ctx_scoped C n m) :

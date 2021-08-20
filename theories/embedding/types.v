@@ -1,16 +1,16 @@
-From st Require Import lam.types STLCmuST.types.
+From st Require Import STLCmuVS.types STLCmuST.types.
 From st.prelude Require Export generic autosubst.
 
-Fixpoint embed (τ : lam.types.type) : STLCmuST.types.type :=
+Fixpoint embed (τ : STLCmuVS.types.type) : STLCmuST.types.type :=
   match τ with
-  | lam.types.TUnit => TUnit
-  | lam.types.TBool => TBool
-  | lam.types.TInt => TInt
-  | lam.types.TProd τ1 τ2 => TProd (embed τ1) (embed τ2)
-  | lam.types.TSum τ1 τ2 => TSum (embed τ1) (embed τ2)
-  | lam.types.TArrow τ1 τ2 => TArrow (embed τ1) (embed τ2)
-  | lam.types.TRec τb => TRec (embed τb)
-  | lam.types.TVar X => TVar X
+  | STLCmuVS.types.TUnit => TUnit
+  | STLCmuVS.types.TBool => TBool
+  | STLCmuVS.types.TInt => TInt
+  | STLCmuVS.types.TProd τ1 τ2 => TProd (embed τ1) (embed τ2)
+  | STLCmuVS.types.TSum τ1 τ2 => TSum (embed τ1) (embed τ2)
+  | STLCmuVS.types.TArrow τ1 τ2 => TArrow (embed τ1) (embed τ2)
+  | STLCmuVS.types.TRec τb => TRec (embed τb)
+  | STLCmuVS.types.TVar X => TVar X
   end.
 
 Notation "[| τ |]" := (embed τ) (at level 4, τ at next level).
@@ -27,7 +27,7 @@ Proof.
     destruct (lt_dec X l); by asimpl.
 Qed.
 
-Lemma embed_TRec_comm_gen (τb : lam.types.type) : forall (τ : lam.types.type) k,
+Lemma embed_TRec_comm_gen (τb : STLCmuVS.types.type) : forall (τ : STLCmuVS.types.type) k,
   [| τb.[upn k (τ .: ids)] |] = [|τb|].[upn k ([|τ|] .: ids)].
 Proof.
   induction τb; intros τ' k; try by asimpl.
@@ -45,10 +45,10 @@ Proof.
         destruct (X - k). exfalso; lia. by asimpl.
 Qed.
 
-Lemma embed_TRec_comm (τb : lam.types.type) :
-  [| τb.[lam.types.TRec τb/]|] = [|τb|].[TRec [|τb|]/].
+Lemma embed_TRec_comm (τb : STLCmuVS.types.type) :
+  [| τb.[STLCmuVS.types.TRec τb/]|] = [|τb|].[TRec [|τb|]/].
 Proof.
-  cut ([| (τb.[upn 0 ((lam.types.TRec τb) .: ids)])|] = [|τb|].[upn 0 ([|(lam.types.TRec τb)|] .: ids)]).
+  cut ([| (τb.[upn 0 ((STLCmuVS.types.TRec τb) .: ids)])|] = [|τb|].[upn 0 ([|(STLCmuVS.types.TRec τb)|] .: ids)]).
   by asimpl. apply embed_TRec_comm_gen.
 Qed.
 

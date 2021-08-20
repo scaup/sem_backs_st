@@ -1,4 +1,4 @@
-From st.lam Require Import lang typing types contexts scopedness.
+From st.STLCmuVS Require Import lang typing types contexts scopedness.
 From st.backtranslations.un_syn Require Import universe.base expressions contexts typed.
 From st.backtranslations.sem_syn Require Import embed_project gamma_lib.
 From st.prelude Require Import forall_three.

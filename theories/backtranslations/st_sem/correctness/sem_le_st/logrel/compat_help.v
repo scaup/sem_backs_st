@@ -54,7 +54,7 @@ Qed.
 From iris.proofmode Require Import tactics.
 From iris.base_logic.lib Require Import invariants gen_heap.
 From st.backtranslations.st_sem Require Import ghost heap_emul.base.
-From st.lam Require Import lang.
+From st.STLCmuVS Require Import lang.
 From st Require Import resources.
 
 Local Notation "l ↦ v" := (mapsto l (DfracOwn 1) v)

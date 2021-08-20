@@ -1,5 +1,5 @@
 From st.prelude Require Import generic forall_three.
-From st.lam Require Import lang typing types tactics contexts contexts_subst scopedness.
+From st.STLCmuVS Require Import lang typing types tactics contexts contexts_subst scopedness.
 
 Definition GammaType (Γ : list type) (τ : type) : type := foldr (TArrow) τ (rev Γ).
 
@@ -198,16 +198,16 @@ Proof.
   by rewrite -(Forall3_length_lm _ _ _ _ H) (Forall3_length_lr _ _ _ _ H) -minus_diag_reverse /= take_0.
 Qed.
 
-Lemma wrap_funs_vals_eval_ctx (e1 e2 : expr) (fvs : list (val * val)) (H : rtc lam_step e1 e2) :
-  rtc lam_step (wrap_funs_vals e1 fvs) (wrap_funs_vals e2 fvs).
+Lemma wrap_funs_vals_eval_ctx (e1 e2 : expr) (fvs : list (val * val)) (H : rtc STLCmuVS_step e1 e2) :
+  rtc STLCmuVS_step (wrap_funs_vals e1 fvs) (wrap_funs_vals e2 fvs).
 Proof.
   induction fvs as [|[f v] fvs IH]; first done.
-  by apply (rtc_lam_step_ctx (fill [AppLCtx _])).
+  by apply (rtc_STLCmuVS_step_ctx (fill [AppLCtx _])).
 Qed.
 
-Lemma wrap_funs_vals_eval (fvs : list (val * val)) (vs' : list val) (H : Forall2 (fun fv v' => rtc lam_step (of_val fv.1 (of_val fv.2)) (of_val v')) fvs vs') :
-  ∀ e, let lamgam : expr := (LamGamma (length fvs) e) in
-       rtc lam_step (wrap_funs_vals lamgam fvs) (e.[subst_list_val vs']).
+Lemma wrap_funs_vals_eval (fvs : list (val * val)) (vs' : list val) (H : Forall2 (fun fv v' => rtc STLCmuVS_step (of_val fv.1 (of_val fv.2)) (of_val v')) fvs vs') :
+  ∀ e, let STLCmuVSgam : expr := (LamGamma (length fvs) e) in
+       rtc STLCmuVS_step (wrap_funs_vals STLCmuVSgam fvs) (e.[subst_list_val vs']).
 Proof.
   revert H. revert vs'. induction fvs as [|[f v] fvs IHfvs] using rev_ind.
   - intros vs' H; destruct vs' as [|v' vs' _] using rev_ind.
@@ -225,7 +225,7 @@ Proof.
     change (Lam ?e) with (of_val $ LamV e).
     apply rtc_transitive with (y := wrap_funs_vals (LamGamma (length fvs) e).[of_val v'/] fvs).
     apply wrap_funs_vals_eval_ctx.
-    eapply rtc_transitive. apply (rtc_lam_step_ctx (fill [AppRCtx _])). apply P. simpl. apply rtc_once. apply head_prim_step. auto_head_step.
+    eapply rtc_transitive. apply (rtc_STLCmuVS_step_ctx (fill [AppRCtx _])). apply P. simpl. apply rtc_once. apply head_prim_step. auto_head_step.
     rewrite -fill_LamGamma_ctx subst_fill_ctx.
     assert (scp : |sC> 0 ⊢ₙₒ (LamGamma_ctx (length fvs)) ☾ length fvs ☽).
     { change 0 with (length ([] : list type)).
@@ -241,9 +241,9 @@ Proof.
 Qed.
 
 Lemma wrap_funs_vals_eval' (vs' : list val) e (fs vs : list val) l (Hl : l = (length fs)) (Hfs : Forall (fun f => Closed (of_val f)) fs)
-      (H : Forall3 (fun f v v' => rtc lam_step (of_val f (of_val v)) (of_val v')) fs vs vs') :
-  let lamgam : expr := (LamGamma l e) in
-       rtc lam_step (wrap_funs_vals lamgam (zip fs vs)) (e.[subst_list_val vs']).
+      (H : Forall3 (fun f v v' => rtc STLCmuVS_step (of_val f (of_val v)) (of_val v')) fs vs vs') :
+  let STLCmuVSgam : expr := (LamGamma l e) in
+       rtc STLCmuVS_step (wrap_funs_vals STLCmuVSgam (zip fs vs)) (e.[subst_list_val vs']).
 Proof.
   rewrite Hl.
   assert (length fs = length (zip fs vs)) as ->.

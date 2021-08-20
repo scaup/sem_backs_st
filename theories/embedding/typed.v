@@ -1,9 +1,9 @@
-From st.lam Require Import lang typing types.
+From st.STLCmuVS Require Import lang typing types.
 From st.STLCmuST Require Import lang typing types.
 From st.embedding Require Import expressions types.
 
-Lemma embd_typed (Γ : list lam.types.type) (e : lam.lang.expr) (τ : lam.types.type) :
-  lam.typing.typed Γ e τ → STLCmuST.typing.typed (fmap embed Γ) (embd_expr e) (embed τ).
+Lemma embd_typed (Γ : list STLCmuVS.types.type) (e : STLCmuVS.lang.expr) (τ : STLCmuVS.types.type) :
+  STLCmuVS.typing.typed Γ e τ → STLCmuST.typing.typed (fmap embed Γ) (embd_expr e) (embed τ).
 Proof.
   intro de. induction de; try by econstructor.
   - constructor. by rewrite list_lookup_fmap H.

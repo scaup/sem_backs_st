@@ -1,4 +1,4 @@
-From st.lam Require Import lang.
+From st.STLCmuVS Require Import lang.
 
 Fixpoint ectx_expr (e : expr) : list ectx_item :=
   match e with
@@ -75,9 +75,9 @@ Fixpoint ectx_expr (e : expr) : list ectx_item :=
              (* | Some v => [] *)
              (* | None => ectx_expr e ++ [TAppCtx] *)
              (* end *)
-  | GhostStep e => match to_val e with
+  | VirtStep e => match to_val e with
                 | Some v => []
-                | None => ectx_expr e ++ [GhostStepCtx]
+                | None => ectx_expr e ++ [VirtStepCtx]
                 end
   end.
 
@@ -157,8 +157,8 @@ Fixpoint head_expr (e : expr) : expr :=
              (* | Some v => TApp v *)
              (* | None => head_expr e *)
              (* end *)
-  | GhostStep e => match to_val e with
-                  | Some v => GhostStep v
+  | VirtStep e => match to_val e with
+                  | Some v => VirtStep v
                   | None => head_expr e
                   end
   end.
@@ -188,23 +188,23 @@ Ltac auto_head_step :=
   | |- _ => fail "Goal not a head_step"
   end.
 
-Ltac ectx_lam_step :=
+Ltac ectx_STLCmuVS_step :=
   lazymatch goal with
-  | |- lam_step ?e _ => eapply (Ectx_step (ectx_expr e) (head_expr e) _ (split_expr e)); first eauto
-  | |- _ => fail "Goal not a lam_step"
+  | |- STLCmuVS_step ?e _ => eapply (Ectx_step (ectx_expr e) (head_expr e) _ (split_expr e)); first eauto
+  | |- _ => fail "Goal not a STLCmuVS_step"
   end.
 
-Ltac auto_lam_step :=
+Ltac auto_STLCmuVS_step :=
   lazymatch goal with
-  | |- lam_step ?e _ => by (ectx_lam_step; auto_head_step)
-  | |- _ => fail "Goal not a lam_step"
+  | |- STLCmuVS_step ?e _ => by (ectx_STLCmuVS_step; auto_head_step)
+  | |- _ => fail "Goal not a STLCmuVS_step"
   end.
 
-Ltac auto_rtc_lam_step :=
+Ltac auto_rtc_STLCmuVS_step :=
   lazymatch goal with
-  | |- rtc lam_step ?e ?e => by apply rtc_refl
-  | |- rtc lam_step _ _ => (eapply rtc_l; first (auto_lam_step); simplify_custom)
-  | |- _ => fail "Goal not a rtc lam_step"
+  | |- rtc STLCmuVS_step ?e ?e => by apply rtc_refl
+  | |- rtc STLCmuVS_step _ _ => (eapply rtc_l; first (auto_STLCmuVS_step); simplify_custom)
+  | |- _ => fail "Goal not a rtc STLCmuVS_step"
   end.
 
 (* Hint Extern 5 (IntoVal _ _) => eapply of_to_val; fast_done : typeclass_instances. *)

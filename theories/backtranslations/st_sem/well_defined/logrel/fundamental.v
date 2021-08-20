@@ -1,6 +1,6 @@
 From iris Require Import program_logic.weakestpre.
 From st.STLCmuST Require Import lang types typing contexts.
-From st.lam Require Import lang wkpre generic.lift contexts contexts_subst scopedness.
+From st.STLCmuVS Require Import lang wkpre generic.lift contexts contexts_subst scopedness.
 From st.backtranslations.st_sem Require Import ghost heap_emul.base expressions contexts scoped.
 From st.backtranslations.st_sem.well_defined.logrel Require Import definition compat_lemmas compat_lemmas_easy.
 From iris.proofmode Require Import tactics.

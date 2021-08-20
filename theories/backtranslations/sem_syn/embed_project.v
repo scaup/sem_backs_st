@@ -1,6 +1,6 @@
 From st.prelude Require Import autosubst.
-From st.lam Require Import types lang typing tactics.
-From st.lam.lib Require Import fixlam omega.
+From st.STLCmuVS Require Import types lang typing tactics.
+From st.STLCmuVS.lib Require Import fixSTLCmuVS omega.
 From st.backtranslations.un_syn Require Import universe.base.
 
 Inductive direction :=

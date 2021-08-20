@@ -1,4 +1,4 @@
-From st.lam Require Import lang types.
+From st.STLCmuVS Require Import lang types.
 From st.backtranslations.un_syn Require Import universe.base.
 
 Reserved Notation "<< e >>" (at level 4, e at next level).
@@ -31,6 +31,6 @@ Fixpoint universe_back_expr (e : expr) : expr :=
   | Case e0 e1 e2 => Case (extract TCSum <<e0>>) <<e1>> <<e2>>
   | Fold e => inject TCRec (Fold <<e>>)
   | Unfold e => Unfold (extract TCRec <<e>>)
-  | GhostStep e => <<e>>
+  | VirtStep e => <<e>>
   end
 where "<< e >>" := (universe_back_expr e).

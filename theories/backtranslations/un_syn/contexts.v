@@ -1,4 +1,4 @@
-From st.lam Require Import lang types typing contexts scopedness.
+From st.STLCmuVS Require Import lang types typing contexts scopedness.
 From st.backtranslations.un_syn Require Import universe.base expressions typed.
 
 (* Reserved Notation "<[ Ci ]>" (at level 4, Ci at next level). *)
@@ -37,7 +37,7 @@ Definition universe_back_ctx_item (Ci : ctx_item) : ctx :=
   | CTX_IfR e0 e1 => [CTX_IfR (extract TCBool <<e0>>) <<e1>>]
   | CTX_Fold => [CTX_AppR (inject TCRec); CTX_Fold]
   | CTX_Unfold => [CTX_Unfold ; CTX_AppR (extract TCRec)]
-  | CTX_GhostStep => []
+  | CTX_VirtStep => []
   end.
 
 Lemma universe_back_ctx_item_typed (Ci : ctx_item) n m :

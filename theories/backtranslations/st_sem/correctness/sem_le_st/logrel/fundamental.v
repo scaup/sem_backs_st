@@ -4,7 +4,7 @@ From iris.base_logic.lib Require Import invariants gen_heap.
 From st.prelude Require Import big_op_three.
 
 From st.STLCmuST Require Import lang types typing contexts.
-From st.lam Require Import lang wkpre contexts.
+From st.STLCmuVS Require Import lang wkpre contexts.
 
 From st.backtranslations.st_sem Require Import expressions ghost heap_emul.base contexts.
 From st.backtranslations.st_sem.correctness.sem_le_st.logrel Require Import lift definition compat_lemmas compat_lemmas_easy.

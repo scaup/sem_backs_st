@@ -10,23 +10,23 @@ theories/prelude/big_op_three.v
 theories/prelude/at_least_one.v
 theories/prelude/forall_three.v
 
-theories/lam/lang.v
-theories/lam/types.v
-theories/lam/typing.v
+theories/STLCmuVS/lang.v
+theories/STLCmuVS/types.v
+theories/STLCmuVS/typing.v
 
-theories/lam/ghost_steps.v
+theories/STLCmuVS/virt_steps.v
 
-theories/lam/contexts.v
-theories/lam/scopedness.v
-theories/lam/contexts_subst.v
+theories/STLCmuVS/contexts.v
+theories/STLCmuVS/scopedness.v
+theories/STLCmuVS/contexts_subst.v
 
-theories/lam/tactics.v
-theories/lam/reducibility.v
+theories/STLCmuVS/tactics.v
+theories/STLCmuVS/reducibility.v
 
-theories/lam/wkpre.v
+theories/STLCmuVS/wkpre.v
 
-theories/lam/lib/omega.v
-theories/lam/lib/fixlam.v
+theories/STLCmuVS/lib/omega.v
+theories/STLCmuVS/lib/fixSTLCmuVS.v
 
 theories/backtranslations/un_syn/universe/base.v
 theories/backtranslations/un_syn/universe/paths.v
@@ -36,11 +36,11 @@ theories/backtranslations/un_syn/contexts.v
 
 theories/resources.v
 
-theories/lam/logrel/generic/lift.v
-theories/lam/logrel/definitions.v
-theories/lam/logrel/compat_lemmas.v
-theories/lam/logrel/fundamental.v
-theories/lam/logrel/adequacy.v
+theories/STLCmuVS/logrel/generic/lift.v
+theories/STLCmuVS/logrel/definitions.v
+theories/STLCmuVS/logrel/compat_lemmas.v
+theories/STLCmuVS/logrel/fundamental.v
+theories/STLCmuVS/logrel/adequacy.v
 
 theories/backtranslations/un_syn/logrel/definitions.v
 theories/backtranslations/un_syn/logrel/syn_le_un/compat_lemmas.v

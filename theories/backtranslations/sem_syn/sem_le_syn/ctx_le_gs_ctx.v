@@ -3,8 +3,8 @@ From iris.proofmode Require Import tactics.
 
 From st.prelude Require Import forall_three big_op_three.
 
-From st.lam Require Import contexts lang contexts_subst types scopedness types typing tactics ghost_steps.
-From st.lam.logrel Require Import definitions fundamental generic.lift.
+From st.STLCmuVS Require Import contexts lang contexts_subst types scopedness types typing tactics virt_steps.
+From st.STLCmuVS.logrel Require Import definitions fundamental generic.lift.
 
 From st.backtranslations.sem_syn.sem_le_syn Require Import no_op gs_ctx.
 From st.backtranslations.sem_syn Require Import gamma_lib.
@@ -28,12 +28,12 @@ Section ctx_le_gs_ctx_0.
     iIntros (e e' pe pe' Hee').
     apply open_exprel_typed_nil.
     rewrite -fill_ctx_app /=.
-    iApply GhostStep_no_op_expr.
+    iApply VirtStep_no_op_expr.
     iApply open_exprel_typed_nil'.
     rewrite -fill_ctx_app /=.
     apply pCsem; auto. by constructor.
     apply open_exprel_typed_nil.
-    iApply GhostStep_no_op_expr.
+    iApply VirtStep_no_op_expr.
     by iApply open_exprel_typed_nil'.
   Qed.
 
@@ -52,17 +52,17 @@ Section ctx_le_gs_ctx_S_n.
 
   Lemma rel_ctx_le_gs_ctx_S_n : ctx_rel_typed MaybeStuck C (gs_ctx_cons C (length Γ)) Γ τ [] TUnit.
   Proof.
-    assert (HFC : Forall (fun f => Closed (of_val f)) (replicate (length Γ) (LamV (GhostStep (%0)%Eₙₒ)))).
+    assert (HFC : Forall (fun f => Closed (of_val f)) (replicate (length Γ) (LamV (VirtStep (%0)%Eₙₒ)))).
     apply Forall_replicate. intro σ'; by asimpl.
     iIntros (e e' pe pe' Hee').
     apply open_exprel_typed_nil.
     (* step *)
     Opaque LamGammaV_S.
-    iApply lift_step. simpl. rewrite fill_LamGamma_ctx. rewrite -> pn at 1. rewrite -LamGammaV_S_rw. auto_lam_step.
+    iApply lift_step. simpl. rewrite fill_LamGamma_ctx. rewrite -> pn at 1. rewrite -LamGammaV_S_rw. auto_STLCmuVS_step.
     simplify_custom.
     replace (Lam (LamGamma n e')) with (LamGamma (S n) e'); auto. rewrite -LamGammaV_S_rw.
     (* no op *)
-    iApply GhostStep_no_op_expr.
+    iApply VirtStep_no_op_expr.
     (* rewriting substitutions *)
     rewrite subst_fill_ctx. erewrite subst_closed_ctx; eauto. erewrite subst_closed_ctx_cont; eauto.
     (* using auto-relatedness of C *)
@@ -80,7 +80,7 @@ Section ctx_le_gs_ctx_S_n.
     }
     asimpl.
     iIntros (vs vs') "#Hvsvs'". simpl.
-    iApply GhostStep_no_op_expr.
+    iApply VirtStep_no_op_expr.
     rewrite wrap_funs_vars_subst1'; auto; try by rewrite replicate_length.
     asimpl. rewrite !(iter_up (length Γ) (length Γ)). destruct (lt_dec (length Γ) (length Γ)); first by lia.
     rewrite Nat.sub_diag. asimpl. rewrite LamGammaV_S_rw.
@@ -90,18 +90,18 @@ Section ctx_le_gs_ctx_S_n.
     (* some facts about our lists *)
     iDestruct (big_sepL3_length with "Hvsvs'") as "[%Hl1 %Hl2]".
     iAssert (big_sepL3 (λ (τ0 : definitions.typeO) (v v' : valO),
-                  valrel_typed MaybeStuck τ0 v v') Γ vs (fmap GhostStepped vs')) as "Hvsvs''".
+                  valrel_typed MaybeStuck τ0 v v') Γ vs (fmap VirtStepped vs')) as "Hvsvs''".
     rewrite -big_sepL3_fmap_r.
     iApply (big_sepL3_impl with "Hvsvs'"). iModIntro. iIntros (τ' v v') "#Hvv'".
-    by iApply GhostStep_no_op_help. iClear "Hvsvs'".
+    by iApply VirtStep_no_op_help. iClear "Hvsvs'".
     (* eval *)
     rewrite wrap_funs_vars_subst2'; auto; try by rewrite replicate_length -Hl2 -Hl1. 2: by apply expr_Closed_n, LamGamma_scoped.
     (* eval right side *)
-    iApply lift_rtc_steps. apply (wrap_funs_vals_eval' (fmap GhostStepped vs')).
+    iApply lift_rtc_steps. apply (wrap_funs_vals_eval' (fmap VirtStepped vs')).
     by rewrite replicate_length. auto.
-    rewrite Forall3_fmap_r. replace (replicate (length Γ) (LamV (GhostStep (%0)%Eₙₒ))) with (fmap (fun _ => (LamV (GhostStep (%0)%Eₙₒ))) vs').
+    rewrite Forall3_fmap_r. replace (replicate (length Γ) (LamV (VirtStep (%0)%Eₙₒ))) with (fmap (fun _ => (LamV (VirtStep (%0)%Eₙₒ))) vs').
     rewrite Forall3_fmap_l. apply Forall3_same. apply Forall_true.
-    intros. simpl. eapply rtc_l. auto_lam_step. simplify_custom. apply GhostStep_eval.
+    intros. simpl. eapply rtc_l. auto_STLCmuVS_step. simplify_custom. apply VirtStep_eval.
     erewrite const_fmap. rewrite -Hl2 -Hl1. done. auto.
     by iApply Hee'.
   Qed.

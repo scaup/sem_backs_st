@@ -1,7 +1,7 @@
 From iris.program_logic Require Import language ectx_language ectxi_language.
 From st.prelude Require Export autosubst generic.
 From stdpp Require Import gmap prelude.
-From st.lam Require lang.
+From st.STLCmuVS Require lang.
 
 (* Local Open Scope Z_scope. *)
 
@@ -68,11 +68,11 @@ Notation "% x" := (Var x%nat) (at level 8, format "% x") : expr_st_scope.
 Notation "()" := (Lit LitUnit) : expr_st_scope.
 Notation "( e1 , e2 , .. , en )" := (Pair .. (Pair e1 e2) .. en) : expr_st_scope.
 
-Notation "e1 + e2" := (BinOp lam.lang.PlusOp e1%Eₛₜ e2%Eₛₜ) : expr_st_scope.
-Notation "e1 - e2" := (BinOp lam.lang.MinusOp e1%Eₛₜ e2%Eₛₜ) : expr_st_scope.
-Notation "e1 ≤ e2" := (BinOp lam.lang.LeOp e1%Eₛₜ e2%Eₛₜ) : expr_st_scope.
-Notation "e1 < e2" := (BinOp lam.lang.LtOp e1%Eₛₜ e2%Eₛₜ) : expr_st_scope.
-Notation "e1 = e2" := (BinOp lam.lang.EqOp e1%Eₛₜ e2%Eₛₜ) : expr_st_scope.
+Notation "e1 + e2" := (BinOp STLCmuVS.lang.PlusOp e1%Eₛₜ e2%Eₛₜ) : expr_st_scope.
+Notation "e1 - e2" := (BinOp STLCmuVS.lang.MinusOp e1%Eₛₜ e2%Eₛₜ) : expr_st_scope.
+Notation "e1 ≤ e2" := (BinOp STLCmuVS.lang.LeOp e1%Eₛₜ e2%Eₛₜ) : expr_st_scope.
+Notation "e1 < e2" := (BinOp STLCmuVS.lang.LtOp e1%Eₛₜ e2%Eₛₜ) : expr_st_scope.
+Notation "e1 = e2" := (BinOp STLCmuVS.lang.EqOp e1%Eₛₜ e2%Eₛₜ) : expr_st_scope.
 
 Instance Var_Inj : Inj eq eq Var. intros x1 x2 eq. by inversion eq. Qed.
 
