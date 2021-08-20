@@ -1,5 +1,5 @@
 From st.STLCmuVS Require Import types lang typing tactics.
-From st.STLCmuVS.lib Require Import omega fixSTLCmuVS.
+From st.STLCmuVS.lib Require Import omega fixarrow.
 
 (* Local Open Scope Eₙₒ. *)
 (* Local Open Scope Tₙₒ. *)

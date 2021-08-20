@@ -3,7 +3,7 @@ From iris.proofmode Require Import tactics.
 From iris_string_ident Require Import ltac2_string_ident.
 From st.prelude Require Import autosubst.
 From st.STLCmuVS Require Import types lang typing tactics logrel.definitions logrel.generic.lift.
-From st.STLCmuVS.lib Require Import fixSTLCmuVS.
+From st.STLCmuVS.lib Require Import fixarrow.
 From st.backtranslations.un_syn Require Import logrel.definitions universe.base universe.paths logrel.syn_le_un.compat_lemmas.
 From st.backtranslations.sem_syn Require Import embed_project.
 From st Require Import resources.

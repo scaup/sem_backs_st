@@ -1,7 +1,7 @@
 From iris Require Import program_logic.weakestpre.
 From iris.proofmode Require Import tactics.
 From iris_string_ident Require Import ltac2_string_ident.
-From st.STLCmuVS Require Import lang wkpre tactics lib.fixSTLCmuVS.
+From st.STLCmuVS Require Import lang wkpre tactics lib.fixarrow.
 From st.backtranslations.st_sem Require Import ghost.
 From st.backtranslations.st_sem.heap_emul Require Import base.
 From st.prelude Require Import at_least_one.

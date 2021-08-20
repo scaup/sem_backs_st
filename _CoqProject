@@ -14,19 +14,19 @@ theories/STLCmuVS/lang.v
 theories/STLCmuVS/types.v
 theories/STLCmuVS/typing.v
 
+theories/STLCmuVS/tactics.v
 theories/STLCmuVS/virt_steps.v
 
 theories/STLCmuVS/contexts.v
 theories/STLCmuVS/scopedness.v
 theories/STLCmuVS/contexts_subst.v
 
-theories/STLCmuVS/tactics.v
 theories/STLCmuVS/reducibility.v
 
 theories/STLCmuVS/wkpre.v
 
 theories/STLCmuVS/lib/omega.v
-theories/STLCmuVS/lib/fixSTLCmuVS.v
+theories/STLCmuVS/lib/fixarrow.v
 
 theories/backtranslations/un_syn/universe/base.v
 theories/backtranslations/un_syn/universe/paths.v

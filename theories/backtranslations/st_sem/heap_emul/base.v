@@ -1,4 +1,4 @@
-From st.STLCmuVS Require Import lang tactics lib.fixSTLCmuVS.
+From st.STLCmuVS Require Import lang tactics lib.fixarrow.
 
 Fixpoint encode_help (vs : list val) : val :=
   match vs with
