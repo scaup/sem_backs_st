@@ -1,12 +1,12 @@
 From iris Require Import program_logic.weakestpre.
 From iris.program_logic Require Import ectx_language ectxi_language.
-From st.lamst Require Import lang types typing.
+From st.STLCmuST Require Import lang types typing.
 From st.backtranslations.st_sem.correctness.sem_le_st.logrel Require Import lift definition.
 
 Lemma rtc_bind_help n e w u σ σ' u' σ'' :
-  nsteps lamst_step n (σ, RunST e) (σ'', of_val u') →
-  rtc lamst_step (σ'', RunST (App (of_val w) (of_val u'))) (σ', of_val u) →
-  rtc lamst_step (σ, RunST (Bind e (of_val w))) (σ', of_val u).
+  nsteps STLCmuST_step n (σ, RunST e) (σ'', of_val u') →
+  rtc STLCmuST_step (σ'', RunST (App (of_val w) (of_val u'))) (σ', of_val u) →
+  rtc STLCmuST_step (σ, RunST (Bind e (of_val w))) (σ', of_val u).
 Proof.
    revert w e u u' σ σ' σ''.
     induction n => w e u u' σ σ' σ'' Hrd1 Hrd2 /=.
@@ -40,14 +40,14 @@ Proof.
 Qed.
 
 Lemma rtc_bind_lemma (σ0 σ1 σ2 σ3 : state) (v f w s r : val) :
-  rtc lamst_step (σ0, RunST v) (σ1, of_val w) →
-  rtc lamst_step (σ1, ((of_val f) (of_val w))) (σ2, of_val s) →
-  rtc lamst_step (σ2, RunST s) (σ3, of_val r) →
-  rtc lamst_step (σ0, RunST (Bind v f)) (σ3, of_val r).
+  rtc STLCmuST_step (σ0, RunST v) (σ1, of_val w) →
+  rtc STLCmuST_step (σ1, ((of_val f) (of_val w))) (σ2, of_val s) →
+  rtc STLCmuST_step (σ2, RunST s) (σ3, of_val r) →
+  rtc STLCmuST_step (σ0, RunST (Bind v f)) (σ3, of_val r).
 Proof.
   intros H0 H1 H2. destruct (rtc_nsteps _ _ H0) as [n H0'].
   apply (rtc_bind_help _ _ _ _ _ _ _ _ H0').
-  apply rtc_transitive with (y := (σ2, RunST s)). by apply (fill_lamst_step_rtc [RunSTCtx]).
+  apply rtc_transitive with (y := (σ2, RunST s)). by apply (fill_STLCmuST_step_rtc [RunSTCtx]).
   auto.
 Qed.
 

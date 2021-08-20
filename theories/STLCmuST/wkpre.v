@@ -1,12 +1,12 @@
 From iris.program_logic Require Import language ectxi_language ectx_language lifting.
 From iris Require Import program_logic.weakestpre.
 From iris.proofmode Require Import tactics.
-From st.lamst Require Import lang.
+From st.STLCmuST Require Import lang.
 
 Section wkpre_lemmas.
 
   Context `{Σ : !gFunctors}.
-  Context `{irisG_inst : !irisG lamst_lang Σ}.
+  Context `{irisG_inst : !irisG STLCmuST_lang Σ}.
 
   Lemma wp_bind' (K : list ectx_item) s E e Φ :
     WP e @ s; E {{ v, WP fill K (of_val v) @ s; E {{ Φ }} }} ⊢ WP fill K e @ s; E {{ Φ }}.

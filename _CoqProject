@@ -66,11 +66,11 @@ theories/backtranslations/sem_syn/syn_le_sem/connective.v
 theories/backtranslations/sem_syn/syn_le_sem/ctx_syn_le_un.v
 
 
-theories/lamst/lang.v
-theories/lamst/types.v
-theories/lamst/typing.v
-theories/lamst/pure_steps.v
-theories/lamst/contexts.v
+theories/STLCmuST/lang.v
+theories/STLCmuST/types.v
+theories/STLCmuST/typing.v
+theories/STLCmuST/pure_steps.v
+theories/STLCmuST/contexts.v
 
 theories/backtranslations/st_sem/list_gmap.v
 theories/backtranslations/st_sem/ghost.v
@@ -93,7 +93,7 @@ theories/backtranslations/st_sem/well_defined/logrel/compat_lemmas.v
 theories/backtranslations/st_sem/well_defined/logrel/compat_lemmas_easy.v
 theories/backtranslations/st_sem/well_defined/logrel/fundamental.v
 
-theories/lamst/wkpre.v
+theories/STLCmuST/wkpre.v
 
 theories/backtranslations/st_sem/correctness/help.v
 

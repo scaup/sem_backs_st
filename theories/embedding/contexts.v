@@ -1,5 +1,5 @@
 From st.lam Require Import lang contexts.
-From st.lamst Require Import lang contexts.
+From st.STLCmuST Require Import lang contexts.
 From st.embedding Require Import expressions types typed.
 
 Definition embd_ctx_item (Ci : lam.contexts.ctx_item) : ctx_item :=
@@ -30,7 +30,7 @@ Definition embd_ctx_item (Ci : lam.contexts.ctx_item) : ctx_item :=
 
 Lemma embd_ctx_item_typed (Ci : lam.contexts.ctx_item) (Γ : list lam.types.type) (τ : lam.types.type) (Γ' : list lam.types.type) (τ' : lam.types.type) :
   lam.contexts.typed_ctx_item Ci Γ τ Γ' τ' →
-  lamst.contexts.typed_ctx_item (embd_ctx_item Ci) (fmap embed Γ) (embed τ) (fmap embed Γ') (embed τ').
+  STLCmuST.contexts.typed_ctx_item (embd_ctx_item Ci) (fmap embed Γ) (embed τ) (fmap embed Γ') (embed τ').
 Proof.
   intro dCi.
   inversion dCi; try by (econstructor; (try rewrite -fmap_cons); eapply embd_typed).
@@ -53,19 +53,19 @@ Definition embd_ctx (C : lam.contexts.ctx) : ctx :=
   fmap embd_ctx_item C.
 
 Lemma embd_ctx_typed (C : lam.contexts.ctx) (Γ : list lam.types.type) (τ : lam.types.type) (Γ' : list lam.types.type) (τ' : lam.types.type) :
-  lam.contexts.typed_ctx C Γ τ Γ' τ' → lamst.contexts.typed_ctx (embd_ctx C) (fmap embed Γ) (embed τ) (fmap embed Γ') (embed τ').
+  lam.contexts.typed_ctx C Γ τ Γ' τ' → STLCmuST.contexts.typed_ctx (embd_ctx C) (fmap embed Γ) (embed τ) (fmap embed Γ') (embed τ').
 Proof.
   intro de. induction de; try by econstructor.
   econstructor. by apply embd_ctx_item_typed. apply IHde.
 Qed.
 
 Lemma comm_fill_ctx_item_embd (Ci : lam.contexts.ctx_item) (e : lam.lang.expr) :
-  lamst.contexts.fill_ctx_item (embd_ctx_item Ci) (embd_expr e) =
+  STLCmuST.contexts.fill_ctx_item (embd_ctx_item Ci) (embd_expr e) =
   embd_expr (lam.contexts.fill_ctx_item Ci e).
 Proof. by destruct Ci; simpl. Qed.
 
 Lemma comm_fill_ctx_embd (C : lam.contexts.ctx) (e : lam.lang.expr) :
-  lamst.contexts.fill_ctx (embd_ctx C) (embd_expr e) =
+  STLCmuST.contexts.fill_ctx (embd_ctx C) (embd_expr e) =
   embd_expr (lam.contexts.fill_ctx C e).
 Proof.
   induction C; simpl; first done.

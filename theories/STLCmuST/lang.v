@@ -520,22 +520,22 @@ Proof.
   end; auto.
 Qed.
 
-Lemma lamst_ectxi_lang_mixin : EctxiLanguageMixin of_val to_val fill_item head_step.
+Lemma STLCmuST_ectxi_lang_mixin : EctxiLanguageMixin of_val to_val fill_item head_step.
 Proof.
   split; eauto using to_of_val, of_to_val,
   val_stuck, fill_item_val, fill_item_no_val_inj,
  head_ctx_step_val, fill_item_inj.
 Qed.
 
-Canonical Structure lamst_ectxi_lang : ectxiLanguage := EctxiLanguage lamst_ectxi_lang_mixin.
-Canonical Structure lamst_ectx_lang : ectxLanguage := EctxLanguageOfEctxi lamst_ectxi_lang.
-Canonical Structure lamst_lang : language := LanguageOfEctx lamst_ectx_lang.
+Canonical Structure STLCmuST_ectxi_lang : ectxiLanguage := EctxiLanguage STLCmuST_ectxi_lang_mixin.
+Canonical Structure STLCmuST_ectx_lang : ectxLanguage := EctxLanguageOfEctxi STLCmuST_ectxi_lang.
+Canonical Structure STLCmuST_lang : language := LanguageOfEctx STLCmuST_ectx_lang.
 
 Lemma ST_step_no_spawn e1 e2 σ1 κ σ2 nt:
-  @language.prim_step lamst_lang e1 σ1 κ e2 σ2 nt -> nt = [].
+  @language.prim_step STLCmuST_lang e1 σ1 κ e2 σ2 nt -> nt = [].
 Proof. elim=> ? ? ? ? ? H. by elim: H. Qed.
 Lemma ST_step_no_obs e1 e2 σ1 κ σ2 nt:
-  @language.prim_step lamst_lang e1 σ1 κ e2 σ2 nt -> κ = [].
+  @language.prim_step STLCmuST_lang e1 σ1 κ e2 σ2 nt -> κ = [].
 Proof. elim=> ? ? ? ? ? H. by elim: H. Qed.
 
 Lemma eff_step_no_spawn e1 e2 σ1 κ σ2 nt:
@@ -560,24 +560,24 @@ Arguments eff_step_no_spawn {_ _ _ _ _} _.
 Arguments ST_step_no_spawn {_ _ _ _ _} _.
 Arguments fill_val {_ _} _.
 
-Definition lamst_step (p1 p2 : state * expr) : Prop :=
+Definition STLCmuST_step (p1 p2 : state * expr) : Prop :=
   match (p1 , p2) with
-  | ((σ1, e1), (σ2, e2)) => @prim_step lamst_ectx_lang e1 σ1 [] e2 σ2 []
+  | ((σ1, e1), (σ2, e2)) => @prim_step STLCmuST_ectx_lang e1 σ1 [] e2 σ2 []
   end.
 
 Lemma head_step_no_forks e σ κ e' σ' efs : head_step e σ κ e' σ' efs → efs = [].
 Proof. intros H. by inversion H. Qed.
 
-Lemma prim_step_no_forks (e : expr) σ κ e' σ' efs : @prim_step lamst_ectx_lang e σ κ e' σ' efs → efs = [].
+Lemma prim_step_no_forks (e : expr) σ κ e' σ' efs : @prim_step STLCmuST_ectx_lang e σ κ e' σ' efs → efs = [].
 Proof. intros H. inversion H. by eapply head_step_no_forks. Qed.
 
 Lemma head_step_no_obs e σ κ e' σ' efs : head_step e σ κ e' σ' efs → κ = [].
 Proof. intros H. by inversion H. Qed.
 
-Lemma prim_step_no_obs (e : expr) σ κ e' σ' efs : @prim_step lamst_ectx_lang e σ κ e' σ' efs → κ = [].
+Lemma prim_step_no_obs (e : expr) σ κ e' σ' efs : @prim_step STLCmuST_ectx_lang e σ κ e' σ' efs → κ = [].
 Proof. intros H. inversion H. by eapply head_step_no_obs. Qed.
 
-Lemma prim_to_lamst_step σ1 e1 σ2 e2 κ efs : @prim_step lamst_ectx_lang e1 σ1 κ e2 σ2 efs → lamst_step (σ1, e1) (σ2, e2).
+Lemma prim_to_STLCmuST_step σ1 e1 σ2 e2 κ efs : @prim_step STLCmuST_ectx_lang e1 σ1 κ e2 σ2 efs → STLCmuST_step (σ1, e1) (σ2, e2).
 Proof.
   intros Hprim.
   assert (efs = []) as ->. by eapply prim_step_no_forks.
@@ -585,25 +585,25 @@ Proof.
   apply Hprim.
 Qed.
 
-Lemma prim_lamst σ1 e1 σ2 e2 : @prim_step lamst_ectx_lang e1 σ1 [] e2 σ2 [] <-> lamst_step (σ1, e1) (σ2, e2).
+Lemma prim_STLCmuST σ1 e1 σ2 e2 : @prim_step STLCmuST_ectx_lang e1 σ1 [] e2 σ2 [] <-> STLCmuST_step (σ1, e1) (σ2, e2).
 Proof.
-  split. apply prim_to_lamst_step. auto.
+  split. apply prim_to_STLCmuST_step. auto.
 Qed.
 
-Canonical Structure valO := valO lamst_lang.
-Canonical Structure exprO := exprO lamst_lang.
+Canonical Structure valO := valO STLCmuST_lang.
+Canonical Structure exprO := exprO STLCmuST_lang.
 
-Lemma fill_lamst_step_rtc (K : list ectx_item) e1 σ1 e2 σ2
-  (H : rtc lamst_step (σ1, e1) (σ2, e2)) :
-  rtc lamst_step (σ1, fill K e1) (σ2, fill K e2).
+Lemma fill_STLCmuST_step_rtc (K : list ectx_item) e1 σ1 e2 σ2
+  (H : rtc STLCmuST_step (σ1, e1) (σ2, e2)) :
+  rtc STLCmuST_step (σ1, fill K e1) (σ2, fill K e2).
 Proof.
   change (?σ, fill K ?e) with ((fun p => (p.1, fill K p.2)) (σ, e)).
   eapply rtc_congruence; eauto.
   intros p p' Hs. apply fill_step. by destruct p, p'.
 Qed.
 
-Definition lamst_halts (e : lamst.lang.expr) : Prop :=
-  ∃ (v : lamst.lang.val) (σ : lamst.lang.state), rtc lamst_step (∅, e) (σ, lamst.lang.of_val v).
+Definition STLCmuST_halts (e : STLCmuST.lang.expr) : Prop :=
+  ∃ (v : STLCmuST.lang.val) (σ : STLCmuST.lang.state), rtc STLCmuST_step (∅, e) (σ, STLCmuST.lang.of_val v).
 
 (* Lemma step_runst_noval e σ1 κ e2 σ2 efs: *)
 (*   to_eff_val e = None -> *)

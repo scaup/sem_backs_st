@@ -1,4 +1,4 @@
-From st.lamst Require Import types lang.
+From st.STLCmuST Require Import types lang.
 
 Definition binop_res_type (op : lang.bin_op) : type :=
   match op with

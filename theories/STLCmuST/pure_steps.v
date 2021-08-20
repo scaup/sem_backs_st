@@ -1,7 +1,7 @@
 From iris.program_logic Require Import language ectx_language ectxi_language.
 From st.prelude Require Export autosubst generic.
 From stdpp Require Import gmap prelude.
-From st.lamst Require Import lang.
+From st.STLCmuST Require Import lang.
 
 Definition state_stuff (e : expr) : bool :=
   match e with

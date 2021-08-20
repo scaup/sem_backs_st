@@ -15,7 +15,7 @@ Purity of ST: Full Abstraction by Semantically Typed Back-translation
 
 - lam : contains the definition of the pure language
   + logrel : LR for the definition of semantically typed intermediate language
-- lamst : contains the definition of the extended language with the ST monad
+- STLCmuST : contains the definition of the extended language with the ST monad
 - embedding : the embedding from the pure language into the one with ST
 - backtranslations
   + st_sem : the backtranslation from ST contexts into semantic contexts (and with it, the necessary LR's)

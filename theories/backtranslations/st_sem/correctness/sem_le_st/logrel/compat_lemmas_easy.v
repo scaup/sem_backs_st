@@ -7,7 +7,7 @@ Local Notation "l ↦ v" := (mapsto l (DfracOwn 1) v)
 
 From st.prelude Require Import big_op_three.
 
-From st.lamst Require Import lang types typing pure_steps.
+From st.STLCmuST Require Import lang types typing pure_steps.
 
 From st.lam Require Import lang wkpre tactics.
 From st.backtranslations.st_sem Require Import help expressions ghost heap_emul.base heap_emul.spec.
@@ -24,7 +24,7 @@ Section compat_lemmas_easy.
     intros H. iIntros (Δ vs vs') "Hvsvs".
     iDestruct (big_sepL3_length _ _ _ _ with "Hvsvs") as "[%eq %eq']".
     destruct (Var_subst_list_closed_n_length vs x) as [v [eqv ->]]. apply ids_lt_Closed_n. rewrite -eq. by eapply lookup_lt_Some.
-    destruct (lamst.lang.Var_subst_list_closed_n_length vs' x) as [v' [eqv' ->]]. apply ids_lt_Closed_n. rewrite -eq' -eq. by eapply lookup_lt_Some.
+    destruct (STLCmuST.lang.Var_subst_list_closed_n_length vs' x) as [v' [eqv' ->]]. apply ids_lt_Closed_n. rewrite -eq' -eq. by eapply lookup_lt_Some.
     rewrite /exprel_typed /=. iApply lift_val.
     iApply ((big_sepL3_lookup _ _ _ _ x _ _ _ H eqv eqv') with "Hvsvs").
   Qed.

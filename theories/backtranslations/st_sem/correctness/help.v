@@ -1,10 +1,10 @@
 From iris.program_logic Require Import lifting ectx_lifting.
-From st.lamst Require Import lang.
+From st.STLCmuST Require Import lang.
 
 Definition fresh_loc (σ : gmap loc val) : loc :=
   fresh (dom (gset loc) σ).
 
-Lemma fresh_loc_lookup_None (σ : gmap loc lamst.lang.val) :
+Lemma fresh_loc_lookup_None (σ : gmap loc STLCmuST.lang.val) :
   σ !! fresh_loc σ = None.
 Proof.
   rewrite /fresh_loc.
@@ -17,7 +17,7 @@ Proof.
   simpl in *.
   assert (efs = []) as ->. by eapply ST_step_no_spawn.
   assert (κ = []) as ->. by eapply ST_step_no_obs.
-  assert (Hheadstep : head_step (Compare l1 l2) σ1 [] e2 σ2 []). apply (@head_reducible_prim_step lamst_ectx_lang); auto.
+  assert (Hheadstep : head_step (Compare l1 l2) σ1 [] e2 σ2 []). apply (@head_reducible_prim_step STLCmuST_ectx_lang); auto.
   { exists [], (of_val $ bool_decide (l1 = l2)), σ1, []. simpl.
     destruct (decide (l1 = l2)) as [<- | neq].
     + rewrite bool_decide_eq_true_2; auto.

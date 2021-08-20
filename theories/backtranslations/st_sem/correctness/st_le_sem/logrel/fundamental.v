@@ -8,7 +8,7 @@ Local Notation "l ↦ v" := (mapsto l (DfracOwn 1) v)
 From st.prelude Require Import big_op_three.
 
 From st.lam Require Import lang contexts.
-From st.lamst Require Import wkpre lang types typing contexts.
+From st.STLCmuST Require Import wkpre lang types typing contexts.
 
 From st.backtranslations.st_sem Require Import expressions ghost heap_emul.base contexts.
 From st.backtranslations.st_sem.correctness.st_le_sem.logrel Require Import lift definition compat_lemmas compat_lemmas_easy.
@@ -20,7 +20,7 @@ Section fundamental_theorem.
 
   Opaque encode alloc read write bind retrn.
 
-  Lemma fundamental (Γ : list lamst.types.type) (e : lamst.lang.expr) (τ : lamst.types.type)
+  Lemma fundamental (Γ : list STLCmuST.types.type) (e : STLCmuST.lang.expr) (τ : STLCmuST.types.type)
         (d : Γ ⊢ₛₜ e : τ) :
     open_exprel_typed Γ e <<e>> τ.
   Proof.
@@ -53,8 +53,8 @@ Section fundamental_theorem.
     - by eapply compat_compare.
   Qed.
 
-  Lemma ctx_item_fundamental (Γ : list lamst.types.type) (τ : lamst.types.type)
-        (Γ' : list lamst.types.type) (τ' : lamst.types.type) (Ci : lamst.contexts.ctx_item) (pCi :  lamst.contexts.typed_ctx_item Ci Γ τ Γ' τ') :
+  Lemma ctx_item_fundamental (Γ : list STLCmuST.types.type) (τ : STLCmuST.types.type)
+        (Γ' : list STLCmuST.types.type) (τ' : STLCmuST.types.type) (Ci : STLCmuST.contexts.ctx_item) (pCi :  STLCmuST.contexts.typed_ctx_item Ci Γ τ Γ' τ') :
     ctx_rel_typed [Ci] (back_ctx_item Ci) Γ τ Γ' τ'.
   Proof.
     destruct pCi; intros e e' Hee'; simpl.
@@ -91,14 +91,14 @@ Section fundamental_theorem.
     - by apply compat_runst.
   Qed.
 
-  Lemma ctx_fundamental (C : lamst.contexts.ctx) (Γ : list lamst.types.type) (τ : lamst.types.type)
-        (Γ' : list lamst.types.type) (τ' : lamst.types.type) :
-      lamst.contexts.typed_ctx C Γ τ Γ' τ' →
+  Lemma ctx_fundamental (C : STLCmuST.contexts.ctx) (Γ : list STLCmuST.types.type) (τ : STLCmuST.types.type)
+        (Γ' : list STLCmuST.types.type) (τ' : STLCmuST.types.type) :
+      STLCmuST.contexts.typed_ctx C Γ τ Γ' τ' →
       ctx_rel_typed C (back_ctx C) Γ τ Γ' τ'.
   Proof.
     intro H. induction H.
     - simpl. by intros e e' Hee'.
-    - simpl. iIntros (e e' Hee' Δ vs vs') "Hvs". change (k :: K) with ([k] ++ K). rewrite -lam.contexts.fill_ctx_app -lamst.contexts.fill_ctx_app.
+    - simpl. iIntros (e e' Hee' Δ vs vs') "Hvs". change (k :: K) with ([k] ++ K). rewrite -lam.contexts.fill_ctx_app -STLCmuST.contexts.fill_ctx_app.
       iApply (ctx_item_fundamental _ _ _ _ k H); auto.
   Qed.
 

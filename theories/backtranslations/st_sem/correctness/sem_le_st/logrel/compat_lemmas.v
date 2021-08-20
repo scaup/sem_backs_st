@@ -7,7 +7,7 @@ Local Notation "l ↦ v" := (mapsto l (DfracOwn 1) v)
 
 From st.prelude Require Import big_op_three.
 
-From st.lamst Require Import lang types typing.
+From st.STLCmuST Require Import lang types typing.
 
 From st.lam Require Import lang wkpre tactics.
 From st.backtranslations.st_sem Require Import help expressions ghost heap_emul.base heap_emul.spec.
@@ -32,7 +32,7 @@ Section compat_lemmas.
     iIntros (v v') "#Hvv'". simpl.
     (* ok *)
     iApply lift_step_later. apply alloc_step.
-    change (Alloc v') with (lamst.lang.of_val (AllocV v')). iApply lift_val.
+    change (Alloc v') with (STLCmuST.lang.of_val (AllocV v')). iApply lift_val.
     rewrite valrel_typed_TST_unfold. destruct ρ; auto. destruct (Δ !! X) as [[γ γ']|]eqn:eq; auto.
     (*  *)
     iIntros (psᵢ σ). do 2 iModIntro. iIntros "Hσ AuthVals AuthLocs".
@@ -76,7 +76,7 @@ Section compat_lemmas.
     iDestruct "Hvv'" as (i l) "(-> & -> & Hloc & #HInv)".
     (* steps *)
     iApply lift_step_later. apply read_step. iNext.
-    change (lamst.lang.Lit l) with (lamst.lang.of_val l). change (Read (lang.of_val l)) with (lang.of_val (ReadV l)).
+    change (STLCmuST.lang.Lit l) with (STLCmuST.lang.of_val l). change (Read (lang.of_val l)) with (lang.of_val (ReadV l)).
     (* okay *)
     iApply lift_val.
     rewrite valrel_typed_TST_unfold. rewrite eq.
@@ -254,7 +254,7 @@ Section compat_lemmas.
     iApply (wp_wand with "Hvv'"). simpl. iIntros (x) "Hdes". iDestruct "Hdes" as (w w' ps σ'') "(-> & Hσ'' & AuthVals & AuthLocs & %Hsteps' & #Hrr')".
     iApply wp_step_later. apply head_prim_step. econstructor; fold of_val; by rewrite lam.lang.to_of_val. fold of_val. iNext.
     iApply wp_value'. iExists w', σ''. iFrame. iSplit.
-    iPureIntro. eapply rtc_transitive; eauto. by apply (fill_lamst_step_rtc [RunSTCtx]).
+    iPureIntro. eapply rtc_transitive; eauto. by apply (fill_STLCmuST_step_rtc [RunSTCtx]).
     by iApply valrel_typed_cons_ren.
   Qed.
 

@@ -8,7 +8,7 @@ Local Notation "l ↦ v" := (mapsto l (DfracOwn 1) v)
 From st.prelude Require Import big_op_three.
 
 From st.lam Require Import lang.
-From st.lamst Require Import wkpre lang types typing.
+From st.STLCmuST Require Import wkpre lang types typing.
 
 From st.backtranslations.st_sem Require Import help expressions ghost heap_emul.base heap_emul.spec.
 From st.backtranslations.st_sem.correctness.st_le_sem.logrel Require Import lift definition.
@@ -22,7 +22,7 @@ Section prim_step_lemmas.
     simpl in *.
     assert (efs = []) as ->. by eapply ST_step_no_spawn.
     assert (κ = []) as ->. by eapply ST_step_no_obs.
-    assert (Hheadstep : head_step (RunST (Alloc v)) σ1 [] e2 σ2 []). apply (@head_reducible_prim_step lamst_ectx_lang); auto.
+    assert (Hheadstep : head_step (RunST (Alloc v)) σ1 [] e2 σ2 []). apply (@head_reducible_prim_step STLCmuST_ectx_lang); auto.
     { exists [], (RunST $ Return $ Lit $ LitLoc $ fresh_loc σ1), (<[fresh_loc σ1:=v]> σ1), []. simpl.
       apply RunST_eff_head_step, head_prim_step, Alloc_val_eff_head_step.
       by eapply fresh_loc_lookup_None.
@@ -45,7 +45,7 @@ Section prim_step_lemmas.
     simpl in *.
     assert (efs = []) as ->. by eapply ST_step_no_spawn.
     assert (κ = []) as ->. by eapply ST_step_no_obs.
-    assert (Hheadstep : head_step (RunST (Return v)) σ1 [] e2 σ2 []). apply (@head_reducible_prim_step lamst_ectx_lang); auto.
+    assert (Hheadstep : head_step (RunST (Return v)) σ1 [] e2 σ2 []). apply (@head_reducible_prim_step STLCmuST_ectx_lang); auto.
     { exists [], (of_val v), σ1, []. simpl. eapply RunST_Return_head_step. by rewrite to_of_val.
     }
     inversion_clear Hheadstep; auto.
@@ -60,7 +60,7 @@ Section prim_step_lemmas.
     simpl in *.
     assert (efs = []) as ->. by eapply ST_step_no_spawn.
     assert (κ = []) as ->. by eapply ST_step_no_obs.
-    assert (Hheadstep : head_step (Compare l1 l2) σ1 [] e2 σ2 []). apply (@head_reducible_prim_step lamst_ectx_lang); auto.
+    assert (Hheadstep : head_step (Compare l1 l2) σ1 [] e2 σ2 []). apply (@head_reducible_prim_step STLCmuST_ectx_lang); auto.
     { exists [], (of_val $ bool_decide (l1 = l2)), σ1, []. simpl.
       destruct (decide (l1 = l2)) as [<- | neq].
       + rewrite bool_decide_eq_true_2; auto.

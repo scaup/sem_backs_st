@@ -1,5 +1,5 @@
 From st.lam Require Import lang (* just for bin_op *).
-From st.lamst Require Import lang typing types.
+From st.STLCmuST Require Import lang typing types.
 
 Section context_depth_one.
 

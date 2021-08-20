@@ -1,7 +1,7 @@
-From st Require Import lam.types lamst.types.
+From st Require Import lam.types STLCmuST.types.
 From st.prelude Require Export generic autosubst.
 
-Fixpoint embed (τ : lam.types.type) : lamst.types.type :=
+Fixpoint embed (τ : lam.types.type) : STLCmuST.types.type :=
   match τ with
   | lam.types.TUnit => TUnit
   | lam.types.TBool => TBool

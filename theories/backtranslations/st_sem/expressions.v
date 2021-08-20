@@ -1,31 +1,31 @@
-From st.lamst Require Import lang.
+From st.STLCmuST Require Import lang.
 From st.lam Require Import lang.
 From st.backtranslations.st_sem Require Import heap_emul.base.
 
 Reserved Notation "<< e >>" (at level 4, e at next level).
-Fixpoint back_expr (e : lamst.lang.expr) : expr :=
+Fixpoint back_expr (e : STLCmuST.lang.expr) : expr :=
   match e with
-  | lamst.lang.Var x => Var x
-  | lamst.lang.LetIn e1 e2 => LetIn <<e1>> <<e2>>
-  | lamst.lang.Lam e => Lam <<e>>
-  | lamst.lang.App e1 e2 => App <<e1>> <<e2>>
-  | lamst.lang.Lit l => match l with
-                       | lamst.lang.LitInt n => n
-                       | lamst.lang.LitBool b => b
-                       | lamst.lang.LitUnit => LitUnit
+  | STLCmuST.lang.Var x => Var x
+  | STLCmuST.lang.LetIn e1 e2 => LetIn <<e1>> <<e2>>
+  | STLCmuST.lang.Lam e => Lam <<e>>
+  | STLCmuST.lang.App e1 e2 => App <<e1>> <<e2>>
+  | STLCmuST.lang.Lit l => match l with
+                       | STLCmuST.lang.LitInt n => n
+                       | STLCmuST.lang.LitBool b => b
+                       | STLCmuST.lang.LitUnit => LitUnit
                        | LitLoc l => ()%Eₙₒ (* we only care about surface lang *)
                        end
-  | lamst.lang.BinOp op e1 e2 => BinOp op <<e1>> <<e2>>
-  | lamst.lang.If e0 e1 e2 => If <<e0>> <<e1>> <<e2>>
-  | lamst.lang.Seq e1 e2 => Seq <<e1>> <<e2>>
-  | lamst.lang.Pair e1 e2 => Pair <<e1>> <<e2>>
-  | lamst.lang.Fst e => Fst <<e>>
-  | lamst.lang.Snd e => Snd <<e>>
-  | lamst.lang.InjL e => InjL <<e>>
-  | lamst.lang.InjR e => InjR <<e>>
-  | lamst.lang.Case e0 e1 e2 => Case <<e0>> <<e1>> <<e2>>
-  | lamst.lang.Fold e => Fold <<e>>
-  | lamst.lang.Unfold e => Unfold <<e>>
+  | STLCmuST.lang.BinOp op e1 e2 => BinOp op <<e1>> <<e2>>
+  | STLCmuST.lang.If e0 e1 e2 => If <<e0>> <<e1>> <<e2>>
+  | STLCmuST.lang.Seq e1 e2 => Seq <<e1>> <<e2>>
+  | STLCmuST.lang.Pair e1 e2 => Pair <<e1>> <<e2>>
+  | STLCmuST.lang.Fst e => Fst <<e>>
+  | STLCmuST.lang.Snd e => Snd <<e>>
+  | STLCmuST.lang.InjL e => InjL <<e>>
+  | STLCmuST.lang.InjR e => InjR <<e>>
+  | STLCmuST.lang.Case e0 e1 e2 => Case <<e0>> <<e1>> <<e2>>
+  | STLCmuST.lang.Fold e => Fold <<e>>
+  | STLCmuST.lang.Unfold e => Unfold <<e>>
   | Return e => retrn <<e>>
   | Bind e1 e2 => bind <<e1>> <<e2>>
   | RunST e => runst <<e>>

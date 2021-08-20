@@ -1,5 +1,5 @@
 From st.lam Require Import lang.
-From st.lamst Require Import lang.
+From st.STLCmuST Require Import lang.
 
 Reserved Notation "[[ e ]]" (at level 4, e at next level).
 Fixpoint embd_expr (e : lam.lang.expr) : expr :=

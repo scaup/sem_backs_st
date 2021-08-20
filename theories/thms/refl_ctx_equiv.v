@@ -1,5 +1,5 @@
 From st.lam Require Import lang types types typing contexts scopedness.
-From st.lamst Require Import lang types typing contexts.
+From st.STLCmuST Require Import lang types typing contexts.
 From st.embedding Require Import types expressions typed contexts.
 From st.thms Require Import pres_ctx_equiv.
 From st.backtranslations.st_sem Require Import retraction.
@@ -16,7 +16,7 @@ Proof.
   repeat split; auto.
   - intro LamHalts.
     specialize (Hequiv (embd_ctx C) (embd_ctx_typed C _ _ _ _ dC)).
-    cut (lamst_halts (fill_ctx (embd_ctx C) [[e2]])).
+    cut (STLCmuST_halts (fill_ctx (embd_ctx C) [[e2]])).
     { apply st_le_sem.logrel.adequacy.exprel_adequate.
       intros Σ st_le_semΣ.
       cut (@open_exprel_typed Σ st_le_semΣ [] (fill_ctx (embd_ctx C) [[e2]]) (lam.contexts.fill_ctx C e2) TUnit).
@@ -42,7 +42,7 @@ Proof.
     }
   - intro LamSTHalts.
     specialize (Hequiv (embd_ctx C) (embd_ctx_typed C _ _ _ _ dC)).
-    cut (lamst_halts (fill_ctx (embd_ctx C) [[e1]])).
+    cut (STLCmuST_halts (fill_ctx (embd_ctx C) [[e1]])).
     { apply st_le_sem.logrel.adequacy.exprel_adequate.
       intros Σ st_le_semΣ.
       cut (@open_exprel_typed Σ st_le_semΣ [] (fill_ctx (embd_ctx C) [[e1]]) (lam.contexts.fill_ctx C e1) TUnit).

@@ -7,7 +7,7 @@ Local Notation "l ↦ v" := (mapsto l (DfracOwn 1) v)
 
 From st.prelude Require Import big_op_three.
 
-From st.lamst Require Import lang types contexts.
+From st.STLCmuST Require Import lang types contexts.
 From st.lam Require Import lang wkpre contexts.
 
 From st.backtranslations.st_sem Require Import ghost heap_emul.base.
@@ -21,23 +21,23 @@ Section value_relation.
   (* Context `{inG_Σ_auth_nat_to_ag_loc : !inG Σ () } *)
   Context (Δ : list (gname * gname)).
 
-  Fixpoint valrel_typed_gen_pre (Ψ : typeO -n> valO -n> lamst.lang.valO -n> iPropO Σ) (τ : typeO) : valO -n> lamst.lang.valO -n> iPropO Σ := λne v v',
+  Fixpoint valrel_typed_gen_pre (Ψ : typeO -n> valO -n> STLCmuST.lang.valO -n> iPropO Σ) (τ : typeO) : valO -n> STLCmuST.lang.valO -n> iPropO Σ := λne v v',
     (match τ with
-     | TUnit => ⌜ v = (()%Vₙₒ : valO) ⌝ ∧ ⌜ v' = (()%Vₛₜ : lamst.lang.valO) ⌝
+     | TUnit => ⌜ v = (()%Vₙₒ : valO) ⌝ ∧ ⌜ v' = (()%Vₛₜ : STLCmuST.lang.valO) ⌝
      | TBool => ∃ b : bool, ⌜ v = b ⌝ ∧ ⌜ v' = b ⌝
      | TInt => ∃ z : Z, ⌜ v = z ⌝ ∧ ⌜ v' = z ⌝
      | TProd τ1 τ2 => ∃ v1 v2 v1' v2', ⌜ v = (v1, v2)%Vₙₒ ⌝ ∧ ⌜ v' = (v1' , v2')%Vₛₜ⌝ ∗ valrel_typed_gen_pre Ψ τ1 v1 v1' ∗ valrel_typed_gen_pre Ψ τ2 v2 v2'
-     | TSum τ1 τ2 => ∃ vi vi', (⌜ v = InjLV vi ⌝ ∧ ⌜ v' = lamst.lang.InjLV vi' ⌝ ∧ valrel_typed_gen_pre Ψ τ1 vi vi') ∨
-                              (⌜ v = InjRV vi ⌝ ∧ ⌜ v' = lamst.lang.InjRV vi' ⌝ ∧ valrel_typed_gen_pre Ψ τ2 vi vi')
+     | TSum τ1 τ2 => ∃ vi vi', (⌜ v = InjLV vi ⌝ ∧ ⌜ v' = STLCmuST.lang.InjLV vi' ⌝ ∧ valrel_typed_gen_pre Ψ τ1 vi vi') ∨
+                              (⌜ v = InjRV vi ⌝ ∧ ⌜ v' = STLCmuST.lang.InjRV vi' ⌝ ∧ valrel_typed_gen_pre Ψ τ2 vi vi')
      | TArrow τ1 τ2 => □ (∀ w w', valrel_typed_gen_pre Ψ τ1 w w' -∗ lift MaybeStuck (valrel_typed_gen_pre Ψ τ2) (v w) (v' w'))
-     | TRec τb => ∃ w w', ⌜ v = FoldV w ⌝ ∧ ⌜ v' = lamst.lang.FoldV w' ⌝ ∧ ▷ (Ψ τb.[TRec τb/] w w')
+     | TRec τb => ∃ w w', ⌜ v = FoldV w ⌝ ∧ ⌜ v' = STLCmuST.lang.FoldV w' ⌝ ∧ ▷ (Ψ τb.[TRec τb/] w w')
      | TVar X => False
      | TSTref ρ τ =>
        match ρ with
        | TVar X =>
          match Δ !! X with
          | Some (γ, γ') => ∃ (i : nat) (l : loc), ⌜ v = i ⌝ ∗ ⌜ v' = l ⌝ ∗ i ↪[γ']□ l ∗
-                             inv (nroot .@ γ .@ γ' .@ i) (∃ (w : val) (w' : lamst.lang.val), i ↪[γ] w ∗ l ↦ w' ∗ valrel_typed_gen_pre Ψ τ w w')
+                             inv (nroot .@ γ .@ γ' .@ i) (∃ (w : val) (w' : STLCmuST.lang.val), i ↪[γ] w ∗ l ↦ w' ∗ valrel_typed_gen_pre Ψ τ w w')
          | None => False
          end
        | _ => False
@@ -46,18 +46,18 @@ Section value_relation.
        match ρ with
        | TVar X =>
          match Δ !! X with
-         | Some (γ, γ') => ∀ (psᵢ : list (val *loc)) (σ : gmap loc lamst.lang.val),
+         | Some (γ, γ') => ∀ (psᵢ : list (val *loc)) (σ : gmap loc STLCmuST.lang.val),
              let vsᵢ := psᵢ.*1 in
              let lsᵢ := psᵢ.*2 in
              □ (gen_heap_interp σ -∗ auth_list γ vsᵢ -∗ auth_list γ' lsᵢ -∗
-                          WP v (encode vsᵢ) ?{{ r, ∃ (w : val) (w' : lamst.lang.val) (psₜ : list (val * loc)) (σ' : gmap loc lamst.lang.val),
+                          WP v (encode vsᵢ) ?{{ r, ∃ (w : val) (w' : STLCmuST.lang.val) (psₜ : list (val * loc)) (σ' : gmap loc STLCmuST.lang.val),
                                                 let vsₜ := psₜ.*1 in
                                                 let lsₜ := psₜ.*2 in
                                                 ⌜ r = (encode vsₜ, w)%Vₙₒ⌝ ∗
                                                 gen_heap_interp σ' ∗
                                                 auth_list γ vsₜ ∗
                                                 auth_list γ' lsₜ ∗
-                                                ⌜ rtc lamst_step (σ, RunST v') (σ', lamst.lang.of_val w') ⌝ ∧
+                                                ⌜ rtc STLCmuST_step (σ, RunST v') (σ', STLCmuST.lang.of_val w') ⌝ ∧
                                                 valrel_typed_gen_pre Ψ τ' w w'
                                            }}
                )
@@ -67,7 +67,7 @@ Section value_relation.
        end
      end)%I.
 
-  Definition valrel_typed_gen (Ψ : typeO -n> valO -n> lamst.lang.valO -n> iPropO Σ) : typeO -n> valO -n> lamst.lang.valO -n> iPropO Σ := λne τ v v', valrel_typed_gen_pre Ψ τ v v'.
+  Definition valrel_typed_gen (Ψ : typeO -n> valO -n> STLCmuST.lang.valO -n> iPropO Σ) : typeO -n> valO -n> STLCmuST.lang.valO -n> iPropO Σ := λne τ v v', valrel_typed_gen_pre Ψ τ v v'.
 
   Instance valrel_typed_gen_contractive : Contractive valrel_typed_gen.
   Proof.
@@ -93,7 +93,7 @@ Section value_relation.
   Lemma valrel_typed_gen_pre_gen' Ψ τ : valrel_typed_gen_pre Ψ τ ≡ valrel_typed_gen Ψ τ.
   Proof. intro. intro. auto. Qed.
 
-  Lemma valrel_typed_TUnit_unfold v v' : valrel_typed TUnit v v' ≡ (⌜ v = (()%Vₙₒ : valO) ⌝ ∧ ⌜ v' = (()%Vₛₜ : lamst.lang.valO) ⌝)%I.
+  Lemma valrel_typed_TUnit_unfold v v' : valrel_typed TUnit v v' ≡ (⌜ v = (()%Vₙₒ : valO) ⌝ ∧ ⌜ v' = (()%Vₛₜ : STLCmuST.lang.valO) ⌝)%I.
   Proof. by rewrite valrel_typed_unfold. Qed.
   Lemma valrel_typed_TBool_unfold v v' : valrel_typed TBool v v' ≡ (∃ b : bool, ⌜ v = b ⌝ ∧ ⌜ v' = b ⌝)%I.
   Proof. by rewrite valrel_typed_unfold. Qed.
@@ -106,11 +106,11 @@ Section value_relation.
     - rewrite valrel_typed_gen_pre_gen. unfold valrel_typed. rewrite -valrel_typed_unfold. auto.
     - rewrite /lift. f_equiv. simpl. repeat (f_equiv; try by rewrite valrel_typed_unfold).
   Qed.
-  Lemma valrel_typed_TSum_unfold τ1 τ2 v v' : valrel_typed (TSum τ1 τ2) v v' ≡ (∃ vi vi', (⌜ v = InjLV vi ⌝ ∧ ⌜ v' = lamst.lang.InjLV vi' ⌝ ∧ valrel_typed τ1 vi vi') ∨ (⌜ v = InjRV vi ⌝ ∧ ⌜ v' = lamst.lang.InjRV vi' ⌝ ∧ valrel_typed τ2 vi vi'))%I.
+  Lemma valrel_typed_TSum_unfold τ1 τ2 v v' : valrel_typed (TSum τ1 τ2) v v' ≡ (∃ vi vi', (⌜ v = InjLV vi ⌝ ∧ ⌜ v' = STLCmuST.lang.InjLV vi' ⌝ ∧ valrel_typed τ1 vi vi') ∨ (⌜ v = InjRV vi ⌝ ∧ ⌜ v' = STLCmuST.lang.InjRV vi' ⌝ ∧ valrel_typed τ2 vi vi'))%I.
   Proof. rewrite valrel_typed_unfold. simpl. repeat f_equiv; rewrite valrel_typed_gen_pre_gen'; rewrite -valrel_typed_unfold'; auto. Qed.
   Lemma valrel_typed_TProd_unfold τ1 τ2 v v' : valrel_typed (TProd τ1 τ2) v v' ≡ (∃ v1 v2 v1' v2', ⌜ v = (v1, v2)%Vₙₒ ⌝ ∧ ⌜ v' = (v1' , v2')%Vₛₜ ⌝ ∗ valrel_typed τ1 v1 v1' ∗ valrel_typed τ2 v2 v2')%I.
   Proof. rewrite valrel_typed_unfold. simpl. repeat f_equiv; rewrite valrel_typed_gen_pre_gen'; rewrite -valrel_typed_unfold'; auto. Qed.
-  Lemma valrel_typed_TRec_unfold τ v v' : valrel_typed (TRec τ) v v' ≡ (∃ w w', ⌜ v = FoldV w ⌝ ∧ ⌜ v' = lamst.lang.FoldV w' ⌝ ∧ ▷ (valrel_typed τ.[TRec τ/] w w'))%I.
+  Lemma valrel_typed_TRec_unfold τ v v' : valrel_typed (TRec τ) v v' ≡ (∃ w w', ⌜ v = FoldV w ⌝ ∧ ⌜ v' = STLCmuST.lang.FoldV w' ⌝ ∧ ▷ (valrel_typed τ.[TRec τ/] w w'))%I.
   Proof. rewrite valrel_typed_unfold. simpl. repeat f_equiv; rewrite valrel_typed_gen_pre_gen'; rewrite -valrel_typed_unfold'; auto. Qed.
   Lemma valrel_typed_TVar_unfold X v v' : valrel_typed (TVar X) v v' ≡ False%I.
   Proof. rewrite valrel_typed_unfold. by simpl. Qed.
@@ -120,7 +120,7 @@ Section value_relation.
                   | TVar X =>
                     match Δ !! X with
                     | Some (γ, γ') => ∃ (i : nat) (l : loc), ⌜ v = i ⌝ ∗ ⌜ v' = l ⌝ ∗ i ↪[γ']□ l ∗
-                                                          inv (nroot .@ γ .@ γ' .@ i) (∃ (w : val) (w' : lamst.lang.val), i ↪[γ] w ∗ l ↦ w' ∗ valrel_typed τ w w')
+                                                          inv (nroot .@ γ .@ γ' .@ i) (∃ (w : val) (w' : STLCmuST.lang.val), i ↪[γ] w ∗ l ↦ w' ∗ valrel_typed τ w w')
                  | None => False
                   end
                  | _ => False
@@ -131,18 +131,18 @@ Section value_relation.
       (match ρ with
        | TVar X =>
          match Δ !! X with
-         | Some (γ, γ') => ∀ (psᵢ : list (val *loc)) (σ : gmap loc lamst.lang.val),
+         | Some (γ, γ') => ∀ (psᵢ : list (val *loc)) (σ : gmap loc STLCmuST.lang.val),
              let vsᵢ := psᵢ.*1 in
              let lsᵢ := psᵢ.*2 in
              □ (gen_heap_interp σ -∗ auth_list γ vsᵢ -∗ auth_list γ' lsᵢ -∗
-                          WP v (encode vsᵢ) ?{{ r, ∃ (w : val) (w' : lamst.lang.val) (psₜ : list (val * loc)) (σ' : gmap loc lamst.lang.val),
+                          WP v (encode vsᵢ) ?{{ r, ∃ (w : val) (w' : STLCmuST.lang.val) (psₜ : list (val * loc)) (σ' : gmap loc STLCmuST.lang.val),
                                                 let vsₜ := psₜ.*1 in
                                                 let lsₜ := psₜ.*2 in
                                                 ⌜ r = (encode vsₜ, w)%Vₙₒ⌝ ∗
                                                 gen_heap_interp σ' ∗
                                                 auth_list γ vsₜ ∗
                                                 auth_list γ' lsₜ ∗
-                                                ⌜ rtc lamst_step (σ, RunST v') (σ', lamst.lang.of_val w') ⌝ ∧
+                                                ⌜ rtc STLCmuST_step (σ, RunST v') (σ', STLCmuST.lang.of_val w') ⌝ ∧
                                                 valrel_typed τ w w'
                                            }}
                )
@@ -177,13 +177,13 @@ Section expr_relation.
 
   Context `{Σ : !gFunctors} `{sem_le_stΣ_inst : !sem_le_stΣ Σ}.
 
-  Definition exprel_typed (Δ : list (gname * gname)) : typeO -n> exprO -n> lamst.lang.exprO -n> iPropO Σ :=
+  Definition exprel_typed (Δ : list (gname * gname)) : typeO -n> exprO -n> STLCmuST.lang.exprO -n> iPropO Σ :=
     λne τ eᵢ eₛ, lift MaybeStuck (valrel_typed Δ τ) eᵢ eₛ.
 
-  Definition open_exprel_typed (Γ : list type) (e : expr) (e' : lamst.lang.expr) (τ : type) :=
-    ∀ (Δ : list (gname * gname)) (vs : list val) (vs' : list lamst.lang.val),
+  Definition open_exprel_typed (Γ : list type) (e : expr) (e' : STLCmuST.lang.expr) (τ : type) :=
+    ∀ (Δ : list (gname * gname)) (vs : list val) (vs' : list STLCmuST.lang.val),
       big_sepL3 (fun τ v v' => valrel_typed Δ τ v v') Γ vs vs' ⊢
-                exprel_typed Δ τ e.[subst_list_val vs] e'.[lamst.lang.subst_list_val vs'].
+                exprel_typed Δ τ e.[subst_list_val vs] e'.[STLCmuST.lang.subst_list_val vs'].
 
   Lemma open_exprel_typed_nil' τ e e' : open_exprel_typed [] e e' τ → (∀ Δ, ⊢ exprel_typed Δ τ e e').
   Proof. rewrite /open_exprel_typed. iIntros (Hee' Δ). iDestruct (Hee' Δ [] []) as "H". asimpl. by iApply "H". Qed.
@@ -191,10 +191,10 @@ Section expr_relation.
   Lemma open_exprel_typed_nil τ e e' : (∀ Δ, ⊢ exprel_typed Δ τ e e') -> open_exprel_typed [] e e' τ.
   Proof. iIntros (Hee' Δ vs vs') "Hvv'". destruct vs, vs'; auto. asimpl. iApply Hee'. Qed.
 
-  Definition ctx_item_rel_typed (Ci : lam.contexts.ctx_item) (Ci' : lamst.contexts.ctx_item) Γ τ Γ' τ' :=
-    ∀ e e', open_exprel_typed Γ e e' τ → open_exprel_typed Γ' (lam.contexts.fill_ctx_item Ci e) (lamst.contexts.fill_ctx_item Ci' e') τ'.
+  Definition ctx_item_rel_typed (Ci : lam.contexts.ctx_item) (Ci' : STLCmuST.contexts.ctx_item) Γ τ Γ' τ' :=
+    ∀ e e', open_exprel_typed Γ e e' τ → open_exprel_typed Γ' (lam.contexts.fill_ctx_item Ci e) (STLCmuST.contexts.fill_ctx_item Ci' e') τ'.
 
-  Definition ctx_rel_typed (C : lam.contexts.ctx) (C' : lamst.contexts.ctx) Γ τ Γ' τ' :=
-    ∀ e e', open_exprel_typed Γ e e' τ → open_exprel_typed Γ' (lam.contexts.fill_ctx C e) (lamst.contexts.fill_ctx C' e') τ'.
+  Definition ctx_rel_typed (C : lam.contexts.ctx) (C' : STLCmuST.contexts.ctx) Γ τ Γ' τ' :=
+    ∀ e e', open_exprel_typed Γ e e' τ → open_exprel_typed Γ' (lam.contexts.fill_ctx C e) (STLCmuST.contexts.fill_ctx C' e') τ'.
 
 End expr_relation.

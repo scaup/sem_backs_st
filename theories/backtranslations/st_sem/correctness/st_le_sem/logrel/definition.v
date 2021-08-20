@@ -8,7 +8,7 @@ Local Notation "l ↦ v" := (mapsto l (DfracOwn 1) v)
 From st.prelude Require Import big_op_three.
 
 From st.lam Require Import lang contexts.
-From st.lamst Require Import wkpre lang types contexts.
+From st.STLCmuST Require Import wkpre lang types contexts.
 
 From st.backtranslations.st_sem Require Import ghost heap_emul.base.
 From st.backtranslations.st_sem.correctness.st_le_sem.logrel Require Import lift.
@@ -188,10 +188,10 @@ Section expr_relation.
   Lemma open_exprel_typed_nil τ e e' : (∀ Δ, ⊢ exprel_typed Δ τ e e') -> open_exprel_typed [] e e' τ.
   Proof. iIntros (Hee' Δ vs vs') "Hvv'". destruct vs, vs'; auto. asimpl. iApply Hee'. Qed.
 
-  Definition ctx_item_rel_typed (Ci : lamst.contexts.ctx_item) (Ci' : lam.contexts.ctx_item) Γ τ Γ' τ' :=
-    ∀ e e', open_exprel_typed Γ e e' τ → open_exprel_typed Γ' (lamst.contexts.fill_ctx_item Ci e) (lam.contexts.fill_ctx_item Ci' e') τ'.
+  Definition ctx_item_rel_typed (Ci : STLCmuST.contexts.ctx_item) (Ci' : lam.contexts.ctx_item) Γ τ Γ' τ' :=
+    ∀ e e', open_exprel_typed Γ e e' τ → open_exprel_typed Γ' (STLCmuST.contexts.fill_ctx_item Ci e) (lam.contexts.fill_ctx_item Ci' e') τ'.
 
-  Definition ctx_rel_typed (C : lamst.contexts.ctx) (C' : lam.contexts.ctx) Γ τ Γ' τ' :=
-    ∀ e e', open_exprel_typed Γ e e' τ → open_exprel_typed Γ' (lamst.contexts.fill_ctx C e) (lam.contexts.fill_ctx C' e') τ'.
+  Definition ctx_rel_typed (C : STLCmuST.contexts.ctx) (C' : lam.contexts.ctx) Γ τ Γ' τ' :=
+    ∀ e e', open_exprel_typed Γ e e' τ → open_exprel_typed Γ' (STLCmuST.contexts.fill_ctx C e) (lam.contexts.fill_ctx C' e') τ'.
 
 End expr_relation.

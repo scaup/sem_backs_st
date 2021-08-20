@@ -3,12 +3,12 @@ From iris.proofmode Require Import tactics.
 From iris_string_ident Require Import ltac2_string_ident.
 
 From st.lam Require Import lang.
-From st.lamst Require Import lang wkpre.
+From st.STLCmuST Require Import lang wkpre.
 
 Section lift.
 
   Context `{Σ : !gFunctors}.
-  Context `{irisG_inst : !irisG lamst_lang Σ}.
+  Context `{irisG_inst : !irisG STLCmuST_lang Σ}.
 
   Context (s : stuckness).
 

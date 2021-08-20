@@ -1,4 +1,4 @@
-From st.lamst Require Import lang contexts.
+From st.STLCmuST Require Import lang contexts.
 From st.lam Require Import lang contexts typing.
 From st.backtranslations.st_sem Require Import expressions contexts.
 From st.embedding Require Import expressions contexts.

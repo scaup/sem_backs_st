@@ -4,7 +4,7 @@ From st.backtranslations.st_sem.correctness Require Import
      sem_le_st.logrel.definition sem_le_st.logrel.adequacy sem_le_st.logrel.fundamental
      st_le_sem.logrel.definition st_le_sem.logrel.adequacy st_le_sem.logrel.fundamental.
 From st.lam Require Import typing contexts scopedness logrel.definitions logrel.adequacy logrel.fundamental.
-From st.lamst Require Import contexts types lang.
+From st.STLCmuST Require Import contexts types lang.
 From st.backtranslations.st_sem Require Import expressions contexts scoped retraction.
 From st.backtranslations.st_sem.well_defined.logrel Require Import definition fundamental matches_sem.
 From st.embedding Require Import types expressions typed.
@@ -14,7 +14,7 @@ From st Require Import resources.
 
 Section back_ctx_st_sem.
 
-  (* Given any syntactically-typed context in lamst, ⊢ₛₜ C : ([[Γ]];[[τ]]) ⇒ ([];1), *)
+  (* Given any syntactically-typed context in STLCmuST, ⊢ₛₜ C : ([[Γ]];[[τ]]) ⇒ ([];1), *)
   Context (C : ctx)
           (Γ : list type) (pΓ : Forall Closed Γ) (τ : type) (pτ : Closed τ)
           (pC : typed_ctx C (embed <$> Γ) (embed τ) [] (embed TUnit)).
@@ -36,7 +36,7 @@ Section back_ctx_st_sem.
     assert (ctx_rel_typed
               back_ctx_st_sem
               back_ctx_st_sem
-                (embed <$> Γ) (embed τ) [] lamst.types.TUnit).
+                (embed <$> Γ) (embed τ) [] STLCmuST.types.TUnit).
     { apply ctx_fundamental. apply pC. }
     by apply matches_sem_ctx.
   Qed.
@@ -46,7 +46,7 @@ Section back_ctx_st_sem.
 
   Lemma back_ctx_st_sem_correct_emulation :
     ∀ (e : expr) (de : Γ ⊢ₙₒ e : τ),
-      lam_halts (lam.contexts.fill_ctx back_ctx_st_sem e) <-> lamst_halts (fill_ctx C (embd_expr e)).
+      lam_halts (lam.contexts.fill_ctx back_ctx_st_sem e) <-> STLCmuST_halts (fill_ctx C (embd_expr e)).
   Proof.
     intros e de. split.
     - (* C_b[e] ⇓ ⇒ C[e] ⇓ *)

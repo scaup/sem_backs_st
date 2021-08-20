@@ -1,11 +1,11 @@
-From st.lamst Require Import typing lang contexts.
+From st.STLCmuST Require Import typing lang contexts.
 From st.lam Require Import lang scopedness contexts.
 From st.backtranslations.st_sem Require Import heap_emul.base expressions contexts.
 
 Opaque alloc read write bind retrn runst.
 
 Lemma back_expr_scope Γ e τ :
-  lamst.typing.typed Γ e τ → expr_scoped (length Γ) <<e>>.
+  STLCmuST.typing.typed Γ e τ → expr_scoped (length Γ) <<e>>.
 Proof.
   intro de. induction de; constructor; try done.
   - by eapply lookup_lt_Some.
@@ -19,7 +19,7 @@ Proof.
 Qed.
 
 Lemma back_ctx_item_scope Ci Γ τ Γ' τ' :
-  lamst.contexts.typed_ctx_item Ci Γ τ Γ' τ' → ctx_scoped (back_ctx_item Ci) (length Γ) (length Γ').
+  STLCmuST.contexts.typed_ctx_item Ci Γ τ Γ' τ' → ctx_scoped (back_ctx_item Ci) (length Γ) (length Γ').
 Proof.
   intro dCi.
   destruct dCi;
@@ -54,7 +54,7 @@ Proof.
 Qed.
 
 Lemma back_ctx_scope C Γ τ Γ' τ' :
-  lamst.contexts.typed_ctx C Γ τ Γ' τ' → ctx_scoped (back_ctx C) (length Γ) (length Γ').
+  STLCmuST.contexts.typed_ctx C Γ τ Γ' τ' → ctx_scoped (back_ctx C) (length Γ) (length Γ').
 Proof.
   intro dC. induction dC.
   - by constructor.

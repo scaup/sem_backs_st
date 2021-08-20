@@ -1,13 +1,13 @@
 From st.thms Require Import back_ctx_st_sem back_ctx_sem_syn.
 From st.embedding Require Import types expressions typed.
-From st.lamst Require Import lang types typing.
+From st.STLCmuST Require Import lang types typing.
 From st.lam Require Import lang types typing contexts scopedness.
-From st.lamst Require Import contexts.
+From st.STLCmuST Require Import contexts.
 From st.backtranslations.st_sem Require Import scoped.
 
 Section back_ctx_st_syn.
 
-  (* Given any syntactically-typed context in lamst, ⊢ₛₜ C : ([[Γ]];[[τ]]) ⇒ ([];1), *)
+  (* Given any syntactically-typed context in STLCmuST, ⊢ₛₜ C : ([[Γ]];[[τ]]) ⇒ ([];1), *)
   Context (C : ctx)
           (Γ : list type) (pΓ : Forall Closed Γ) (τ : type) (pτ : Closed τ)
           (pC : typed_ctx C (embed <$> Γ) (embed τ) [] (embed TUnit)).
@@ -21,7 +21,7 @@ Section back_ctx_st_syn.
     |C> [] ⊢ₙₒ back_ctx_st_syn ☾ Γ ; τ ☽ : TUnit.
   Proof.
     apply back_ctx_sem_syn_typed; auto.
-    change 0 with (length ([] : list lamst.types.type)).
+    change 0 with (length ([] : list STLCmuST.types.type)).
     replace (length Γ) with (length (embed <$> Γ)) by by rewrite fmap_length.
     eapply back_ctx_scope; eauto.
   Qed.
@@ -31,10 +31,10 @@ Section back_ctx_st_syn.
 
   Lemma back_ctx_st_syn_correct_emulation :
     ∀ (e : expr) (de : Γ ⊢ₙₒ e : τ),
-      lam_halts (lam.contexts.fill_ctx back_ctx_st_syn e) <-> lamst_halts (fill_ctx C (embd_expr e)).
+      lam_halts (lam.contexts.fill_ctx back_ctx_st_syn e) <-> STLCmuST_halts (fill_ctx C (embd_expr e)).
   Proof.
     assert (H1 : |sC> 0 ⊢ₙₒ back_ctx_st_sem C ☾ length Γ ☽).
-    { change 0 with (length ([] : list lamst.types.type)).
+    { change 0 with (length ([] : list STLCmuST.types.type)).
       replace (length Γ) with (length (embed <$> Γ)) by by rewrite fmap_length.
       eapply back_ctx_scope; eauto. }
     pose proof (back_ctx_st_sem_sem_typed C Γ τ).

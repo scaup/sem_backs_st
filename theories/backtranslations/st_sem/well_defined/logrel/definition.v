@@ -1,6 +1,6 @@
 From iris Require Import program_logic.weakestpre.
 From iris.proofmode Require Import tactics.
-From st.lamst Require Import types.
+From st.STLCmuST Require Import types.
 From st.lam Require Import lang wkpre generic.lift contexts scopedness.
 From iris.base_logic.lib Require Import invariants.
 From st.backtranslations.st_sem Require Import ghost heap_emul.base.
