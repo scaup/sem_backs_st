@@ -11,6 +11,18 @@ Purity of ST: Full Abstraction by Semantically Typed Back-translation
 | Theorem 3.5 (Faithfully emulating stateful contexts by semantic contexts)    | theories/thms/uni_back_ctx_st_sem.v  |
 | Theorem 3.6 (Faithfully emulating semantic contexts by pure contexts)        | theories/thms/uni_back_ctx_sem_syn.v |
 
+# Directory Structure
+
+- lam : contains the definition of the pure language
+  + logrel : LR for the definition of semantically typed intermediate language
+- lamst : contains the definition of the extended language with the ST monad
+- embedding : the embedding from the pure language into the one with ST
+- backtranslations
+  + st_sem : the backtranslation from ST contexts into semantic contexts (and with it, the necessary LR's)
+  + un_syn : the backtranslation from untyped terms into our universe (and with it, the necessary LR's)
+  + sem_syn : the wrappers (guard/assert) and (embed/project) on non-recusrive types; the lemmas connecting our typed and untyped LR's; the lemmas that (guard/assert) are can be freely added to the right of our LR for the intermediate language
+- thms : proofs of the main theorems as in the table above
+
 # Compiling Proofs
 
 ## Installing right version of Coq and required libraries (Iris and Autsubst)
