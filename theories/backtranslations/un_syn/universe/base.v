@@ -1,4 +1,5 @@
-From st.STLCmuVS Require Import types lang typing tactics.
+From st.STLCmuVS Require Import lang typing tactics.
+From st.STLCmu Require Import types.
 From st.STLCmuVS.lib Require Import omega fixarrow.
 
 (* Local Open Scope Eₙₒ. *)
@@ -18,7 +19,7 @@ Definition TUniverse : type := TRec TUniverse_body.
 
 Definition TUniverse_unfolded : type := TUniverse_body.[TUniverse/].
 
-From st Require Import lang.
+From st Require Import STLCmuVS.lang.
 
 Instance type_constructor_eq_dec : EqDecision type_constructor.
 Proof. solve_decision. Defined.

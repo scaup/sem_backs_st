@@ -1,4 +1,5 @@
-From st.STLCmuVS Require Import types lang typing tactics.
+From st.STLCmuVS Require Import lang typing tactics.
+From st.STLCmu Require Import types.
 From st.backtranslations.un_syn Require Import universe.base.
 From st.STLCmuVS.lib Require Import omega.
 

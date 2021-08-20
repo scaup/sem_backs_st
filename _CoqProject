@@ -11,7 +11,7 @@ theories/prelude/at_least_one.v
 theories/prelude/forall_three.v
 
 theories/STLCmuVS/lang.v
-theories/STLCmuVS/types.v
+theories/STLCmu/types.v
 theories/STLCmuVS/typing.v
 
 theories/STLCmuVS/tactics.v
@@ -121,3 +121,8 @@ theories/thms/back_ctx_st_sem.v
 theories/thms/back_ctx_st_syn.v
 theories/thms/pres_ctx_equiv.v
 theories/thms/refl_ctx_equiv.v
+
+theories/STLCmu/lang.v
+theories/STLCmu/typing.v
+
+

@@ -1,4 +1,5 @@
-From st.STLCmuVS Require Import lang typing types contexts scopedness.
+From st.STLCmuVS Require Import lang typing contexts scopedness.
+From st.STLCmu Require Import types.
 
 Definition subst_ctx_item (σ : var → expr) (Ci : ctx_item) : ctx_item :=
   match Ci with

@@ -1,4 +1,5 @@
-From st.STLCmuVS Require Import lang types.
+From st.STLCmuVS Require Import lang.
+From st.STLCmu Require Import types.
 From st.backtranslations.un_syn Require Import universe.base.
 
 Reserved Notation "<< e >>" (at level 4, e at next level).

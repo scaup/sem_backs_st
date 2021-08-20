@@ -4,7 +4,8 @@ From iris.base_logic.lib Require Import ghost_map.
 From iris.program_logic Require Import weakestpre adequacy.
 From iris.proofmode Require Import tactics.
 (* From iris.base_logic.lib Require Import invariants gen_heap. *)
-From st.STLCmuVS Require Import lang types logrel.definitions.
+From st.STLCmuVS Require Import lang logrel.definitions.
+From st.STLCmu Require Import types.
 (* From st.STLCmuST Require Import wkpre lang types. *)
 (* From st.backtranslations.st_sem.correctness.st_le_sem.logrel Require Import definition lift. *)
 From st Require Import resources.

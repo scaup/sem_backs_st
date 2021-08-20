@@ -1,4 +1,5 @@
-From st.STLCmuVS Require Import types lang typing tactics.
+From st.STLCmuVS Require Import lang typing tactics.
+From st.STLCmu Require Import types.
 
 Definition Ω : expr :=
   (Lam (Unfold %0 %0)

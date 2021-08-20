@@ -3,7 +3,8 @@ From iris.proofmode Require Import tactics.
 
 From st.prelude Require Import forall_three big_op_three.
 
-From st.STLCmuVS Require Import contexts lang contexts_subst types scopedness types typing tactics virt_steps.
+From st.STLCmuVS Require Import contexts lang contexts_subst scopedness typing tactics virt_steps.
+From st.STLCmu Require Import types.
 From st.STLCmuVS.logrel Require Import definitions fundamental generic.lift.
 
 From st.backtranslations.sem_syn.sem_le_syn Require Import no_op gs_ctx.

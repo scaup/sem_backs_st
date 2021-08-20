@@ -1,7 +1,8 @@
 From st.thms Require Import back_ctx_st_sem back_ctx_sem_syn.
 From st.embedding Require Import types expressions typed.
 From st.STLCmuST Require Import lang types typing.
-From st.STLCmuVS Require Import lang types typing contexts scopedness.
+From st.STLCmuVS Require Import lang typing contexts scopedness.
+From st.STLCmu Require Import types.
 From st.STLCmuST Require Import contexts.
 From st.backtranslations.st_sem Require Import scoped.
 

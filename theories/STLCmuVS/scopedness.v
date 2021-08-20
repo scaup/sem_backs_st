@@ -1,4 +1,5 @@
-From st.STLCmuVS Require Import lang types typing.
+From st.STLCmuVS Require Import lang typing.
+From st.STLCmu Require Import types.
 
 Inductive expr_scoped (n : nat) : expr → Prop :=
  | Var_scoped x :

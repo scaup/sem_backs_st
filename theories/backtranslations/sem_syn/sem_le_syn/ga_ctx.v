@@ -1,4 +1,5 @@
-From st.STLCmuVS Require Import lang typing types contexts scopedness.
+From st.STLCmuVS Require Import lang typing contexts scopedness.
+From st.STLCmu Require Import types.
 From st.backtranslations.sem_syn.sem_le_syn Require Import guard_assert.
 From st.backtranslations.sem_syn Require Import gamma_lib.
 

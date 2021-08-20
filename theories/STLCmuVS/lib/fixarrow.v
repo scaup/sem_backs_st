@@ -1,4 +1,5 @@
-From st.STLCmuVS Require Import types lang tactics typing.
+From st.STLCmuVS Require Import lang tactics typing.
+From st.STLCmu Require Import types.
 
 Local Open Scope expr_no_st_scope.
 Local Open Scope types_no_st_scope.

@@ -1,4 +1,5 @@
-From st.STLCmuVS Require Import lang types typing contexts scopedness.
+From st.STLCmuVS Require Import lang typing contexts scopedness.
+From st.STLCmu Require Import types.
 From st.backtranslations.un_syn Require Import universe.base expressions typed.
 
 (* Reserved Notation "<[ Ci ]>" (at level 4, Ci at next level). *)

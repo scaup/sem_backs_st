@@ -2,7 +2,8 @@ From iris Require Import program_logic.weakestpre.
 From iris.proofmode Require Import tactics.
 From iris_string_ident Require Import ltac2_string_ident.
 From st.prelude Require Import autosubst.
-From st.STLCmuVS Require Import lang virt_steps types typing tactics logrel.definitions logrel.generic.lift reducibility wkpre fixarrow.
+From st.STLCmuVS Require Import lang virt_steps typing tactics logrel.definitions logrel.generic.lift reducibility wkpre fixarrow.
+From st.STLCmu Require Import types.
 From st Require Import resources.
 From st.backtranslations.sem_syn Require Import guard_assert.
 

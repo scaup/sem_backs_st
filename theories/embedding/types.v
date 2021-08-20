@@ -1,16 +1,16 @@
-From st Require Import STLCmuVS.types STLCmuST.types.
+From st Require Import STLCmu.types STLCmuST.types.
 From st.prelude Require Export generic autosubst.
 
-Fixpoint embed (τ : STLCmuVS.types.type) : STLCmuST.types.type :=
+Fixpoint embed (τ : STLCmu.types.type) : STLCmuST.types.type :=
   match τ with
-  | STLCmuVS.types.TUnit => TUnit
-  | STLCmuVS.types.TBool => TBool
-  | STLCmuVS.types.TInt => TInt
-  | STLCmuVS.types.TProd τ1 τ2 => TProd (embed τ1) (embed τ2)
-  | STLCmuVS.types.TSum τ1 τ2 => TSum (embed τ1) (embed τ2)
-  | STLCmuVS.types.TArrow τ1 τ2 => TArrow (embed τ1) (embed τ2)
-  | STLCmuVS.types.TRec τb => TRec (embed τb)
-  | STLCmuVS.types.TVar X => TVar X
+  | STLCmu.types.TUnit => TUnit
+  | STLCmu.types.TBool => TBool
+  | STLCmu.types.TInt => TInt
+  | STLCmu.types.TProd τ1 τ2 => TProd (embed τ1) (embed τ2)
+  | STLCmu.types.TSum τ1 τ2 => TSum (embed τ1) (embed τ2)
+  | STLCmu.types.TArrow τ1 τ2 => TArrow (embed τ1) (embed τ2)
+  | STLCmu.types.TRec τb => TRec (embed τb)
+  | STLCmu.types.TVar X => TVar X
   end.
 
 Notation "[| τ |]" := (embed τ) (at level 4, τ at next level).
@@ -27,7 +27,7 @@ Proof.
     destruct (lt_dec X l); by asimpl.
 Qed.
 
-Lemma embed_TRec_comm_gen (τb : STLCmuVS.types.type) : forall (τ : STLCmuVS.types.type) k,
+Lemma embed_TRec_comm_gen (τb : STLCmu.types.type) : forall (τ : STLCmu.types.type) k,
   [| τb.[upn k (τ .: ids)] |] = [|τb|].[upn k ([|τ|] .: ids)].
 Proof.
   induction τb; intros τ' k; try by asimpl.
@@ -45,10 +45,10 @@ Proof.
         destruct (X - k). exfalso; lia. by asimpl.
 Qed.
 
-Lemma embed_TRec_comm (τb : STLCmuVS.types.type) :
-  [| τb.[STLCmuVS.types.TRec τb/]|] = [|τb|].[TRec [|τb|]/].
+Lemma embed_TRec_comm (τb : STLCmu.types.type) :
+  [| τb.[STLCmu.types.TRec τb/]|] = [|τb|].[TRec [|τb|]/].
 Proof.
-  cut ([| (τb.[upn 0 ((STLCmuVS.types.TRec τb) .: ids)])|] = [|τb|].[upn 0 ([|(STLCmuVS.types.TRec τb)|] .: ids)]).
+  cut ([| (τb.[upn 0 ((STLCmu.types.TRec τb) .: ids)])|] = [|τb|].[upn 0 ([|(STLCmu.types.TRec τb)|] .: ids)]).
   by asimpl. apply embed_TRec_comm_gen.
 Qed.
 

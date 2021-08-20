@@ -1,6 +1,7 @@
 From iris.program_logic Require Import weakestpre adequacy.
 From iris.proofmode Require Import tactics.
-From st.STLCmuVS Require Import lang typing types types contexts scopedness logrel.definitions logrel.adequacy logrel.fundamental.
+From st.STLCmuVS Require Import lang typing contexts scopedness logrel.definitions logrel.adequacy logrel.fundamental.
+From st.STLCmu Require Import types.
 From st.backtranslations.un_syn Require Import universe.base expressions contexts typed.
 From st.backtranslations.sem_syn Require Import back_ctx.
 From st.backtranslations.sem_syn.syn_le_sem Require Import ctx_syn_le_un.

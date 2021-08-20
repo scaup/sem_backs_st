@@ -1,5 +1,4 @@
-From st.STLCmuVS Require Import lang typing.
-From st.STLCmu Require Import types.
+From st.STLCmu Require Import lang typing types.
 
 Section context_depth_one.
 
@@ -24,8 +23,7 @@ Section context_depth_one.
     | CTX_IfM (e0 : expr) (e2 : expr)
     | CTX_IfR (e0 : expr) (e1 : expr)
     | CTX_Fold
-    | CTX_Unfold
-    | CTX_VirtStep.
+    | CTX_Unfold.
 
   Definition fill_ctx_item (ctx : ctx_item) (e : expr) : expr :=
     match ctx with
@@ -50,7 +48,6 @@ Section context_depth_one.
     | CTX_IfR e0 e1 => If e0 e1 e
     | CTX_Fold => Fold e
     | CTX_Unfold => Unfold e
-    | CTX_VirtStep => VirtStep e
     end.
 
   Inductive typed_ctx_item :

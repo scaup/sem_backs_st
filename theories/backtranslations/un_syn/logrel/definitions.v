@@ -1,6 +1,7 @@
 From iris Require Import program_logic.weakestpre.
 From iris.proofmode Require Import tactics.
-From st.STLCmuVS Require Import lang wkpre generic.lift types contexts scopedness.
+From st.STLCmuVS Require Import lang wkpre generic.lift contexts scopedness.
+From st.STLCmu Require Import types.
 From st.backtranslations.un_syn Require Import expressions universe.base.
 
 Inductive refinement :=

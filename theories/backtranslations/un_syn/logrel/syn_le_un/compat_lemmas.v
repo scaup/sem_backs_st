@@ -1,6 +1,7 @@
 From iris Require Import program_logic.weakestpre.
 From iris.proofmode Require Import tactics.
-From st.STLCmuVS Require Import lang virt_steps wkpre generic.lift types tactics lib.omega tactics reducibility.
+From st.STLCmuVS Require Import lang virt_steps wkpre generic.lift tactics lib.omega tactics reducibility.
+From st.STLCmu Require Import types.
 From st.backtranslations.un_syn Require Import logrel.definitions expressions universe.base universe.paths.
 
 Section syn_le_un.

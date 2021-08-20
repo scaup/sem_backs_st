@@ -1,5 +1,6 @@
 From st.prelude Require Import autosubst.
-From st.STLCmuVS Require Import types lang typing tactics.
+From st.STLCmuVS Require Import lang typing tactics.
+From st.STLCmu Require Import types.
 From st.STLCmuVS.lib Require Import fixarrow omega.
 From st.backtranslations.un_syn Require Import universe.base.
 

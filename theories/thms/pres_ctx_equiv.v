@@ -1,12 +1,13 @@
 From st.thms Require Import back_ctx_st_syn.
-From st.STLCmuVS Require Import lang types types typing contexts scopedness.
-From st.STLCmuST Require Import lang types types typing contexts.
+From st.STLCmuVS Require Import lang typing contexts scopedness.
+From st.STLCmu Require Import types.
+From st.STLCmuST Require Import lang types typing contexts.
 From st.embedding Require Import types expressions typed.
 
 Definition STLCmuVS_equiv Γ e1 e2 τ :=
   Forall Closed Γ ∧ Closed τ ∧
   Γ ⊢ₙₒ e1 : τ ∧ Γ ⊢ₙₒ e2 : τ ∧
-  ∀ C (dC : STLCmuVS.contexts.typed_ctx C Γ τ [] STLCmuVS.types.TUnit),
+  ∀ C (dC : STLCmuVS.contexts.typed_ctx C Γ τ [] STLCmu.types.TUnit),
     STLCmuVS_halts (STLCmuVS.contexts.fill_ctx C e1) <-> STLCmuVS_halts (STLCmuVS.contexts.fill_ctx C e2).
 
 Definition STLCmuVS_st_equiv (Γ : list type) e1 e2 (τ : type) :=

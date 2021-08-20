@@ -1,7 +1,8 @@
 From iris.base_logic.lib Require Import ghost_map.
 From iris Require Import program_logic.weakestpre.
 From iris.proofmode Require Import tactics.
-From st.STLCmuVS Require Import lang types wkpre generic.lift contexts scopedness.
+From st.STLCmuVS Require Import lang wkpre generic.lift contexts scopedness.
+From st.STLCmu Require Import types.
 From st.prelude Require Import big_op_three.
 From st Require Import resources.
 

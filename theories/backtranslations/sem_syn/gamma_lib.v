@@ -1,5 +1,6 @@
 From st.prelude Require Import generic forall_three.
-From st.STLCmuVS Require Import lang typing types tactics contexts contexts_subst scopedness.
+From st.STLCmuVS Require Import lang typing tactics contexts contexts_subst scopedness.
+From st.STLCmu Require Import types.
 
 Definition GammaType (Γ : list type) (τ : type) : type := foldr (TArrow) τ (rev Γ).
 

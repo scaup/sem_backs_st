@@ -8,7 +8,8 @@ From st.STLCmuST Require Import contexts types lang.
 From st.backtranslations.st_sem Require Import expressions contexts scoped retraction.
 From st.backtranslations.st_sem.well_defined.logrel Require Import definition fundamental matches_sem.
 From st.embedding Require Import types expressions typed.
-From st.STLCmuVS Require Import types lang.
+From st.STLCmuVS Require Import lang.
+From st.STLCmu Require Import types.
 
 From st Require Import resources.
 

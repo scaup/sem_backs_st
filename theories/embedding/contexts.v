@@ -28,23 +28,23 @@ Definition embd_ctx_item (Ci : STLCmuVS.contexts.ctx_item) : ctx_item :=
   | STLCmuVS.contexts.CTX_VirtStep => CTX_Lam (* we only care about embedding syntactically well-typed expressions *)
   end.
 
-Lemma embd_ctx_item_typed (Ci : STLCmuVS.contexts.ctx_item) (Γ : list STLCmuVS.types.type) (τ : STLCmuVS.types.type) (Γ' : list STLCmuVS.types.type) (τ' : STLCmuVS.types.type) :
+Lemma embd_ctx_item_typed (Ci : STLCmuVS.contexts.ctx_item) (Γ : list STLCmu.types.type) (τ : STLCmu.types.type) (Γ' : list STLCmu.types.type) (τ' : STLCmu.types.type) :
   STLCmuVS.contexts.typed_ctx_item Ci Γ τ Γ' τ' →
   STLCmuST.contexts.typed_ctx_item (embd_ctx_item Ci) (fmap embed Γ) (embed τ) (fmap embed Γ') (embed τ').
 Proof.
   intro dCi.
   inversion dCi; try by (econstructor; (try rewrite -fmap_cons); eapply embd_typed).
-  - econstructor. change (types.TArrow [|τ|] [|τ'|]) with ([|STLCmuVS.types.TArrow τ τ'|]). by eapply embd_typed.
-  - apply TP_CTX_CaseM with (τ2 := [|τ2|]). change (types.TSum [|?τ1|] [|?τ2|]) with ([|STLCmuVS.types.TSum τ1 τ2|]). by eapply embd_typed.
+  - econstructor. change (types.TArrow [|τ|] [|τ'|]) with ([|STLCmu.types.TArrow τ τ'|]). by eapply embd_typed.
+  - apply TP_CTX_CaseM with (τ2 := [|τ2|]). change (types.TSum [|?τ1|] [|?τ2|]) with ([|STLCmu.types.TSum τ1 τ2|]). by eapply embd_typed.
     rewrite -fmap_cons. by eapply embd_typed.
-  - apply TP_CTX_CaseR with (τ1 := [|τ1|]). change (types.TSum [|?τ1|] [|?τ2|]) with ([|STLCmuVS.types.TSum τ1 τ2|]). by eapply embd_typed.
+  - apply TP_CTX_CaseR with (τ1 := [|τ1|]). change (types.TSum [|?τ1|] [|?τ2|]) with ([|STLCmu.types.TSum τ1 τ2|]). by eapply embd_typed.
     rewrite -fmap_cons. by eapply embd_typed.
-  - apply TP_CTX_IfM. change (types.TBool) with ([|STLCmuVS.types.TBool|]). by eapply embd_typed.
+  - apply TP_CTX_IfM. change (types.TBool) with ([|STLCmu.types.TBool|]). by eapply embd_typed.
     by eapply embd_typed.
-  - apply TP_CTX_IfR. change (types.TBool) with ([|STLCmuVS.types.TBool|]). by eapply embd_typed.
+  - apply TP_CTX_IfR. change (types.TBool) with ([|STLCmu.types.TBool|]). by eapply embd_typed.
     by eapply embd_typed.
-  - destruct op; simpl; econstructor; change (types.TInt) with ([|STLCmuVS.types.TInt|]); by eapply embd_typed.
-  - destruct op; simpl; econstructor; change (types.TInt) with ([|STLCmuVS.types.TInt|]); by eapply embd_typed.
+  - destruct op; simpl; econstructor; change (types.TInt) with ([|STLCmu.types.TInt|]); by eapply embd_typed.
+  - destruct op; simpl; econstructor; change (types.TInt) with ([|STLCmu.types.TInt|]); by eapply embd_typed.
   - rewrite embed_TRec_comm. econstructor.
   - rewrite embed_TRec_comm. econstructor.
 Qed.
@@ -52,7 +52,7 @@ Qed.
 Definition embd_ctx (C : STLCmuVS.contexts.ctx) : ctx :=
   fmap embd_ctx_item C.
 
-Lemma embd_ctx_typed (C : STLCmuVS.contexts.ctx) (Γ : list STLCmuVS.types.type) (τ : STLCmuVS.types.type) (Γ' : list STLCmuVS.types.type) (τ' : STLCmuVS.types.type) :
+Lemma embd_ctx_typed (C : STLCmuVS.contexts.ctx) (Γ : list STLCmu.types.type) (τ : STLCmu.types.type) (Γ' : list STLCmu.types.type) (τ' : STLCmu.types.type) :
   STLCmuVS.contexts.typed_ctx C Γ τ Γ' τ' → STLCmuST.contexts.typed_ctx (embd_ctx C) (fmap embed Γ) (embed τ) (fmap embed Γ') (embed τ').
 Proof.
   intro de. induction de; try by econstructor.

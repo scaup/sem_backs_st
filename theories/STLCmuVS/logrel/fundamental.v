@@ -1,6 +1,7 @@
 From iris Require Import program_logic.weakestpre.
 From iris.proofmode Require Import tactics.
-From st.STLCmuVS Require Import lang types typing wkpre generic.lift contexts logrel.definitions logrel.compat_lemmas contexts scopedness.
+From st.STLCmuVS Require Import lang typing wkpre generic.lift contexts logrel.definitions logrel.compat_lemmas contexts scopedness.
+From st.STLCmu Require Import types.
 From st.prelude Require Import big_op_three.
 From st Require Import resources.
 
