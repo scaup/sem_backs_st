@@ -1,5 +1,6 @@
 From st.STLCmuVS Require Import lang.
 From st.STLCmuST Require Import lang.
+From st.prelude Require Import lang_base.
 
 Reserved Notation "[[ e ]]" (at level 4, e at next level).
 Fixpoint embd_expr (e : STLCmuVS.lang.expr) : expr :=
@@ -9,9 +10,9 @@ Fixpoint embd_expr (e : STLCmuVS.lang.expr) : expr :=
   | STLCmuVS.lang.Lam e => Lam [[e]]
   | STLCmuVS.lang.App e1 e2 => App [[e1]] [[e2]]
   | STLCmuVS.lang.Lit l => match l with
-                       | STLCmuVS.lang.LitInt n => n
-                       | STLCmuVS.lang.LitBool b => b
-                       | STLCmuVS.lang.LitUnit => LitUnit
+                       | LitInt n => n
+                       | LitBool b => b
+                       | LitUnit => ()%Eₛₜ
                        end
   | STLCmuVS.lang.BinOp op e1 e2 => BinOp op [[e1]] [[e2]]
   | STLCmuVS.lang.If e0 e1 e2 => If [[e0]] [[e1]] [[e2]]

@@ -149,8 +149,8 @@ Section context.
 
 End context.
 
-Notation "|C> Γr ⊢ₙₒ C ☾ Γh ; τh ☽ : τr" := (typed_ctx C Γh τh Γr τr) (at level 74, Γr, C, Γh, τh, τr at next level).
-Notation "|Ci> Γr ⊢ₙₒ C ☾ Γh ; τh ☽ : τr" := (typed_ctx_item C Γh τh Γr τr) (at level 74, Γr, C, Γh, τh, τr at next level).
+Local Notation "|C> Γr ⊢ₙₒ C ☾ Γh ; τh ☽ : τr" := (typed_ctx C Γh τh Γr τr) (at level 74, Γr, C, Γh, τh, τr at next level).
+Local Notation "|Ci> Γr ⊢ₙₒ C ☾ Γh ; τh ☽ : τr" := (typed_ctx_item C Γh τh Γr τr) (at level 74, Γr, C, Γh, τh, τr at next level).
 
 Lemma typed_expr_append Γ e τ τs :
   Γ ⊢ₙₒ e : τ → Γ ++ τs ⊢ₙₒ e : τ.

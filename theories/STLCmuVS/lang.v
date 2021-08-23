@@ -1,14 +1,5 @@
 From iris.program_logic Require Export language ectx_language ectxi_language.
-From st.prelude Require Export autosubst generic.
-
-(* Local Open Scope Z_scope. *)
-
-(** The litterals of the language *)
-Inductive base_lit : Set :=
-| LitInt (n : Z) | LitBool (b : bool) | LitUnit.
-
-Inductive bin_op : Set :=
-| PlusOp | MinusOp | LeOp | LtOp | EqOp.
+From st.prelude Require Export autosubst generic lang_base.
 
 (** The syntax of expressions *)
 Inductive expr :=

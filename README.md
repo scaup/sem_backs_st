@@ -1,7 +1,25 @@
 This is the artifact for the following submission:
 Purity of ST: Full Abstraction by Semantically Typed Back-translation
 
-# Results from paper linked with Coq code
+# Verifying main result only:
+
+To verify the main result, one needs to go over the following:
+
+- The [STLCmu](theories/STLCmu)-folder which contains the standard representation of a cbv simply-typed lambda calculus with equirecursive types: [lang.v](theories/STLCmu/lang.v) contains the grammar and the operational semantics, [types.v](theories/STLCmu/types.v) the types, and [typing.v](theories/STLCmu/typing.v) the typing rules.
+  [contexts.v](theories/STLCmu/contexts.v) defines contexts together with their typing rules.
+
+- The [STLCmuST](theories/STLCmuST)-folder contains the extension of STLCmu with the ST-monad: [lang.v](theories/STLCmuST/lang.v) contains the grammar and the operational semantics, [types.v](theories/STLCmuST/types.v) the types, and [typing.v](theories/STLCmuST/typing.v) the typing rules.
+  [contexts.v](theories/STLCmuST/contexts.v) defines contexts together with their typing rules.
+
+- [embedding_STLCmu_STLCmuST.v](theories/end_to_end/embedding_STLCmu_STLCmuST.v) defines the canonical embedding from STLCmu into STLCmuST.
+
+- [back_ctx_STLCmuST_STLCmu.v](theories/end_to_end/back_ctx_STLCmuST_STLCmu.v) defines the uniform backtranslation on contexts from STLCmu to STLCmuST and proves that this backtranslation behaves correctly.
+
+- [embedding_STLCmu_STLCmuST.v](theories/end_to_end/pres_ctx_equiv.v) defines contextual equivalence of both STLCmu and STLCmuST and proves that this equivalence is preserved under this canonical embedding.
+
+- end-to-end-for-reflection: will do this later
+
+# Results from paper linked with Coq code (todo: update)
 
 | Main theorems from the paper                                                 | File in Coq project                  |
 |------------------------------------------------------------------------------|--------------------------------------|
@@ -11,7 +29,7 @@ Purity of ST: Full Abstraction by Semantically Typed Back-translation
 | Theorem 3.5 (Faithfully emulating stateful contexts by semantic contexts)    | theories/thms/uni_back_ctx_st_sem.v  |
 | Theorem 3.6 (Faithfully emulating semantic contexts by pure contexts)        | theories/thms/uni_back_ctx_sem_syn.v |
 
-# Directory Structure
+# Directory Structure (todo: update)
 
 - STLCmuVS : contains the definition of the pure language
   + logrel : LR for the definition of semantically typed intermediate language

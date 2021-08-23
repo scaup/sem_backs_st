@@ -10,8 +10,15 @@ theories/prelude/big_op_three.v
 theories/prelude/at_least_one.v
 theories/prelude/forall_three.v
 
-theories/STLCmuVS/lang.v
+theories/prelude/lang_base.v
+
+theories/STLCmu/lang.v
 theories/STLCmu/types.v
+theories/STLCmu/typing.v
+theories/STLCmu/contexts.v
+theories/STLCmu/reducibility.v
+
+theories/STLCmuVS/lang.v
 theories/STLCmuVS/typing.v
 
 theories/STLCmuVS/tactics.v
@@ -122,7 +129,10 @@ theories/thms/back_ctx_st_syn.v
 theories/thms/pres_ctx_equiv.v
 theories/thms/refl_ctx_equiv.v
 
-theories/STLCmu/lang.v
-theories/STLCmu/typing.v
+
+theories/end_to_end/embedding_STLCmu_STLCmuST.v
+theories/STLCmu/boring.v
+theories/end_to_end/back_ctx_STLCmuST_STLCmu.v
+theories/end_to_end/pres_ctx_equiv.v
 
 

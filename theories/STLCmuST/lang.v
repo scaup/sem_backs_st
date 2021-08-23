@@ -1,5 +1,5 @@
 From iris.program_logic Require Import language ectx_language ectxi_language.
-From st.prelude Require Export autosubst generic.
+From st.prelude Require Export autosubst generic lang_base.
 From stdpp Require Import gmap prelude.
 From st.STLCmuVS Require lang.
 
@@ -27,7 +27,7 @@ Inductive expr :=
 | App (e1 e2 : expr)
 (* Base Types *)
 | Lit (l : base_lit)
-| BinOp (op : lang.bin_op) (e1 e2 : expr)
+| BinOp (op : bin_op) (e1 e2 : expr)
 | If (e0 e1 e2 : expr)
 | Seq (e1 e2 : expr)
 (* Products *)
@@ -68,11 +68,11 @@ Notation "% x" := (Var x%nat) (at level 8, format "% x") : expr_st_scope.
 Notation "()" := (Lit LitUnit) : expr_st_scope.
 Notation "( e1 , e2 , .. , en )" := (Pair .. (Pair e1 e2) .. en) : expr_st_scope.
 
-Notation "e1 + e2" := (BinOp STLCmuVS.lang.PlusOp e1%Eₛₜ e2%Eₛₜ) : expr_st_scope.
-Notation "e1 - e2" := (BinOp STLCmuVS.lang.MinusOp e1%Eₛₜ e2%Eₛₜ) : expr_st_scope.
-Notation "e1 ≤ e2" := (BinOp STLCmuVS.lang.LeOp e1%Eₛₜ e2%Eₛₜ) : expr_st_scope.
-Notation "e1 < e2" := (BinOp STLCmuVS.lang.LtOp e1%Eₛₜ e2%Eₛₜ) : expr_st_scope.
-Notation "e1 = e2" := (BinOp STLCmuVS.lang.EqOp e1%Eₛₜ e2%Eₛₜ) : expr_st_scope.
+Notation "e1 + e2" := (BinOp PlusOp e1%Eₛₜ e2%Eₛₜ) : expr_st_scope.
+Notation "e1 - e2" := (BinOp MinusOp e1%Eₛₜ e2%Eₛₜ) : expr_st_scope.
+Notation "e1 ≤ e2" := (BinOp LeOp e1%Eₛₜ e2%Eₛₜ) : expr_st_scope.
+Notation "e1 < e2" := (BinOp LtOp e1%Eₛₜ e2%Eₛₜ) : expr_st_scope.
+Notation "e1 = e2" := (BinOp EqOp e1%Eₛₜ e2%Eₛₜ) : expr_st_scope.
 
 Instance Var_Inj : Inj eq eq Var. intros x1 x2 eq. by inversion eq. Qed.
 
@@ -371,8 +371,8 @@ Inductive ectx_item :=
 | InjRCtx
 | CaseCtx (e1 : {bind expr}) (e2 : {bind expr})
 | IfCtx (e2 : expr) (e3 : expr)
-| BinOpLCtx (op : lang.bin_op) (e2 : expr)
-| BinOpRCtx (op : lang.bin_op) (v1 : val)
+| BinOpLCtx (op : bin_op) (e2 : expr)
+| BinOpRCtx (op : bin_op) (v1 : val)
 | SeqCtx (e2 : expr)
 | FoldCtx
 | UnfoldCtx
@@ -423,13 +423,13 @@ Definition fill_item (Ki : ectx_item) (e : expr) : expr :=
 
 (** The stepping relation *)
 
-Definition bin_op_eval (op : lang.bin_op) (z1 z2 : Z) : val :=
+Definition bin_op_eval (op : bin_op) (z1 z2 : Z) : val :=
  match op with
- | lang.PlusOp => LitV $ LitInt (z1 + z2)%Z
- | lang.MinusOp => LitV $ LitInt (z1 - z2)
- | lang.LeOp => LitV $ LitBool $ bool_decide (z1 ≤ z2)%Z
- | lang.LtOp => LitV $ LitBool $ bool_decide (z1 < z2)%Z
- | lang.EqOp => LitV $ LitBool $ bool_decide (z1 = z2)
+ | PlusOp => LitV $ LitInt (z1 + z2)%Z
+ | MinusOp => LitV $ LitInt (z1 - z2)
+ | LeOp => LitV $ LitBool $ bool_decide (z1 ≤ z2)%Z
+ | LtOp => LitV $ LitBool $ bool_decide (z1 < z2)%Z
+ | EqOp => LitV $ LitBool $ bool_decide (z1 = z2)
  end.
 
 (** Reduction relation for STLang: *)

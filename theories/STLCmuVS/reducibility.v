@@ -142,3 +142,415 @@ Proof.
     + apply is_stuck; by apply (fill_stuck [VirtStepCtx]).
 Qed.
 
+Inductive Reducible : expr → Prop :=
+  | LetIn_L_Red e1 e2 : Reducible e1 → Reducible (LetIn e1 e2)
+  | LetIn_D_Red e1 v1 e2 : to_val e1 = Some v1 → Reducible (LetIn e1 e2)
+  | App_L_Red e1 e2 : Reducible e1 → Reducible (App e1 e2)
+  | App_R_Red e1 v1 e2 : to_val e1 = Some v1 → Reducible e2 → Reducible (App e1 e2)
+  | App_D_Red e1 e2 v2 : to_val e2 = Some v2 → Reducible (App (Lam e1) e2)
+  | BinOp_L_Red op e1 e2 : Reducible e1 → Reducible (BinOp op e1 e2)
+  | BinOp_R_Red op e1 v1 e2 : to_val e1 = Some v1 → Reducible e2 → Reducible (BinOp op e1 e2)
+  | BinOp_D_Red op z1 z2 : Reducible (BinOp op (Lit (LitInt z1)) (Lit (LitInt z2)))
+  | If_C_Red e e1 e2 : Reducible e → Reducible (If e e1 e2)
+  | If_D_Red b e1 e2 : Reducible (If (Lit (LitBool b)) e1 e2)
+  | Seq_C_Red e1 e2 : Reducible e1 → Reducible (Seq e1 e2)
+  | Seq_D_Red e2 : Reducible (Seq (Lit LitUnit) e2)
+  | Pair_L_Red e1 e2 : Reducible e1 → Reducible (Pair e1 e2)
+  | Pair_R_Red e1 v1 e2 : to_val e1 = Some v1 → Reducible e2 → Reducible (Pair e1 e2)
+  | Fst_C_Red e1 : Reducible e1 → Reducible (Fst e1)
+  | Fst_D_Red e1 e2 v1 v2 : to_val e1 = Some v1 → to_val e2 = Some v2 → Reducible (Fst (Pair e1 e2))
+  | Snd_C_Red e1 : Reducible e1 → Reducible (Snd e1)
+  | Snd_D_Red e1 e2 v1 v2 : to_val e1 = Some v1 → to_val e2 = Some v2 → Reducible (Snd (Pair e1 e2))
+  | InjL_Red e : Reducible e → Reducible (InjL e)
+  | InjR_Red e : Reducible e → Reducible (InjR e)
+  | Case_C_Red e e1 e2 : Reducible e → Reducible (Case e e1 e2)
+  | Case_D_InjL_Red e v e1 e2 : to_val e = Some v → Reducible (Case (InjL e) e1 e2)
+  | Case_D_InjR_Red e v e1 e2 : to_val e = Some v → Reducible (Case (InjR e) e1 e2)
+  | Fold_Red e : Reducible e → Reducible (Fold e)
+  | Unfold_C_Red e : Reducible e → Reducible (Unfold e)
+  | Unfold_D_Red e v : to_val e = Some v → Reducible (Unfold (Fold e))
+  | VirtStep_C_Red e : Reducible e → Reducible (VirtStep e)
+  | VirtStep_Red e v : to_val e = Some v → Reducible (VirtStep e).
+
+Lemma Reducible_valid (e : expr) : reducible e tt <-> Reducible e.
+Proof.
+  induction e.
+  Ltac local_tactic := (repeat lazymatch goal with
+                               | |- reducible _ () => apply STLCmuVS_prim_red
+                               | H : reducible _ () |- _ => destruct (iffRL (STLCmuVS_prim_red _) H) as [e' Hstep]
+                               end).
+  - split; intro red.
+    + exfalso.
+      assert (head_reducible (%x)%Eₙₒ ()). apply prim_head_reducible; auto.
+      apply (@ectxi_language_sub_redexes_are_values STLCmuVS_ectxi_lang).
+      { intros Ki' e'' eqqq; destruct Ki'; inversion eqqq. }
+      pose proof (iffRL (STLCmuVS_prim_head_red (%x)%Eₙₒ) H).
+      inversion H0. inversion H1.
+    + exfalso. inversion red.
+  - split; intro red.
+    + pose proof (iffRL (STLCmuVS_prim_red _) red).
+      inversion H. inversion_clear H0. simpl in *. subst. destruct K as [|Ki K _] using rev_ind.
+      * simpl in *. subst. inversion H3. eapply LetIn_D_Red. eauto.
+      * simpl in *. rewrite fill_app in H1. destruct Ki; try by inversion H1.
+        simpl in *. apply LetIn_L_Red. apply IHe. inversion H1.
+        apply STLCmuVS_prim_red. exists (fill K e2'). econstructor; eauto.
+    + inversion red; subst; local_tactic.
+      * pose proof (iffRL IHe H0). local_tactic.
+        exists (LetIn e' e2). eapply (STLCmuVS_step_ctx (fill [LetInCtx _])); eauto.
+      * exists e2.[e/]. apply head_prim_step. by econstructor.
+  - split; intro red.
+    + exfalso.
+      assert (head_reducible (Lam e)%Eₙₒ ()). apply prim_head_reducible; auto.
+      apply (@ectxi_language_sub_redexes_are_values STLCmuVS_ectxi_lang).
+      { intros Ki' e'' eqqq; destruct Ki'; inversion eqqq. }
+      pose proof (iffRL (STLCmuVS_prim_head_red (Lam e)%Eₙₒ) H).
+      inversion H0. inversion H1.
+    + exfalso. inversion red.
+  - split; intro red.
+    + pose proof (iffRL (STLCmuVS_prim_red _) red).
+      inversion H. inversion_clear H0. simpl in *. subst. destruct K as [|Ki K _] using rev_ind.
+      * simpl in *. subst. inversion H3. eapply App_D_Red. eauto.
+      * simpl in *. rewrite fill_app in H1. destruct Ki; try by inversion H1.
+        -- simpl in *. apply App_L_Red. apply IHe1. inversion H1.
+           apply STLCmuVS_prim_red. exists (fill K e2'). econstructor; eauto.
+        -- simpl in *. inversion H1. subst. eapply App_R_Red. by rewrite to_of_val.
+           apply IHe2. apply STLCmuVS_prim_red. exists (fill K e2'). econstructor; eauto.
+    + inversion red; subst; local_tactic.
+      * pose proof (iffRL IHe1 H0). local_tactic.
+        exists (App e' e2). eapply (STLCmuVS_step_ctx (fill [AppLCtx _])); eauto.
+      * pose proof (iffRL IHe2 H2). local_tactic.
+        exists (App e1 e'). rewrite -(of_to_val _ _ H1). eapply (STLCmuVS_step_ctx (fill [AppRCtx _])); eauto.
+      * exists e0.[e2/]. apply head_prim_step. by econstructor.
+  - split; intro red.
+    + exfalso.
+      assert (head_reducible (Lit l)%Eₙₒ ()). apply prim_head_reducible; auto.
+      apply (@ectxi_language_sub_redexes_are_values STLCmuVS_ectxi_lang).
+      { intros Ki' e'' eqqq; destruct Ki'; inversion eqqq. }
+      pose proof (iffRL (STLCmuVS_prim_head_red (Lit l)%Eₙₒ) H).
+      inversion H0. inversion H1.
+    + exfalso. inversion red.
+  - split; intro red.
+    + pose proof (iffRL (STLCmuVS_prim_red _) red).
+      inversion H. inversion_clear H0. simpl in *. subst. destruct K as [|Ki K _] using rev_ind.
+      * simpl in *. subst. inversion H3. subst. rewrite -(of_to_val _ _ H5) -(of_to_val _ _ H7). eapply BinOp_D_Red.
+      * simpl in *. rewrite fill_app in H1. destruct Ki; try by inversion H1.
+        -- simpl in *. apply BinOp_L_Red. apply IHe1. inversion H1.
+           apply STLCmuVS_prim_red. exists (fill K e2'). econstructor; eauto.
+        -- simpl in *. inversion H1. subst. eapply BinOp_R_Red. by rewrite to_of_val.
+           apply IHe2. apply STLCmuVS_prim_red. exists (fill K e2'). econstructor; eauto.
+    + inversion red; subst; local_tactic.
+      * pose proof (iffRL IHe1 H0). local_tactic.
+        exists (BinOp op e' e2). eapply (STLCmuVS_step_ctx (fill [BinOpLCtx _ _])); eauto.
+      * pose proof (iffRL IHe2 H3). local_tactic.
+        exists (BinOp op e1 e'). rewrite -(of_to_val _ _ H1). eapply (STLCmuVS_step_ctx (fill [BinOpRCtx _ _])); eauto.
+      * eexists _. apply head_prim_step. by econstructor.
+  - split; intro red.
+    + pose proof (iffRL (STLCmuVS_prim_red _) red).
+      inversion H. inversion_clear H0. simpl in *. subst. destruct K as [|Ki K _] using rev_ind.
+      * simpl in *. subst. inversion H3; subst; eapply If_D_Red.
+      * simpl in *. rewrite fill_app in H1. destruct Ki; try by inversion H1.
+        simpl in *. apply If_C_Red. apply IHe1. inversion H1.
+        apply STLCmuVS_prim_red. exists (fill K e2'). econstructor; eauto.
+    + inversion red; subst; local_tactic.
+      * pose proof (iffRL IHe1 H0). local_tactic.
+        exists (If e' e2 e3). eapply (STLCmuVS_step_ctx (fill [IfCtx _ _])); eauto.
+      * destruct b; [exists e2 | exists e3]; apply head_prim_step; by econstructor.
+  - split; intro red.
+    + pose proof (iffRL (STLCmuVS_prim_red _) red).
+      inversion H. inversion_clear H0. simpl in *. subst. destruct K as [|Ki K _] using rev_ind.
+      * simpl in *. subst. inversion H3; subst. rewrite -(of_to_val _ _ H4). eapply Seq_D_Red.
+      * simpl in *. rewrite fill_app in H1. destruct Ki; try by inversion H1.
+        simpl in *. apply Seq_C_Red. apply IHe1. inversion H1.
+        apply STLCmuVS_prim_red. exists (fill K e2'). econstructor; eauto.
+    + inversion red; subst; local_tactic.
+      * pose proof (iffRL IHe1 H0). local_tactic.
+        exists (Seq e' e2). eapply (STLCmuVS_step_ctx (fill [SeqCtx _])); eauto.
+      * exists e2; apply head_prim_step; by econstructor.
+  - split; intro red.
+    + pose proof (iffRL (STLCmuVS_prim_red _) red).
+      inversion H. inversion_clear H0. simpl in *. subst. destruct K as [|Ki K _] using rev_ind.
+      * simpl in *. subst. inversion H3.
+      * simpl in *. rewrite fill_app in H1. destruct Ki; try by inversion H1.
+        -- simpl in *. apply Pair_L_Red. apply IHe1. inversion H1.
+           apply STLCmuVS_prim_red. exists (fill K e2'). econstructor; eauto.
+        -- simpl in *. inversion H1. subst. eapply Pair_R_Red. by rewrite to_of_val.
+           apply IHe2. apply STLCmuVS_prim_red. exists (fill K e2'). econstructor; eauto.
+    + inversion red; subst; local_tactic.
+      * pose proof (iffRL IHe1 H0). local_tactic.
+        exists (Pair e' e2). eapply (STLCmuVS_step_ctx (fill [PairLCtx _])); eauto.
+      * pose proof (iffRL IHe2 H2). local_tactic.
+        exists (Pair e1 e'). rewrite -(of_to_val _ _ H1). eapply (STLCmuVS_step_ctx (fill [PairRCtx _])); eauto.
+  - split; intro red.
+    + pose proof (iffRL (STLCmuVS_prim_red _) red).
+      inversion H. inversion_clear H0. simpl in *. subst. destruct K as [|Ki K _] using rev_ind.
+      * simpl in *. subst. inversion H3; subst. rewrite -(of_to_val _ _ H1) -(of_to_val _ _ H2). eapply Fst_D_Red; by rewrite to_of_val.
+      * simpl in *. rewrite fill_app in H1. destruct Ki; try by inversion H1.
+        simpl in *. apply Fst_C_Red. apply IHe. inversion H1.
+        apply STLCmuVS_prim_red. exists (fill K e2'). econstructor; eauto.
+    + inversion red; subst; local_tactic.
+      * pose proof (iffRL IHe H0). local_tactic.
+        exists (Fst e'). eapply (STLCmuVS_step_ctx (fill [FstCtx])); eauto.
+      * exists e1; apply head_prim_step. econstructor. by rewrite H0. by rewrite H1.
+  - split; intro red.
+    + pose proof (iffRL (STLCmuVS_prim_red _) red).
+      inversion H. inversion_clear H0. simpl in *. subst. destruct K as [|Ki K _] using rev_ind.
+      * simpl in *. subst. inversion H3; subst. rewrite -(of_to_val _ _ H1) -(of_to_val _ _ H2). eapply Snd_D_Red; by rewrite to_of_val.
+      * simpl in *. rewrite fill_app in H1. destruct Ki; try by inversion H1.
+        simpl in *. apply Snd_C_Red. apply IHe. inversion H1.
+        apply STLCmuVS_prim_red. exists (fill K e2'). econstructor; eauto.
+    + inversion red; subst; local_tactic.
+      * pose proof (iffRL IHe H0). local_tactic.
+        exists (Snd e'). eapply (STLCmuVS_step_ctx (fill [SndCtx])); eauto.
+      * exists e2; apply head_prim_step. econstructor. by rewrite H0. by rewrite H1.
+  - split; intro red.
+    + pose proof (iffRL (STLCmuVS_prim_red _) red).
+      inversion H. inversion_clear H0. simpl in *. subst. destruct K as [|Ki K _] using rev_ind.
+      * simpl in *. subst. inversion H3; subst.
+      * simpl in *. rewrite fill_app in H1. destruct Ki; try by inversion H1.
+        simpl in *. apply InjL_Red. apply IHe. inversion H1.
+        apply STLCmuVS_prim_red. exists (fill K e2'). econstructor; eauto.
+    + inversion red; subst; local_tactic.
+      pose proof (iffRL IHe H0). local_tactic.
+      exists (InjL e'). eapply (STLCmuVS_step_ctx (fill [InjLCtx])); eauto.
+  - split; intro red.
+    + pose proof (iffRL (STLCmuVS_prim_red _) red).
+      inversion H. inversion_clear H0. simpl in *. subst. destruct K as [|Ki K _] using rev_ind.
+      * simpl in *. subst. inversion H3; subst.
+      * simpl in *. rewrite fill_app in H1. destruct Ki; try by inversion H1.
+        simpl in *. apply InjR_Red. apply IHe. inversion H1.
+        apply STLCmuVS_prim_red. exists (fill K e2'). econstructor; eauto.
+    + inversion red; subst; local_tactic.
+      pose proof (iffRL IHe H0). local_tactic.
+      exists (InjR e'). eapply (STLCmuVS_step_ctx (fill [InjRCtx])); eauto.
+  - split; intro red.
+    + pose proof (iffRL (STLCmuVS_prim_red _) red).
+      inversion H. inversion_clear H0. simpl in *. subst. destruct K as [|Ki K _] using rev_ind.
+      * simpl in *. subst. inversion H3; subst.
+        -- rewrite -(of_to_val _ _ H6). eapply Case_D_InjL_Red. by rewrite to_of_val.
+        -- rewrite -(of_to_val _ _ H6). eapply Case_D_InjR_Red. by rewrite to_of_val.
+      * simpl in *. rewrite fill_app in H1. destruct Ki; try by inversion H1.
+        simpl in *. apply Case_C_Red. apply IHe. inversion H1.
+        apply STLCmuVS_prim_red. exists (fill K e2'). econstructor; eauto.
+    + inversion red; subst; local_tactic.
+      * pose proof (iffRL IHe H0). local_tactic.
+        exists (Case e' e1 e2). eapply (STLCmuVS_step_ctx (fill [CaseCtx _ _])); eauto.
+      * exists e1.[e0/]. apply head_prim_step; by econstructor.
+      * exists e2.[e0/]. apply head_prim_step; by econstructor.
+  - split; intro red.
+    + pose proof (iffRL (STLCmuVS_prim_red _) red).
+      inversion H. inversion_clear H0. simpl in *. subst. destruct K as [|Ki K _] using rev_ind.
+      * simpl in *. subst. inversion H3; subst.
+      * simpl in *. rewrite fill_app in H1. destruct Ki; try by inversion H1.
+        simpl in *. apply Fold_Red. apply IHe. inversion H1.
+        apply STLCmuVS_prim_red. exists (fill K e2'). econstructor; eauto.
+    + inversion red; subst; local_tactic.
+      pose proof (iffRL IHe H0). local_tactic.
+      exists (Fold e'). eapply (STLCmuVS_step_ctx (fill [FoldCtx])); eauto.
+  - split; intro red.
+    + pose proof (iffRL (STLCmuVS_prim_red _) red).
+      inversion H. inversion_clear H0. simpl in *. subst. destruct K as [|Ki K _] using rev_ind.
+      * simpl in *. subst. inversion H3; subst. rewrite -(of_to_val _ _ H1). eapply Unfold_D_Red; by rewrite to_of_val.
+      * simpl in *. rewrite fill_app in H1. destruct Ki; try by inversion H1.
+        simpl in *. apply Unfold_C_Red. apply IHe. inversion H1.
+        apply STLCmuVS_prim_red. exists (fill K e2'). econstructor; eauto.
+    + inversion red; subst; local_tactic.
+      * pose proof (iffRL IHe H0). local_tactic.
+        exists (Unfold e'). eapply (STLCmuVS_step_ctx (fill [UnfoldCtx])); eauto.
+      * exists e0; apply head_prim_step. econstructor. by rewrite H0.
+  - split; intro red.
+    + pose proof (iffRL (STLCmuVS_prim_red _) red).
+      inversion H. inversion_clear H0. simpl in *. subst. destruct K as [|Ki K _] using rev_ind.
+      * simpl in *. subst. inversion H3; subst; by eapply VirtStep_Red; simplify_option_eq.
+      * simpl in *. rewrite fill_app in H1. destruct Ki; try by inversion H1.
+        simpl in *. apply VirtStep_C_Red. apply IHe. inversion H1.
+        apply STLCmuVS_prim_red. exists (fill K e2'). econstructor; eauto.
+    + inversion red; subst; local_tactic.
+      * pose proof (iffRL IHe H0). local_tactic.
+        exists (VirtStep e'). eapply (STLCmuVS_step_ctx (fill [VirtStepCtx])); eauto.
+      * rewrite -(of_to_val _ _ H0).
+          by destruct v; eexists _; apply head_prim_step; econstructor; simplify_option_eq; rewrite to_of_val.
+Qed.
+
+From st Require Import STLCmu.types STLCmuVS.typing.
+
+Lemma preservation e : ∀ Γ τ (de : typed Γ e τ) (Hred : Reducible e),
+ ∀ e', STLCmuVS_step e e' → STLCmuVS.typing.typed Γ e' τ.
+Proof.
+  intros Γ τ de Hred.
+  induction de; try by inversion Hred.
+  - inversion Hred; subst.
+    + intros e' Hstep.
+      pose proof (iffRL (Reducible_valid _) H0). pose proof (iffRL (STLCmuVS_prim_red _) H). destruct H1 as [e1' Hstep1'].
+      assert (e' = BinOp op e1' e2) as ->.
+      { apply (prim_step_det _ _ _ _ _ Hstep).
+        by apply (STLCmuVS_step_ctx (fill [BinOpLCtx op _])).
+      }
+      constructor; auto.
+    + intros e' Hstep.
+      pose proof (iffRL (Reducible_valid _) H3). pose proof (iffRL (STLCmuVS_prim_red _) H). destruct H0 as [e2' Hstep2'].
+      assert (e' = BinOp op e1 e2') as ->.
+      { apply (prim_step_det _ _ _ _ _ Hstep).
+        rewrite -(of_to_val _ _ H1).
+        by apply (STLCmuVS_step_ctx (fill [BinOpRCtx op _])).
+      }
+      constructor; auto.
+    + intros e' Hstep.
+      assert (e' = (bin_op_eval op  z1 z2)) as ->.
+      { apply (prim_step_det _ _ _ _ _ Hstep).
+        apply head_prim_step. by constructor.
+      }
+      destruct op; constructor.
+  - inversion Hred; subst.
+    + intros e' Hstep.
+      pose proof (iffRL (Reducible_valid _) H0). pose proof (iffRL (STLCmuVS_prim_red _) H). destruct H1 as [e1' Hstep1'].
+      assert (e' = Seq e1' e2) as ->.
+      { apply (prim_step_det _ _ _ _ _ Hstep).
+        by apply (STLCmuVS_step_ctx (fill [SeqCtx _])).
+      }
+      constructor; auto.
+    + intros e' Hstep.
+      assert (e' = e2) as ->.
+      { apply (prim_step_det _ _ _ _ _ Hstep).
+        apply head_prim_step. by constructor.
+      } auto.
+  - inversion Hred; subst.
+    + intros e' Hstep.
+      pose proof (iffRL (Reducible_valid _) H0). pose proof (iffRL (STLCmuVS_prim_red _) H). destruct H1 as [e1' Hstep1'].
+      assert (e' = Pair e1' e2) as ->.
+      { apply (prim_step_det _ _ _ _ _ Hstep).
+        by apply (STLCmuVS_step_ctx (fill [PairLCtx _])).
+      }
+      constructor; auto.
+    + intros e' Hstep.
+      pose proof (iffRL (Reducible_valid _) H2). pose proof (iffRL (STLCmuVS_prim_red _) H). destruct H0 as [e2' Hstep2'].
+      assert (e' = Pair e1 e2') as ->.
+      { apply (prim_step_det _ _ _ _ _ Hstep).
+        rewrite -(of_to_val _ _ H1).
+        by apply (STLCmuVS_step_ctx (fill [PairRCtx _])).
+      }
+      constructor; auto.
+  - inversion Hred; subst.
+    + intros e' Hstep.
+      pose proof (iffRL (Reducible_valid _) H0). pose proof (iffRL (STLCmuVS_prim_red _) H). destruct H1 as [e1' Hstep1'].
+      assert (e' = Fst e1') as ->.
+      { apply (prim_step_det _ _ _ _ _ Hstep).
+        by apply (STLCmuVS_step_ctx (fill [FstCtx])).
+      }
+      eapply Fst_typed. apply IHde; auto.
+    + intros e' Hstep.
+      assert (e' = e1) as ->.
+      { apply (prim_step_det _ _ _ _ _ Hstep).
+        apply head_prim_step. rewrite -(of_to_val _ _ H0) -(of_to_val _ _ H1). econstructor; by rewrite to_of_val.
+      } by inversion de.
+  - inversion Hred; subst.
+    + intros e' Hstep.
+      pose proof (iffRL (Reducible_valid _) H0). pose proof (iffRL (STLCmuVS_prim_red _) H). destruct H1 as [e1' Hstep1'].
+      assert (e' = Snd e1') as ->.
+      { apply (prim_step_det _ _ _ _ _ Hstep).
+        by apply (STLCmuVS_step_ctx (fill [SndCtx])).
+      }
+      eapply Snd_typed. apply IHde; auto.
+    + intros e' Hstep.
+      assert (e' = e2) as ->.
+      { apply (prim_step_det _ _ _ _ _ Hstep).
+        apply head_prim_step. rewrite -(of_to_val _ _ H0) -(of_to_val _ _ H1). econstructor; by rewrite to_of_val.
+      } by inversion de.
+  - inversion Hred; subst.
+    intros e' Hstep.
+    pose proof (iffRL (Reducible_valid _) H0). pose proof (iffRL (STLCmuVS_prim_red _) H). destruct H1 as [e1' Hstep1'].
+    assert (e' = InjL e1') as ->.
+    { apply (prim_step_det _ _ _ _ _ Hstep).
+        by apply (STLCmuVS_step_ctx (fill [InjLCtx])).
+    } constructor. apply IHde; auto.
+  - inversion Hred; subst.
+    intros e' Hstep.
+    pose proof (iffRL (Reducible_valid _) H0). pose proof (iffRL (STLCmuVS_prim_red _) H). destruct H1 as [e1' Hstep1'].
+    assert (e' = InjR e1') as ->.
+    { apply (prim_step_det _ _ _ _ _ Hstep).
+        by apply (STLCmuVS_step_ctx (fill [InjRCtx])).
+    } constructor. apply IHde; auto.
+  - inversion Hred; subst.
+    + intros e' Hstep.
+      pose proof (iffRL (Reducible_valid _) H0). pose proof (iffRL (STLCmuVS_prim_red _) H). destruct H1 as [e1' Hstep1'].
+      assert (e' = Case e1' e1 e2) as ->.
+      { apply (prim_step_det _ _ _ _ _ Hstep).
+        by apply (STLCmuVS_step_ctx (fill [CaseCtx _ _])).
+      }
+      econstructor; auto.
+    + intros e' Hstep.
+      assert (e' = e1.[e/]) as ->.
+      { apply (prim_step_det _ _ _ _ _ Hstep).
+        apply head_prim_step. rewrite -(of_to_val _ _ H0). simpl. econstructor. by rewrite to_of_val.
+      } eapply typed_subst; eauto. by inversion de1.
+    + intros e' Hstep.
+      assert (e' = e2.[e/]) as ->.
+      { apply (prim_step_det _ _ _ _ _ Hstep).
+        apply head_prim_step. rewrite -(of_to_val _ _ H0). simpl. econstructor. by rewrite to_of_val.
+      } eapply typed_subst; eauto. by inversion de1.
+  - inversion Hred; subst.
+    + intros e' Hstep.
+      pose proof (iffRL (Reducible_valid _) H0). pose proof (iffRL (STLCmuVS_prim_red _) H). destruct H1 as [e1' Hstep1'].
+      assert (e' = If e1' e1 e2) as ->.
+      { apply (prim_step_det _ _ _ _ _ Hstep).
+        by apply (STLCmuVS_step_ctx (fill [IfCtx _ _])).
+      }
+      econstructor; auto.
+    + intros e' Hstep. destruct b.
+      * assert (e' = e1) as ->.
+        { apply (prim_step_det _ _ _ _ _ Hstep).
+          apply head_prim_step. econstructor. } auto.
+      * assert (e' = e2) as ->.
+        { apply (prim_step_det _ _ _ _ _ Hstep).
+          apply head_prim_step. econstructor. } auto.
+  - inversion Hred; subst.
+    + intros e' Hstep.
+      pose proof (iffRL (Reducible_valid _) H0). pose proof (iffRL (STLCmuVS_prim_red _) H). destruct H1 as [e1' Hstep1'].
+      assert (e' = LetIn e1' e2) as ->.
+      { apply (prim_step_det _ _ _ _ _ Hstep).
+        by apply (STLCmuVS_step_ctx (fill [LetInCtx _])).
+      } econstructor; auto. auto.
+    + intros e' Hstep.
+      assert (e' = e2.[e1/]) as ->.
+      { apply (prim_step_det _ _ _ _ _ Hstep).
+        apply head_prim_step. econstructor; eauto. } 
+      eapply typed_subst; eauto.
+  - inversion Hred; subst.
+    + intros e' Hstep.
+      pose proof (iffRL (Reducible_valid _) H0). pose proof (iffRL (STLCmuVS_prim_red _) H). destruct H1 as [e1' Hstep1'].
+      assert (e' = App e1' e2) as ->.
+      { apply (prim_step_det _ _ _ _ _ Hstep).
+        by apply (STLCmuVS_step_ctx (fill [AppLCtx _])).
+      } econstructor; auto.
+    + intros e' Hstep.
+      pose proof (iffRL (Reducible_valid _) H2). pose proof (iffRL (STLCmuVS_prim_red _) H). destruct H0 as [e2' Hstep2'].
+      assert (e' = App e1 e2') as ->.
+      { apply (prim_step_det _ _ _ _ _ Hstep).
+        rewrite -(of_to_val _ _ H1).
+        by apply (STLCmuVS_step_ctx (fill [AppRCtx _])).
+      } econstructor; eauto.
+    + intros e' Hstep.
+      assert (e' = e0.[e2/]) as ->.
+      { apply (prim_step_det _ _ _ _ _ Hstep).
+        apply head_prim_step. econstructor; eauto. } 
+      eapply typed_subst; eauto. by inversion de1.
+  - inversion Hred; subst.
+    intros e' Hstep.
+    pose proof (iffRL (Reducible_valid _) H0). pose proof (iffRL (STLCmuVS_prim_red _) H). destruct H1 as [e1' Hstep1'].
+    assert (e' = Fold e1') as ->.
+    { apply (prim_step_det _ _ _ _ _ Hstep).
+        by apply (STLCmuVS_step_ctx (fill [FoldCtx])).
+    } constructor. apply IHde; auto.
+  - inversion Hred; subst.
+    + intros e' Hstep.
+      pose proof (iffRL (Reducible_valid _) H0). pose proof (iffRL (STLCmuVS_prim_red _) H). destruct H1 as [e1' Hstep1'].
+      assert (e' = Unfold e1') as ->.
+      { apply (prim_step_det _ _ _ _ _ Hstep).
+        by apply (STLCmuVS_step_ctx (fill [UnfoldCtx])).
+      }
+      eapply Unfold_typed. apply IHde; auto.
+    + intros e' Hstep.
+      assert (e' = e0) as ->.
+      { apply (prim_step_det _ _ _ _ _ Hstep).
+        apply head_prim_step. rewrite -(of_to_val _ _ H0). econstructor; by rewrite to_of_val.
+      } by inversion de.
+Qed.

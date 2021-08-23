@@ -30,11 +30,11 @@ Section compat_lemmas_easy.
   Qed.
 
   Lemma compat_Unit (Γ : list type) :
-    open_exprel_typed Γ (Lit LitUnit) (STLCmuVS.lang.Lit STLCmuVS.lang.LitUnit) TUnit.
+    open_exprel_typed Γ (Lit LitUnit) (()%Eₙₒ) TUnit.
   Proof.
     iIntros (Δ vs vs') "Hvsvs". asimpl.
     change (Lit LitUnit) with (of_val $ LitV LitUnit).
-    change (STLCmuVS.lang.Lit STLCmuVS.lang.LitUnit) with (STLCmuVS.lang.of_val $ STLCmuVS.lang.LitV STLCmuVS.lang.LitUnit).
+    change (()%Eₙₒ) with (STLCmuVS.lang.of_val $ STLCmuVS.lang.LitV lang_base.LitUnit).
     iApply lift_val.
     by rewrite valrel_typed_TUnit_unfold.
   Qed.

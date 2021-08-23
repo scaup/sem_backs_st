@@ -1,14 +1,5 @@
 From iris.program_logic Require Export language ectx_language ectxi_language.
-From st.prelude Require Export autosubst generic.
-
-(* Local Open Scope Z_scope. *)
-
-(** The litterals of the language *)
-Inductive base_lit : Set :=
-| LitInt (n : Z) | LitBool (b : bool) | LitUnit.
-
-Inductive bin_op : Set :=
-| PlusOp | MinusOp | LeOp | LtOp | EqOp.
+From st.prelude Require Export autosubst generic lang_base.
 
 (** The syntax of expressions *)
 Inductive expr :=
@@ -38,59 +29,22 @@ Inductive expr :=
 (* | TLam (e : expr) *)
 (* | TApp (e : expr). *).
 
-Coercion LitInt : Z >-> base_lit.
-Coercion LitBool : bool >-> base_lit.
-Coercion Lit : base_lit >-> expr.
-Coercion App : expr >-> Funclass.
-Coercion Var : var >-> expr.
-
-Declare Scope expr_no_st_scope.
-Delimit Scope expr_no_st_scope with Eₙₒ.
-Notation "% x" := (Var x%nat) (at level 8, format "% x") : expr_no_st_scope.
-
-Notation "()" := (Lit LitUnit) : expr_no_st_scope.
-Notation "( e1 , e2 , .. , en )" := (Pair .. (Pair e1 e2) .. en) : expr_no_st_scope.
-
-Notation "e1 + e2" := (BinOp PlusOp e1%Eₙₒ e2%Eₙₒ) : expr_no_st_scope.
-Notation "e1 - e2" := (BinOp MinusOp e1%Eₙₒ e2%Eₙₒ) : expr_no_st_scope.
-Notation "e1 ≤ e2" := (BinOp LeOp e1%Eₙₒ e2%Eₙₒ) : expr_no_st_scope.
-Notation "e1 < e2" := (BinOp LtOp e1%Eₙₒ e2%Eₙₒ) : expr_no_st_scope.
-Notation "e1 = e2" := (BinOp EqOp e1%Eₙₒ e2%Eₙₒ) : expr_no_st_scope.
-
-Instance Var_Inj : Inj eq eq Var. intros x1 x2 eq. by inversion eq. Qed.
-
 Instance Ids_expr : Ids expr. derive. Defined.
 Instance Rename_expr : Rename expr. derive. Defined.
 Instance Subst_expr : Subst expr. derive. Defined.
 Instance SubstLemmas_expr : SubstLemmas expr. derive. Qed.
 
-Lemma Var_closed_n_lt (x : var) n (p : Closed_n n (Var x)) : x < n.
-Proof. apply ids_lt_Closed_n. apply p. Qed.
-
-(** Values for STLang *)
 Inductive val :=
 | LamV (e : {bind 1 of expr})
-(* | RecV (e : {bind 2 of expr}) *)
-(* | TLamV (e : {bind 1 of expr}) *)
 | LitV (v : base_lit)
 | PairV (v1 v2 : val)
 | InjLV (v : val)
 | InjRV (v : val)
 | FoldV (v : val).
 
-Coercion LitV : base_lit >-> val.
-
-Declare Scope val_no_st_scope.
-Delimit Scope val_no_st_scope with Vₙₒ.
-
-Notation "()" := (LitV LitUnit) : val_no_st_scope.
-Notation "( v1 , v2 , .. , vn )" := (PairV .. (PairV v1 v2) .. vn) : val_no_st_scope.
-
 Fixpoint of_val (v : val) : expr :=
  match v with
  | LamV e => Lam e
- (* | RecV e => Rec e *)
- (* | TLamV e => TLam e *)
  | LitV v => Lit v
  | PairV v1 v2 => Pair (of_val v1) (of_val v2)
  | InjLV v => InjL (of_val v)
@@ -98,48 +52,9 @@ Fixpoint of_val (v : val) : expr :=
  | FoldV v => Fold (of_val v)
  end.
 
-(* Notation "# v" := (of_val v%Vₙₒ) (at level 8, format "# v") : expr_no_st_scope. *)
-Coercion of_val : val >-> expr.
-
-Definition subst_list_val (vs : list val) : var → expr := subst_list (map of_val vs).
-
-Lemma subst_list_val_cons v vs : of_val v .: subst_list_val vs = subst_list_val (v :: vs).
-Proof. intros. by asimpl. Qed.
-
-Lemma subst_list_val_snoc vs v : subst_list_val (vs ++ [v]) = (upn (length vs) (of_val v .: ids)) >> (subst_list_val vs).
-Proof. by rewrite /subst_list_val map_app subst_list_snoc map_length. Qed.
-
-(* Lemma var_subst_list_val_lt_length (vs : list val) (x : var) (p : x < length vs) : *)
-(*   (exists v : val, vs !! x = Some v ∧ (Var x).[subst_list_val vs] = v). *)
-(* Proof. *)
-(*   destruct (vs !! x) eqn:eq. exists v. split; auto. apply ids_subst_list_lookup. by rewrite list_lookup_fmap eq /=. *)
-(*   assert (length vs ≤ x). by apply lookup_ge_None. lia. *)
-(* Qed. *)
-Lemma Var_subst_list_closed_n_length (vs : list val) (x : var) (p : Closed_n (length vs) (Var x)) :
-  (exists v : val, vs !! x = Some v ∧ (Var x).[subst_list_val vs] = v).
-Proof.
-  destruct (vs !! x) eqn:eq. exists v. split; auto. apply ids_subst_list_lookup. by rewrite list_lookup_fmap eq /=.
-  assert (length vs ≤ x). by apply lookup_ge_None.
-  assert (x < length vs). by apply ids_lt_Closed_n. lia.
-Qed.
-
-Lemma Var_subst_list_val_lookup (x : var) (ts : list val) t (H : ts !! x = Some t) :
-  (ids x).[subst_list_val ts] = t.
-Proof. rewrite /subst_list_val. apply ids_subst_list_lookup. by rewrite list_lookup_fmap H. Qed.
-
-(* Lemma var_subst_list_val (vs : list val) (x : var) : *)
-(*   (exists v : val, vs !! x = Some v ∧ (Var x).[subst_list_val vs] = v) ∨ (vs !! x = None). *)
-(* Proof. *)
-(*   destruct (vs !! x) eqn:eq. *)
-(*   - left. exists v. split; auto. apply ids_subst_list_lookup. by rewrite list_lookup_fmap eq /=. *)
-(*   - by right. *)
-(* Qed. *)
-
 Fixpoint to_val (e : expr) : option val :=
  match e with
  | Lam e => Some (LamV e)
- (* | Rec e => Some (RecV e) *)
- (* | TLam e => Some (TLamV e) *)
  | Lit e => Some (LitV e)
  | Pair e1 e2 => v1 ← to_val e1; v2 ← to_val e2; Some (PairV v1 v2)
  | InjL e => InjLV <$> to_val e
@@ -157,20 +72,6 @@ Fixpoint val_subst (v : val) (σ : var → expr) : val :=
   | InjRV v => InjRV (val_subst v σ)
   | FoldV v => FoldV (val_subst v σ)
   end.
-
-Notation "v .{ sigma }" := (val_subst v sigma)
-  (at level 2, sigma at level 200, left associativity,
-   format "v .{ sigma }" ).
-
-Notation "v .{ t /}" := (val_subst v (t .: ids))
-  (at level 2, t at level 200, left associativity,
-   format "v .{ t /}") : subst_scope.
-
-Lemma val_subst_valid (v : val) (σ : var → expr) : (of_val v).[σ] = (val_subst v σ).
-Proof. induction v; asimpl; try done; (by rewrite IHv1 IHv2) || by rewrite IHv. Qed.
-
-Lemma val_subst_comp (v : val) (σ σ' : var → expr) : v.{σ}.{σ'} = v.{σ >> σ'}.
-Proof. induction v; asimpl; try done; (by rewrite IHv1 IHv2) || by rewrite IHv. Qed.
 
 Lemma to_of_val v : to_val (of_val v) = Some v.
 Proof.
@@ -197,21 +98,13 @@ Proof.
    abstract naive_solver.
 Defined.
 
-Global Instance val_inhabited : Inhabited val := populate ()%Vₙₒ.
-(* Instance expr_inhabited : Inhabited expr := populate (Lit LitUnit). *)
-(* Instance val_inhabited : Inhabited val := populate (LitV LitUnit). *)
-(* Canonical Structure stateC := leibnizO state. *)
-(* Canonical Structure valC := leibnizO val. *)
-(* Canonical Structure eff_valC := leibnizO eff_val. *)
-(* Canonical Structure exprC := leibnizO expr. *)
+Global Instance val_inhabited : Inhabited val := populate (LitV LitUnit).
 
 (** Evaluation contexts *)
 Inductive ectx_item :=
-(* | FixCtx *)
 | LetInCtx (e2 : expr)
 | AppLCtx (e2 : expr)
 | AppRCtx (v1 : val)
-(* | TAppCtx *)
 | PairLCtx (e2 : expr)
 | PairRCtx (v1 : val)
 | FstCtx
@@ -228,11 +121,9 @@ Inductive ectx_item :=
 
 Definition fill_item (Ki : ectx_item) (e : expr) : expr :=
  match Ki with
- (* | FixCtx => Fix e *)
  | LetInCtx e2 => LetIn e e2
  | AppLCtx e2 => App e e2
  | AppRCtx v1 => App (of_val v1) e
- (* | TAppCtx => TApp e *)
  | PairLCtx e2 => Pair e e2
  | PairRCtx v1 => Pair (of_val v1) e
  | FstCtx => Fst e
@@ -286,7 +177,7 @@ Inductive head_step : expr → state → list Empty_set → expr → state → l
    head_step (If (Lit $ LitBool false) e1 e2) σ [] e2 σ []
 (* seq *)
 | Seq_Unit_head_step e1 e2 σ :
-    to_val e1 = Some ()%Vₙₒ →
+    to_val e1 = Some (LitV LitUnit) →
     head_step (Seq e1 e2) σ [] e2 σ []
 (* Products *)
 | Fst_Pair_head_step e1 v1 e2 v2 σ :
@@ -309,10 +200,6 @@ Inductive head_step : expr → state → list Empty_set → expr → state → l
 (* Polymorphic Types *)
 (* | TBeta e σ : *)
    (* head_step (TApp (TLam e)) σ [] e σ []. *).
-
-Lemma App_Lam_head_step' (e' e1 e2 : expr) v2 (eq : e1.[e2/] = e') σ (H : to_val e2 = Some v2) :
-  head_step (Lam e1 e2) σ [] e' σ [].
-Proof. rewrite -eq. by eapply App_Lam_head_step. Qed.
 
 Instance fill_item_inj Ki : Inj (=) (=) (fill_item Ki).
 Proof. destruct Ki; intros ???; simplify_eq/=; auto with f_equal. Qed.
@@ -356,9 +243,6 @@ Proof.
     have fill_not_val: to_val (fill K e) = None. eauto using fill_not_val.
     congruence.
 Qed.
-
-Canonical Structure valO := valO STLCmu_lang.
-Canonical Structure exprO := exprO STLCmu_lang.
 
 (* Arguments val_stuck {_ _ _ _ _} _. *)
 (* Arguments fill_val {_ _} _. *)
