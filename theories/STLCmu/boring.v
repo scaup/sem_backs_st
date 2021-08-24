@@ -155,6 +155,18 @@ Definition embd_ctx_item (Ci : STLCmu.contexts.ctx_item) : STLCmuVS.contexts.ctx
 Definition embd_ctx (C : STLCmu.contexts.ctx) : STLCmuVS.contexts.ctx :=
   fmap embd_ctx_item C.
 
+Lemma embd_ctx_item_typed (Ci : STLCmu.contexts.ctx_item) (Γ : list STLCmu.types.type) (τ : STLCmu.types.type) (Γ' : list STLCmu.types.type) (τ' : STLCmu.types.type) :
+  STLCmu.contexts.typed_ctx_item Ci Γ τ Γ' τ' →
+  STLCmuVS.contexts.typed_ctx_item (embd_ctx_item Ci) Γ τ Γ' τ'.
+Proof. intro dCi. inversion dCi; subst; try by (econstructor; (try rewrite -fmap_cons); eapply embd_expr_typed). Qed.
+
+Lemma embd_ctx_typed (C : STLCmu.contexts.ctx) (Γ : list STLCmu.types.type) (τ : STLCmu.types.type) (Γ' : list STLCmu.types.type) (τ' : STLCmu.types.type) :
+  STLCmu.contexts.typed_ctx C Γ τ Γ' τ' → STLCmuVS.contexts.typed_ctx (embd_ctx C) Γ τ Γ' τ'.
+Proof.
+  intro de. induction de; try by econstructor.
+  econstructor. by apply embd_ctx_item_typed. apply IHde.
+Qed.
+
 Lemma comm_embd_fill_ctx_item Ci e :
   STLCmuVS.contexts.fill_ctx_item (embd_ctx_item Ci) (embd_expr e) =
   embd_expr (STLCmu.contexts.fill_ctx_item Ci e).
@@ -625,6 +637,14 @@ Lemma proj_expr_halts_iff (e : STLCmuVS.lang.expr) Γ τ (de : STLCmuVS.typing.t
   STLCmuVS_halts e <-> STLCmu_halts (proj_expr e).
 Proof. split; [by eapply proj_expr_halts | by eapply proj_expr_halts']. Qed.
 
+Lemma embd_expr_halts_iff (e : STLCmu.lang.expr) Γ τ (de : STLCmu.typing.typed Γ e τ) :
+  STLCmu_halts e <-> STLCmuVS_halts (embd_expr e).
+Proof.
+  split; [by eapply embd_expr_halts | ].
+  intro H. rewrite -(retraction e). eapply proj_expr_halts_iff; auto.
+  by apply embd_expr_typed.
+Qed.
+
 (* composing (STLCmu → STLCmuVS) with (STLCmuVS → STLCmuST) gives (STLCmu → STLCmuST) *)
 (* ---------------------------------------------------------------------------------- *)
 
@@ -634,3 +654,11 @@ From st.end_to_end Require embedding_STLCmu_STLCmuST.
 Lemma comp_embeddings (e : STLCmu.lang.expr) :
   embedding.expressions.embd_expr (embd_expr e) = embedding_STLCmu_STLCmuST.embd_expr e.
 Proof. induction e; by simpl; repeat f_equiv; (try destruct (_ : base_lit)). Qed.
+
+Lemma comp_embeddings_ctx_item (Ci : STLCmu.contexts.ctx_item) :
+  embedding.contexts.embd_ctx_item (embd_ctx_item Ci) = embedding_STLCmu_STLCmuST.embd_ctx_item Ci.
+Proof. destruct Ci; by (try rewrite /= !comp_embeddings). Qed.
+
+Lemma comp_embeddings_ctx (C : STLCmu.contexts.ctx) :
+  embedding.contexts.embd_ctx (embd_ctx C) = embedding_STLCmu_STLCmuST.embd_ctx C.
+Proof. induction C; simpl; try done. by rewrite IHC comp_embeddings_ctx_item. Qed.

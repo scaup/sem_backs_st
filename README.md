@@ -15,9 +15,9 @@ To verify the main result, one needs to go over the following:
 
 - [back_ctx_STLCmuST_STLCmu.v](theories/end_to_end/back_ctx_STLCmuST_STLCmu.v) defines the uniform backtranslation on contexts from STLCmu to STLCmuST and proves that this backtranslation behaves correctly.
 
-- [embedding_STLCmu_STLCmuST.v](theories/end_to_end/pres_ctx_equiv.v) defines contextual equivalence of both STLCmu and STLCmuST and proves that this equivalence is preserved under this canonical embedding.
+- [pres_ctx_equiv.v](theories/end_to_end/pres_ctx_equiv.v) defines contextual equivalence of both STLCmu and STLCmuST and proves that this equivalence is preserved under this canonical embedding.
 
-- end-to-end-for-reflection: will do this later
+- [refl_ctx_equiv.v](theories/end_to_end/refl_ctx_equiv.v) proves that contextual equivalence is reflected under this canonical embedding.
 
 # Results from paper linked with Coq code (todo: update)
 
