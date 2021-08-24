@@ -5,7 +5,7 @@ Purity of ST: Full Abstraction by Semantically Typed Back-translation
 
 To verify the main result, one needs to go over the following:
 
-- The [STLCmu](theories/STLCmu)-folder which contains the standard representation of a cbv simply-typed lambda calculus with equirecursive types: [lang.v](theories/STLCmu/lang.v) contains the grammar and the operational semantics, [types.v](theories/STLCmu/types.v) the types, and [typing.v](theories/STLCmu/typing.v) the typing rules.
+- The [STLCmu](theories/STLCmu)-folder which contains the standard representation of a cbv simply-typed lambda calculus with iso-recursive types: [lang.v](theories/STLCmu/lang.v) contains the grammar and the operational semantics, [types.v](theories/STLCmu/types.v) the types, and [typing.v](theories/STLCmu/typing.v) the typing rules.
   [contexts.v](theories/STLCmu/contexts.v) defines contexts together with their typing rules.
 
 - The [STLCmuST](theories/STLCmuST)-folder contains the extension of STLCmu with the ST-monad: [lang.v](theories/STLCmuST/lang.v) contains the grammar and the operational semantics, [types.v](theories/STLCmuST/types.v) the types, and [typing.v](theories/STLCmuST/typing.v) the typing rules.
