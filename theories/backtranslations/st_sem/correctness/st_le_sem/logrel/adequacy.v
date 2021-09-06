@@ -14,8 +14,8 @@ Definition Σ : gFunctors :=
     ghost_mapΣ nat loc
     ].
 
-Instance st_le_semΣ_inst (H : invG Σ) (H' : gen_heapG loc lang.val Σ) : st_le_semΣ Σ :=
-  { invG_inst := _ ;
+Instance st_le_semΣ_inst (H : invGS Σ) (H' : gen_heapGS loc lang.val Σ) : st_le_semΣ Σ :=
+  { invGS_inst := _ ;
     genHeapG_inst' := _;
     val_ghost_mapG_inst' := _;
     loc_ghost_mapG_inst' := _;
@@ -36,8 +36,8 @@ Proof.
     intros [σ1 e1] [σ2 e2] Hstep. rewrite /STLCmuST_step in Hstep.
     rewrite /erased_step /=. exists []. apply (step_atomic e1 σ1 e2 σ2 [] [] []); by simpl. }
   apply (wp_adequacy Σ STLCmuST_lang MaybeStuck e (∅ : gmap loc val) (fun _ => STLCmuVS_halts e')).
-  { intros invG_inst' κs.
-    iMod (gen_heap_init (∅ : gmap loc val)) as (gen_heapG_inst') "(H∅ & _ & _)". iModIntro.
+  { intros invGS_inst' κs.
+    iMod (gen_heap_init (∅ : gmap loc val)) as (gen_heapGS_inst') "(H∅ & _ & _)". iModIntro.
     iExists (fun σ _ => gen_heap_interp σ).
     iExists (fun _ => True%I).
     iFrame "H∅".

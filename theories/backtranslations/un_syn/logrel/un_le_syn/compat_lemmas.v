@@ -21,7 +21,7 @@ Section un_le_syn.
   Instance rfn : refinement := un_le_syn.
 
   Context `{Σ : !gFunctors}.
-  Context `{irisG_inst : !irisG STLCmuVS_lang Σ}.
+  Context `{irisGS_inst : !irisGS STLCmuVS_lang Σ}.
 
   (* Partial map, mapping destructor (one-level) evaluation contexts to the corresponding type constructor. *)
   Definition ectx_item_tc (Ki : ectx_item) : option type_constructor :=

@@ -1,12 +1,11 @@
 From iris Require Import program_logic.weakestpre.
 From st.STLCmuVS Require Import lang wkpre.
 From iris.proofmode Require Import tactics.
-From iris_string_ident Require Import ltac2_string_ident.
 
 Section lift.
 
   Context `{Σ : !gFunctors}.
-  Context `{irisG_inst : !irisG STLCmuVS_lang Σ}.
+  Context `{irisGS_inst : !irisGS STLCmuVS_lang Σ}.
 
   Context (s : stuckness).
 
@@ -109,12 +108,12 @@ Section lift.
 
   Lemma anti_steps_help e1 e2 v : rtc STLCmuVS_step e1 e2 → rtc STLCmuVS_step e1 (of_val v) → rtc STLCmuVS_step e2 (of_val v).
   Proof.
-    intros H Hs. destruct (rtc_nsteps _ _ H) as [m Hm].
+    intros H Hs. destruct (iffLR (rtc_nsteps _ _) H) as [m Hm].
     revert H Hs Hm. revert v e1 e2. induction m.
     - simpl. intros. inversion Hm. by subst.
     - intros. inversion Hm. subst.
       pose proof (anti_step_help _ _ _ H1 Hs).
-      eapply (IHm _ _ _ (nsteps_rtc _ _ _ H2) H0 H2).
+      eapply (IHm _ _ _ (rtc_nsteps_2 _ _ _ H2) H0 H2).
   Qed.
 
   Lemma lift_anti_steps_spec Φ eᵢ e1 e2 (H : rtc STLCmuVS_step e1 e2) : lift Φ eᵢ e1 ⊢ lift Φ eᵢ e2.

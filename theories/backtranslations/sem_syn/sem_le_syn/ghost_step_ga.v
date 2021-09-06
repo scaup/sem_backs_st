@@ -1,6 +1,5 @@
 From iris Require Import program_logic.weakestpre.
 From iris.proofmode Require Import tactics.
-From iris_string_ident Require Import ltac2_string_ident.
 From st.prelude Require Import autosubst.
 From st.STLCmuVS Require Import lang virt_steps typing tactics logrel.definitions logrel.generic.lift reducibility wkpre fixarrow.
 From st.STLCmu Require Import types.
@@ -127,7 +126,7 @@ Section VirtStep_ga.
       + iApply lift_step. auto_STLCmuVS_step. iEval simplify_custom.
         iEval rewrite FixArrow_subst -!val_subst_valid. iEval asimpl.
         iEval rewrite !val_subst_valid fixgenTRecga_subst.
-        iApply lift_rtc_steps. apply rtc_STLCmuVS_step_ctx with (K := fill [AppLCtx _; FstCtx ; AppLCtx _]); first by apply ectx_lang_ctx. eapply nsteps_rtc. apply FixArrow_eval.
+        iApply lift_rtc_steps. apply rtc_STLCmuVS_step_ctx with (K := fill [AppLCtx _; FstCtx ; AppLCtx _]); first by apply ectx_lang_ctx. eapply rtc_nsteps_2. apply FixArrow_eval.
         iEval (simplify_custom). rewrite FixArrow_subst.
         iEval rewrite !val_subst_valid. iEval rewrite fixgenTRecga_subst.
         rewrite !val_subst_comp. iEval simplify_custom.
@@ -161,7 +160,7 @@ Section VirtStep_ga.
       + iApply lift_step. auto_STLCmuVS_step. iEval simplify_custom.
         iEval rewrite FixArrow_subst -!val_subst_valid. iEval asimpl.
         iEval rewrite !val_subst_valid fixgenTRecga_subst.
-        iApply lift_rtc_steps. apply rtc_STLCmuVS_step_ctx with (K := fill [AppLCtx _; SndCtx ; AppLCtx _]); first by apply ectx_lang_ctx. eapply nsteps_rtc. apply FixArrow_eval.
+        iApply lift_rtc_steps. apply rtc_STLCmuVS_step_ctx with (K := fill [AppLCtx _; SndCtx ; AppLCtx _]); first by apply ectx_lang_ctx. eapply rtc_nsteps_2. apply FixArrow_eval.
         iEval (simplify_custom). rewrite FixArrow_subst.
         iEval rewrite !val_subst_valid. iEval rewrite fixgenTRecga_subst.
         rewrite !val_subst_comp. iEval simplify_custom.

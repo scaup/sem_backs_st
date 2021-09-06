@@ -5,7 +5,6 @@ From st.STLCmuVS Require Import lang wkpre generic.lift tactics.
 From st.backtranslations.st_sem.well_defined.logrel Require Import definition.
 From iris.proofmode Require Import tactics.
 From st.backtranslations.st_sem Require Import ghost heap_emul.base heap_emul.spec expressions.
-From iris_string_ident Require Import ltac2_string_ident.
 From st.prelude Require Import big_op_three.
 From st Require Import resources.
 

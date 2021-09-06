@@ -6,7 +6,7 @@ Require Export st.backtranslations.st_sem.list_gmap.
 Section ghost.
 
   Context `{Σ : !gFunctors}.
-  Context `{irisG_inst : !irisG STLCmuVS_lang Σ}.
+  Context `{irisGS_inst : !irisGS STLCmuVS_lang Σ}.
   Context `{ghost_mapG_inst : !ghost_mapG Σ nat V}.
 
   Definition auth_list (γ : gname) (vs : list V) : iProp Σ :=

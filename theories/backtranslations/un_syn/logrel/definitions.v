@@ -13,7 +13,7 @@ Existing Class refinement.
 Section definitions.
 
   Context `{Σ : !gFunctors}.
-  Context `{irisG_inst : !irisG STLCmuVS_lang Σ}.
+  Context `{irisGS_inst : !irisGS STLCmuVS_lang Σ}.
 
   Context {rfn : refinement}.
 

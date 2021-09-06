@@ -1,6 +1,5 @@
 From iris Require Import program_logic.weakestpre.
 From iris.proofmode Require Import tactics.
-From iris_string_ident Require Import ltac2_string_ident.
 
 From st.STLCmuVS Require Import lang.
 From st.STLCmuST Require Import lang wkpre.
@@ -8,7 +7,7 @@ From st.STLCmuST Require Import lang wkpre.
 Section lift.
 
   Context `{Σ : !gFunctors}.
-  Context `{irisG_inst : !irisG STLCmuST_lang Σ}.
+  Context `{irisGS_inst : !irisGS STLCmuST_lang Σ}.
 
   Context (s : stuckness).
 

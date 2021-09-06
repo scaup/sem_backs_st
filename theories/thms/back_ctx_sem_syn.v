@@ -38,7 +38,7 @@ Section back_ctx_sem_syn.
       intro SynHalts.
       (* using logical relatedness *)
       apply (exprel_adequate (fill_ctx back_ctx_sem_syn e)); auto.
-      intros Σ irisG_inst.
+      intros Σ irisGS_inst.
       apply open_exprel_typed_nil'.
       (* using relatedness of contexts *)
       apply rel_back_ctx; auto; try by eapply expr_typed_scoped.
@@ -50,17 +50,17 @@ Section back_ctx_sem_syn.
       assert (STLCmuVS_halts (fill_ctx (gs_ctx C (length Γ)) e)).
       { (* using logical relatedness *)
         apply (exprel_adequate (fill_ctx C e)); auto.
-        intros Σ irisG_inst.
+        intros Σ irisGS_inst.
         apply open_exprel_typed_nil'.
         (* using relatedness of contexts *)
-        apply (rel_ctx_le_gs_ctx _ _ _ (pC Σ irisG_inst)); auto; try by eapply expr_typed_scoped.
+        apply (rel_ctx_le_gs_ctx _ _ _ (pC Σ irisGS_inst)); auto; try by eapply expr_typed_scoped.
         (* using auto-relatedness of e *)
         by apply auto_related_typed_expr. }
       (* GA(C)[e] ⇓, where GA(C) is C wrapped with our guard's/asserts *)
       assert (STLCmuVS_halts (fill_ctx (ga_ctx C Γ τ) e)).
       { (* using logical relatedness *)
         apply (exprel_adequate (fill_ctx (gs_ctx C (length Γ)) e)); auto.
-        intros Σ irisG_inst.
+        intros Σ irisGS_inst.
         apply open_exprel_typed_nil'.
         (* using relatedness of contexts *)
         apply rel_gs_ctx_le_ga_ctx; auto; try by eapply expr_typed_scoped.
@@ -68,7 +68,7 @@ Section back_ctx_sem_syn.
         by apply auto_related_typed_expr. }
       { (* using logical relatedness *)
         apply (exprel_adequate (fill_ctx (ga_ctx C Γ τ) e)); auto.
-        intros Σ irisG_inst.
+        intros Σ irisGS_inst.
         apply open_exprel_typed_nil'.
         (* using relatedness of contexts *)
         apply rel_ga_ctx_le_ep_ctx; auto; try by eapply expr_typed_scoped.

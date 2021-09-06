@@ -9,7 +9,7 @@ Section syn_le_un.
   Instance rfn : refinement := syn_le_un.
 
   Context `{Σ : !gFunctors}.
-  Context `{irisG_inst : !irisG STLCmuVS_lang Σ}.
+  Context `{irisGS_inst : !irisGS STLCmuVS_lang Σ}.
 
   Lemma universe_back_expr_in_relation (e : expr) (n : nat) (pne : expr_scoped n e) :
     open_exprel n (universe_back_expr e) e.

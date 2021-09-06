@@ -9,7 +9,7 @@ Section syn_le_un.
   Instance rfn : refinement := syn_le_un.
 
   Context `{Σ : !gFunctors}.
-  Context `{irisG_inst : !irisG STLCmuVS_lang Σ}.
+  Context `{irisGS_inst : !irisGS STLCmuVS_lang Σ}.
 
   Lemma wp_Ω Φ : ⊢ WP Ω ?{{Φ}}.
   Proof. iLöb as "IH". iApply wp_nsteps_later. by apply Ω_loop. done. Qed.

@@ -1,6 +1,5 @@
 From iris Require Import program_logic.weakestpre.
 From iris.proofmode Require Import tactics.
-From iris_string_ident Require Import ltac2_string_ident.
 From st.prelude Require Import autosubst big_op_three.
 From st.STLCmuVS Require Import lang typing tactics logrel.definitions logrel.generic.lift.
 From st.STLCmu Require Import types.
@@ -245,7 +244,7 @@ Section connective_un_le_syn.
         iEval repeat rewrite val_subst_valid. iEval rewrite fixgenTRec_subst fixgenTRecga_subst.
         (* Fixarrow steps on impl and spec side *)
         iApply lift_nsteps_later. apply nsteps_STLCmuVS_step_ctx with (K := fill [AppLCtx _; FstCtx ; AppLCtx _]); first by apply ectx_lang_ctx. apply FixArrow_eval.
-        iApply lift_rtc_steps. apply rtc_STLCmuVS_step_ctx with (K := fill [AppLCtx _; FstCtx ; AppLCtx _]); first by apply ectx_lang_ctx. eapply nsteps_rtc. apply FixArrow_eval.
+        iApply lift_rtc_steps. apply rtc_STLCmuVS_step_ctx with (K := fill [AppLCtx _; FstCtx ; AppLCtx _]); first by apply ectx_lang_ctx. eapply rtc_nsteps_2. apply FixArrow_eval.
         iEval (simplify_custom). do 2 rewrite FixArrow_subst.
         iEval repeat rewrite val_subst_valid. iEval rewrite fixgenTRec_subst fixgenTRecga_subst.
         (* step on impl and spec side *)
@@ -322,7 +321,7 @@ Section connective_un_le_syn.
         iEval asimpl.
         (* fixarrow steps *)
         iApply lift_nsteps_later. apply nsteps_STLCmuVS_step_ctx with (K := fill [AppLCtx _; SndCtx ; AppLCtx _]); first by apply ectx_lang_ctx. apply FixArrow_eval.
-        iApply lift_rtc_steps. apply rtc_STLCmuVS_step_ctx with (K := fill [AppLCtx _; SndCtx ; AppLCtx _]); first by apply ectx_lang_ctx. eapply nsteps_rtc. apply FixArrow_eval.
+        iApply lift_rtc_steps. apply rtc_STLCmuVS_step_ctx with (K := fill [AppLCtx _; SndCtx ; AppLCtx _]); first by apply ectx_lang_ctx. eapply rtc_nsteps_2. apply FixArrow_eval.
         iEval (simplify_custom).
         do 2 rewrite FixArrow_subst.
         iEval repeat rewrite val_subst_valid.

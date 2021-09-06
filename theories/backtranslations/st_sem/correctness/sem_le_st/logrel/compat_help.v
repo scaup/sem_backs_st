@@ -45,7 +45,7 @@ Lemma rtc_bind_lemma (σ0 σ1 σ2 σ3 : state) (v f w s r : val) :
   rtc STLCmuST_step (σ2, RunST s) (σ3, of_val r) →
   rtc STLCmuST_step (σ0, RunST (Bind v f)) (σ3, of_val r).
 Proof.
-  intros H0 H1 H2. destruct (rtc_nsteps _ _ H0) as [n H0'].
+  intros H0 H1 H2. destruct (rtc_nsteps_1 _ _ H0) as [n H0'].
   apply (rtc_bind_help _ _ _ _ _ _ _ _ H0').
   apply rtc_transitive with (y := (σ2, RunST s)). by apply (fill_STLCmuST_step_rtc [RunSTCtx]).
   auto.

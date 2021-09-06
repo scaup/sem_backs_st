@@ -7,7 +7,7 @@ From st.STLCmuVS Require Import lang reducibility.
 Section wkpre_lemmas.
 
   Context `{Σ : !gFunctors}.
-  Context `{irisG_inst : !irisG STLCmuVS_lang Σ}.
+  Context `{irisGS_inst : !irisGS STLCmuVS_lang Σ}.
 
   Lemma wp_bind' (K : list ectx_item) s E e Φ :
     WP e @ s; E {{ v, WP fill K (of_val v) @ s; E {{ Φ }} }} ⊢ WP fill K e @ s; E {{ Φ }}.

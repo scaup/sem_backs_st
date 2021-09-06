@@ -13,7 +13,7 @@ From st Require Import resources.
 Definition Σ : gFunctors :=
   #[invΣ; ghost_mapΣ nat (val * val)].
 
-Instance STLCmuVS_irisG_inst (H : invG Σ) : irisG STLCmuVS_lang Σ :=
+Instance STLCmuVS_irisGS_inst (H : invGS Σ) : irisGS STLCmuVS_lang Σ :=
   { iris_invG := H;
     state_interp σ _ κs _ := True%I;
     fork_post v := True%I;
@@ -21,8 +21,8 @@ Instance STLCmuVS_irisG_inst (H : invG Σ) : irisG STLCmuVS_lang Σ :=
     state_interp_mono _ _ _ _ := fupd_intro _ _;
   }.
 
-Instance semΣ_inst (H : invG Σ) : semΣ Σ :=
-  { irisG_inst := _ ;
+Instance semΣ_inst (H : invGS Σ) : semΣ Σ :=
+  { irisGS_inst := _ ;
     ghost_mapG_inst := _ ;
   }.
 
@@ -38,7 +38,7 @@ Proof.
     intros e1 e2 Hstep. rewrite /STLCmuVS_step in Hstep.
     rewrite /erased_step /=. exists []. apply (step_atomic e1 tt e2 tt [] [] []); by simpl. }
   apply (wp_adequacy Σ STLCmuVS_lang MaybeStuck e tt (fun _ => STLCmuVS_halts e')).
-  { intros invG_inst' κs.
+  { intros invGS_inst' κs.
     iExists (fun _ _ => True%I). iExists (fun _ => True%I).
     iModIntro. iSplit; auto.
     iDestruct (Hee' Σ _) as "Hee'".

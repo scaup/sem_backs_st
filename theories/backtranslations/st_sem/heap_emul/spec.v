@@ -1,6 +1,5 @@
 From iris Require Import program_logic.weakestpre.
 From iris.proofmode Require Import tactics.
-From iris_string_ident Require Import ltac2_string_ident.
 From st.STLCmuVS Require Import lang wkpre tactics lib.fixarrow.
 From st.backtranslations.st_sem Require Import ghost.
 From st.backtranslations.st_sem.heap_emul Require Import base.
@@ -47,7 +46,7 @@ Lemma read_help_spec (vs : list val) (i : nat) (v : val) (piv : vs !! i = Some v
   rtc STLCmuVS_step (read_help (encode vs) i)%Eₙₒ (v)%Eₙₒ.
 Proof.
   induction vs as [|last vs IHvs] using rev_ind; try by (exfalso; inversion piv).
-  eapply rtc_transitive. eapply nsteps_rtc. eapply App_Rec_nsteps. by rewrite to_of_val. simplify_custom.
+  eapply rtc_transitive. eapply rtc_nsteps_2. eapply App_Rec_nsteps. by rewrite to_of_val. simplify_custom.
   do 6 rtc_step;
   rewrite reverse_snoc; simpl.
   (* destruct (decide ((1%nat + i)%Z = S (length vs))) as [eq | neq]. *)
@@ -93,7 +92,7 @@ Qed.
 Section wp_read_i.
 
   Context `{Σ : !gFunctors}.
-  Context `{irisG_inst : !irisG STLCmuVS_lang Σ}.
+  Context `{irisGS_inst : !irisGS STLCmuVS_lang Σ}.
   Context `{ghost_mapG_inst : !ghost_mapG Σ nat (prod val val)}.
 
   Lemma wp_read_i Φ (vs : list val) (v : val) (i : nat) : ▷ (Φ (encode vs, v)%Vₙₒ ∗ ⌜ vs !! i = Some v ⌝) ⊢ WP read_i i (encode vs) ?{{Φ}}.
@@ -125,7 +124,7 @@ Lemma write_help_spec (vs : list val) (i : nat) (v v' : val) (piv : vs !! i = So
 Proof.
   induction vs as [|last vs IHvs] using rev_ind; try by (exfalso; inversion piv).
   rewrite /encode reverse_snoc. simpl.
-  eapply rtc_transitive. eapply nsteps_rtc. eapply App_Rec_nsteps. simpl. by rewrite !to_of_val /=. do 6 rtc_step.
+  eapply rtc_transitive. eapply rtc_nsteps_2. eapply App_Rec_nsteps. simpl. by rewrite !to_of_val /=. do 6 rtc_step.
   + (* is equal *) repeat rtc_step.
     rewrite app_length /= in H.
     rewrite (list_lookup_middle vs [] last i) in piv; try by lia. inversion piv.
@@ -210,7 +209,7 @@ Qed.
 (* Section wp_write_i_v. *)
 
 (*   Context `{Σ : !gFunctors}. *)
-(*   Context `{irisG_inst : !irisG STLCmuVS_lang Σ}. *)
+(*   Context `{irisGS_inst : !irisGS STLCmuVS_lang Σ}. *)
 (*   Context `{ghost_mapG_inst : !ghost_mapG Σ nat (prod val val)}. *)
 
 (*   Lemma wp_write_i_v γ Φ (ps : list (val * val)) (v1 v1' v2 v2' : val) (i : nat) : *)

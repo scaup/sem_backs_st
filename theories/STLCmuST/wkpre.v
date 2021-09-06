@@ -6,7 +6,7 @@ From st.STLCmuST Require Import lang.
 Section wkpre_lemmas.
 
   Context `{Σ : !gFunctors}.
-  Context `{irisG_inst : !irisG STLCmuST_lang Σ}.
+  Context `{irisGS_inst : !irisGS STLCmuST_lang Σ}.
 
   Lemma wp_bind' (K : list ectx_item) s E e Φ :
     WP e @ s; E {{ v, WP fill K (of_val v) @ s; E {{ Φ }} }} ⊢ WP fill K e @ s; E {{ Φ }}.

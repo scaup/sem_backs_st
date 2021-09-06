@@ -1,6 +1,5 @@
 From iris.base_logic Require Import lib.iprop.
 From iris.proofmode Require Import tactics.
-From iris_string_ident Require Import ltac2_string_ident.
 
 Fixpoint big_sepL3 {PROP : bi} {A B C}
     (Φ : A → B → C → PROP) (l1 : list A) (l2 : list B) (l3 : list C) : PROP :=

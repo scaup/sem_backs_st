@@ -28,7 +28,7 @@ Proof.
 Qed.
 
 Lemma Forall3_Forall2 {A B C} (P : A → B → C → Prop) (l1 : list A) (l2 : list B) (l3 : list C) :
-  Forall3 P l1 l2 l3 → Forall2 (curry P) (zip l1 l2) l3.
+  Forall3 P l1 l2 l3 → Forall2 (uncurry P) (zip l1 l2) l3.
 Proof. induction 1; constructor; auto. Qed.
 
 Lemma Forall3_superfluous_zip_r {A B} (P : A → B → (A * B) → Prop) (l1 : list A) (l2 : list B) :

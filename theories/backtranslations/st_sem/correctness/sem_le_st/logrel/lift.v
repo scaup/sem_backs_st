@@ -1,6 +1,5 @@
 From iris Require Import program_logic.weakestpre.
 From iris.proofmode Require Import tactics.
-From iris_string_ident Require Import ltac2_string_ident.
 From iris.base_logic.lib Require Import gen_heap.
 
 From st.STLCmuST Require Import lang.

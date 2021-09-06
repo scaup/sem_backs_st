@@ -455,8 +455,8 @@ Lemma rtc_PureExec (e1 e2 : expr) : rtc STLCmuVS_step e1 e2 <-> ∃ n, PureExec 
 Proof.
   split.
   intro H. assert (H' : rtc pure_step e1 e2).
-  eapply rtc_subrel. by apply STLCmuVS_pure. auto. destruct (rtc_nsteps _ _ H') as [n H'']. exists n. intros _. done.
-  intro d. destruct d as [n H]. eapply nsteps_rtc. by apply nsteps_PureExec.
+  eapply rtc_subrel. by apply STLCmuVS_pure. auto. destruct (iffLR (rtc_nsteps _ _) H') as [n H'']. exists n. intros _. done.
+  intro d. destruct d as [n H]. eapply rtc_nsteps. exists n. by eapply nsteps_PureExec.
 Qed.
 
 Lemma step_PureExec (e1 e2 : expr) : STLCmuVS_step e1 e2 → PureExec True 1 e1 e2.

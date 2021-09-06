@@ -177,7 +177,7 @@ Section compat_help.
 
   Context `{Σ : !gFunctors} `{st_le_semΣ_inst : !st_le_semΣ Σ}.
 
-  Lemma wp_alloc {s : stuckness} (v : val) : ⊢ WP RunST (Alloc v) @ s; ⊤ {{ w, ∃ (l : loc), ⌜ w = l ⌝ ∧ l ↦ v }}.
+  Lemma wp_alloc {s : stuckness} (v : val) : ⊢ WP RunST (Alloc v) @ s; ⊤ {{ w, ∃ (l : loc), ⌜ w = LitV l ⌝ ∧ l ↦ v }}.
   Proof.
     iApply wp_lift_step. auto.
     iIntros (σ1 n κ κ' m) "Hσ1". simpl.
@@ -206,7 +206,7 @@ Section compat_help.
     iNext. change (Lit l) with (of_val l). iApply wp_value'. iExists l. auto.
   Qed.
 
-  Lemma wp_runst_bind Φ : ∀ (e1 : expr) (v2 : val), WP RunST e1 ?{{ w, WP RunST (v2 w) ?{{Φ}}}} ⊢ WP RunST (Bind e1 v2) ?{{Φ}}.
+  Lemma wp_runst_bind Φ : ∀ (e1 : expr) (v2 : val), WP RunST e1 ?{{ w, WP RunST (v2 (of_val w)) ?{{Φ}}}} ⊢ WP RunST (Bind e1 v2) ?{{Φ}}.
   Proof.
     iLöb as "IHlob".
     iIntros (e1 v2) "H".
