@@ -33,7 +33,7 @@ Here we give an overview of the most important directories/files.
 - [./STLCmuVS](theories/STLCmuVS): This folder contains the definition of STLCmuVS; STLCmu where we have added the VirtualStep-construct in the grammar of expressions, see [STLCmuVS/lang.v](theories/STLCmuVS/lang.v).
   This file also contains the evaluation rules for VirtualStep. 
   There are no additional typing rules however ([STLCmuVS/typing.v](theories/STLCmuVS/typing.v)) and (on the well-typed terms) STLCmuVS completely coincides with STLCmu which is proven in [STLCmu/boring.v](theories/STLCmu/boring.v) (while this fact is easy to see, formally proving it entails a lot of boilerplate code).
-  + [virt_steps](theories/STLCmuVS/virt_steps): Provides lemma that `VirtStep v` always terminates.
+  + [virt_steps](theories/STLCmuVS/virt_steps.v): Provides lemma that `VirtStep v` always terminates.
   + [lib](theories/STLCmuVS/lib): This subfolder contains the definition of a fixpoint operator in [fixarrow.v](theories/STLCmuVS/lib/fixarrow.v) and divergent term in [omega.v](theories/STLCmuVS/lib/omega.v), both of which implemented using recursive types.
   + [logrel](theories/STLCmuVS/logrel): This subfolder contains the LR that defines the intermediate semantic language. 
     It contains the following files:
@@ -57,7 +57,7 @@ Here we give an overview of the most important directories/files.
   + [pres_ctx_equiv.v](theories/thms/pres_ctx_equiv.v): Theorem 3.3 wrt STLCmuVS
   + [refl_ctx_equiv.v](theories/thms/refl_ctx_equiv.v): Theorem 3.2 wrt STLCmuVS
 - [./embedding](theories/embedding): This directory defines the natural embedding from STLCmuVS to STLCmuST on expressions, types, and contexts.
-  In [STLCmu/boring.v](boring.v) we additionally "prove" that this embedding, composed with the one from STLCmu into STLCmuVS gives us the one from STLCmu into STLCmuST (defined in [embedding_STLCmu_STLCmuST.v](theories/end_to_end/embedding_STLCmu_STLCmuST.v)). 
+  In [STLCmu/boring.v](theories/STLCmu/boring.v) we additionally "prove" that this embedding, composed with the one from STLCmu into STLCmuVS gives us the one from STLCmu into STLCmuST (defined in [embedding_STLCmu_STLCmuST.v](theories/end_to_end/embedding_STLCmu_STLCmuST.v)). 
 - [prelude](theories/prelude): This directory defines some generic functions and lemmas we couldn't find in stdpp or the Iris library.
 - [backtranslations](theories/backtranslations): This directory defines all the different parts of the back-translation together with their accompanying LRs or lemmas about the LRs
   + [un_syn](theories/backtranslations/un_syn): This subdirectory defines the translation of untyped code into the universe and its accompanying LRs.
