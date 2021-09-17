@@ -626,6 +626,14 @@ Lemma inverse (e : STLCmuVS.lang.expr) Γ τ (de : STLCmuVS.typing.typed Γ e τ
   embd_expr (proj_expr e) = e.
 Proof. induction de; simpl; (try done); (try by rewrite IHde1 IHde2); (try by rewrite IHde1 IHde2 IHde3); (try by rewrite IHde). Qed.
 
+Lemma inverse_ctx_item (Ci : STLCmuVS.contexts.ctx_item) Γ τ Γ' τ' (dCi : STLCmuVS.contexts.typed_ctx_item Ci Γ τ Γ' τ') :
+  embd_ctx_item (proj_ctx_item Ci) = Ci.
+Proof. destruct dCi; simpl; (try done); repeat f_equiv; try erewrite inverse; (try done). Qed.
+
+Lemma inverse_ctx (C : STLCmuVS.contexts.ctx) Γ τ Γ' τ' (dC : STLCmuVS.contexts.typed_ctx C Γ τ Γ' τ') :
+  embd_ctx (proj_ctx C) = C.
+Proof. induction dC; simpl; (try done); repeat f_equiv. erewrite inverse_ctx_item; eauto. auto. Qed.
+
 Lemma proj_expr_halts' (e : STLCmuVS.lang.expr) Γ τ (de : STLCmuVS.typing.typed Γ e τ) :
   STLCmu_halts (proj_expr e) → STLCmuVS_halts e.
 Proof.

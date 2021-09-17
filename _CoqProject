@@ -132,6 +132,8 @@ theories/thms/refl_ctx_equiv.v
 
 theories/end_to_end/embedding_STLCmu_STLCmuST.v
 theories/STLCmu/boring.v
+theories/end_to_end/back_ctx_STLCmuST_sem_STLCmuVS.v
+theories/end_to_end/back_ctx_sem_STLCmuVS_syn_STLCmu.v
 theories/end_to_end/back_ctx_STLCmuST_STLCmu.v
 theories/end_to_end/pres_ctx_equiv.v
 theories/end_to_end/refl_ctx_equiv_help.v
