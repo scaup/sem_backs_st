@@ -14,7 +14,7 @@ Class sem_le_stΣ Σ := { irisGS_inst' :> irisGS STLCmuVS.lang.STLCmuVS_lang Σ;
                       }.
 
 Global Instance STLCmuST_irisGS_instance `{H : invGS Σ} {H' : gen_heapGS STLCmuST.lang.loc STLCmuST.lang.val Σ} : irisGS STLCmuST.lang.STLCmuST_lang Σ :=
-  { iris_invG := H;
+  { iris_invGS := H;
     state_interp σ _ κs _ := gen_heap_interp σ;
     fork_post v := True%I;
     num_laters_per_step _ := 0;

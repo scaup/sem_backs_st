@@ -1,4 +1,4 @@
-This is the artifact for the following submission:
+This is the Coq proof accompanying the paper titled:
 Purity of ST: Full Abstraction by Semantically Typed Back-translation
 
 # Verifying f.a. from STLCmu into STLCmuST
@@ -101,28 +101,57 @@ Here we give an overview of the most important directories/files.
       + [compat_lemmas_easy.v](theories/backtranslations/st_sem/correctness/st_le_sem/logrel/compat_lemmas_easy.v): other compatibility lemmas
       + [fundamental.v](theories/backtranslations/st_sem/correctness/st_le_sem/logrel/fundamental.v)
 
-# Compiling Proofs
+# Compiling Coq Development
 
-## Installing right version of Coq and required libraries (Iris and Autsubst)
+## Requirements
 
-Get [opam](http://opam.ocaml.org/doc/Install.html)
+- Coq: 8.14.1
+- Coq libraries:
+  + coq-autosubst: 1.7
+  + coq-iris: 3.5.0
+  + coq-stdpp: 1.6.0
+  
+## Step by step instructions to install these with opam on Ubuntu 20.04.03
 
-The following commands create a new switch, activate it and install the right versions of Coq, Iris, and Autosubst.
-
+Get [opam](http://opam.ocaml.org/doc/Install.html), by e.g. fetching and running the install script.
+You need curl for this (e.g. `apt install curl`).
 ```
-opam switch create sembackst ocaml-base-compiler.4.12.0
-eval $(opam env)
-
-opam repo add coq-released https://coq.inria.fr/opam/released 
-opam repo add iris-dev https://gitlab.mpi-sws.org/iris/opam.git
-opam update
-
-opam install coq.8.13.2 coq-iris.dev.2021-08-10.0.e252ca6e coq-autosubst
+sh <(curl -sL https://raw.githubusercontent.com/ocaml/opam/master/shell/install.sh)
+```
+Don't forget to add the directory of installation to your path such that you don't have to refer to opam by its full path.
+Initialize opam.
+```
+$ opam init
+$ eval $(opam env) # optionally; see output of previous command
+```
+Create a new switch with the ocaml-base-compiler.4.13.1.
+To do this, you need some base dependencies: make m4 cc (e.g. `apt install make m4 gcc`).
+```
+$ opam switch create sem-back-st ocaml-base-compiler.4.13.1
+$ eval $(opam env) # optionally; see if asked to do by output of previous command
+$ opam switch # output should be like: → sem-back-st. If you get a WARNING, run `eval $(opam env)` first 
+``` 
+Add coq and iris-dev repositories to this switch.
+For the iris-dev repo, you need to have git (e.g. `apt install git`).
+```
+$ opam repo add coq-released https://coq.inria.fr/opam/released
+$ opam repo add iris-dev https://gitlab.mpi-sws.org/iris/opam.git
+``` 
+Install the correct version of Coq and the required libraries.
+```
+$ opam install coq.8.14.1 coq-stdpp.1.6.0 coq-iris.3.5.0 coq-autosubst.1.7
+```
+Optionally, you can also install coqide, a GUI to interact with the Coq code.
+```
+$ opam install coqide.8.14.1 # will likely ask you to install missing dependencies
 ```
 
 ## Compiling proofs
 
-Run make inside of this directory; get a coffee or something.
+Run `make` inside of this directory; get a coffee or something.
+On an 8'th gen i7 laptop (from 2018) it takes ~13 minutes.
+
+You can run `make clean` to clean up the compiled files.
 
 # Credits
 

@@ -3,6 +3,8 @@
 -Q theories st
 -arg -w -arg -ambiguous-paths
 -arg -w -arg -redundant-canonical-projection
+-arg -w -arg -notation-overridden
+-arg -w -arg -deprecated-instance-without-locality
 
 theories/prelude/autosubst.v
 theories/prelude/generic.v

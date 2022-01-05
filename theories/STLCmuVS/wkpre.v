@@ -37,7 +37,7 @@ Section wkpre_lemmas.
     ▷ WP e2 @ s ; E {{Φ}} ⊢ WP e1 @ s ; E {{Φ}}.
   Proof. destruct (at_least_one_split_l _ _ _ H) as [y [H' H'']]. iIntros "He2". iApply wp_step_later. eauto. by iApply wp_rtc_steps. Qed.
 
-  Lemma wp_at_least_one_step_fupd {s : stuckness} {E E' : coPset} Φ (e1 e2 : expr) :
+  Lemma wp_at_least_one_step_fupd {s : stuckness} {E E' : coPset} (Φ : val → iProp Σ) (e1 e2 : expr) :
     at_least_one STLCmuVS_step e1 e2 → (|={E}[E']▷=> WP e2 @ s; E {{ v, Φ v }}) -∗ WP e1 @ s; E {{ v, Φ v }}.
   Proof.
     iIntros (Hone) "H". destruct (at_least_one_split_l _ _ _ Hone) as [y [H H']].

@@ -15,7 +15,7 @@ Definition Σ : gFunctors :=
     ].
 
 Instance STLCmuVS_irisGS_inst (H : invGS Σ) : irisGS STLCmuVS_lang Σ :=
-  { iris_invG := H;
+  { iris_invGS := H;
     state_interp σ _ κs _ := True%I;
     fork_post v := True%I;
     num_laters_per_step _ := 0;
