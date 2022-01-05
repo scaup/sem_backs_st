@@ -19,21 +19,21 @@ To verify f.a. from STLCmu into STLCmuST, one needs to go over the following:
 
 - [embedding_STLCmu_STLCmuST.v](theories/end_to_end/embedding_STLCmu_STLCmuST.v) defines the canonical embedding from STLCmu into STLCmuST on expressions and contexts.
 
-- [back_ctx_STLCmuST_STLCmu.v](theories/end_to_end/back_ctx_STLCmuST_STLCmu.v) defines the uniform backtranslation on contexts from STLCmu to STLCmuST and proves that this backtranslation behaves correctly.
+- [back_ctx_STLCmuST_STLCmu.v](theories/end_to_end/back_ctx_STLCmuST_STLCmu.v) defines the uniform backtranslation on contexts from STLCmu to STLCmuST and proves that this backtranslation behaves correctly (Theorem 3.4).
 
-- [pres_ctx_equiv.v](theories/end_to_end/pres_ctx_equiv.v) defines contextual equivalence of both STLCmu and STLCmuST and proves that this equivalence is preserved under this canonical embedding.
+- [pres_ctx_equiv.v](theories/end_to_end/pres_ctx_equiv.v) defines contextual equivalence of both STLCmu and STLCmuST (Definition 3.1) and proves that this equivalence is preserved under this canonical embedding (Theorem 3.3).
 
-- [refl_ctx_equiv.v](theories/end_to_end/refl_ctx_equiv.v) proves that contextual equivalence is reflected under this canonical embedding.
+- [refl_ctx_equiv.v](theories/end_to_end/refl_ctx_equiv.v) proves that contextual equivalence is reflected under this canonical embedding (Theorem 3.2).
 
 # Overview Coq Development
 
 Here we give an overview of the most important directories/files.
 
 - [./STLCmu](theories/STLCmu): This folder contains the completely standard definition of STLCmu (see above)
-- [./STLCmuVS](theories/STLCmuVS): This folder contains the definition of STLCmuVS; STLCmu where we have added the VirtualStep-construct in the grammar of expressions, see [STLCmuVS/lang.v](theories/STLCmuVS/lang.v).
-  This file also contains the evaluation rules for VirtualStep. 
-  There are no additional typing rules however ([STLCmuVS/typing.v](theories/STLCmuVS/typing.v)) and (on the well-typed terms) STLCmuVS completely coincides with STLCmu which is proven in [STLCmu/boring.v](theories/STLCmu/boring.v) (while this fact is easy to see, formally proving it entails a lot of boilerplate code).
-  + [virt_steps](theories/STLCmuVS/virt_steps.v): Provides lemma that `VirtStep v` always terminates.
+- [./STLCmuVS](theories/STLCmuVS): This folder contains the definition of STLCmuVS; STLCmu where we have added the VirtualStep-construct in the grammar of expressions (§2.2.2), see [STLCmuVS/lang.v](theories/STLCmuVS/lang.v).
+  This file also contains the evaluation rules for VirtualStep (§2.2.2). 
+  As commented in §2.2.2, there are no additional typing rules however ([STLCmuVS/typing.v](theories/STLCmuVS/typing.v)) and (on the well-typed terms) STLCmuVS completely coincides with STLCmu which is proven in [STLCmu/boring.v](theories/STLCmu/boring.v) (while this fact is easy to see, formally proving it entails a lot of boilerplate code).
+  + [virt_steps](theories/STLCmuVS/virt_steps.v): Provides lemma that `VirtStep v` always terminates (as explained in §2.2.2).
   + [lib](theories/STLCmuVS/lib): This subfolder contains the definition of a fixpoint operator in [fixarrow.v](theories/STLCmuVS/lib/fixarrow.v) and divergent term in [omega.v](theories/STLCmuVS/lib/omega.v), both of which implemented using recursive types.
   + [logrel](theories/STLCmuVS/logrel): This subfolder contains the LR that defines the intermediate semantic language. 
     It contains the following files:
@@ -61,30 +61,32 @@ Here we give an overview of the most important directories/files.
 - [prelude](theories/prelude): This directory defines some generic functions and lemmas we couldn't find in stdpp or the Iris library.
 - [backtranslations](theories/backtranslations): This directory defines all the different parts of the back-translation together with their accompanying LRs or lemmas about the LRs
   + [un_syn](theories/backtranslations/un_syn): This subdirectory defines the translation of untyped code into the universe and its accompanying LRs.
-    * [universe](theories/backtranslations/un_syn/universe): Here, we define the universal type in [base.v](theories/backtranslations/un_syn/universe/base.v) (see §4.1.1), together with some of its important properties in [paths.v](theories/backtranslations/un_syn/universe/paths.v)
-    * [expressions.v](theories/backtranslations/un_syn/expressions.v) and [contexts.v](theories/backtranslations/un_syn/contexts.v) define the translation into the universe of expressions (fig 5) and contexts respectively. [typed.v](theories/backtranslations/un_syn/typed.v) proves the well-typedness of these translations
+    * [universe](theories/backtranslations/un_syn/universe): Here, we define the universal type in [base.v](theories/backtranslations/un_syn/universe/base.v) (see §4.1), together with some of its important properties in [paths.v](theories/backtranslations/un_syn/universe/paths.v)
+    * [expressions.v](theories/backtranslations/un_syn/expressions.v) and [contexts.v](theories/backtranslations/un_syn/contexts.v) define the translation into the universe of expressions (fig 4) and contexts respectively. [typed.v](theories/backtranslations/un_syn/typed.v) proves the well-typedness of these translations
     * [logrel](theories/backtranslations/un_syn/logrel): This folder contains the file [definitions.v](theories/backtranslations/un_syn/logrel/definitions.v) that defines the two logical relations in §4.2 and §4.3.
       + [syn_le_un](theories/backtranslations/un_syn/logrel/syn_le_un): This subfolder contains the [compatibility lemmas](theories/backtranslations/un_syn/logrel/syn_le_un/compat_lemmas.v) and the [fundamental theorem](theories/backtranslations/un_syn/logrel/syn_le_un/fundamental.v) (Theorem 4.2) for the relations in §4.2.
-      + [un_le_syn](theories/backtranslations/un_syn/logrel/un_le_syn): This subfolder contains the [compatibility lemmas](theories/backtranslations/un_syn/logrel/un_le_syn/compat_lemmas.v) and the [fundamental theorem](theories/backtranslations/un_syn/logrel/un_le_syn/fundamental.v) (Theorem 4.3) for the relations in §4.3.
+      + [un_le_syn](theories/backtranslations/un_syn/logrel/un_le_syn): This subfolder contains the [compatibility lemmas](theories/backtranslations/un_syn/logrel/un_le_syn/compat_lemmas.v) and the [fundamental theorem](theories/backtranslations/un_syn/logrel/un_le_syn/fundamental.v) for the relations in §4.3.
   + [sem_syn](theories/backtranslations/sem_syn): this directory defines the remaining machinery from §4.
-    * [embed_project.v](theories/backtranslations/sem_syn/embed_project.v) defines embed and project functions (fig 6)
-    * [gamma_lib.v](theories/backtranslations/sem_syn/gamma_lib.v) defines some machinery related to let `let`-binding in Eq 7 and Eq 14.
-    * [back_ctx.v](theories/backtranslations/sem_syn/back_ctx.v) defines Eq 6 and Eq 7.
+    * [embed_project.v](theories/backtranslations/sem_syn/embed_project.v) defines embed and project functions (§4.1)
+    * [gamma_lib.v](theories/backtranslations/sem_syn/gamma_lib.v) defines some machinery related to let `let`-binding in the equation just above the heading §4.2 and the equation above lemma 4.5.
+    * [back_ctx.v](theories/backtranslations/sem_syn/back_ctx.v) defines the equation just above the heading §4.2 
     * [syn_le_sem](theories/backtranslations/sem_syn/syn_le_sem) contains the remaining machinery for §4.2
       + [connective.v](theories/backtranslations/sem_syn/syn_le_sem/connective.v) proves Lemma 4.1.
-      + [ctx_syn_le_un.v](theories/backtranslations/sem_syn/syn_le_sem/ctx_syn_le_un.v) relates the two contexts as depicted in fig 7
+      + [ctx_syn_le_un.v](theories/backtranslations/sem_syn/syn_le_sem/ctx_syn_le_un.v) relates the two contexts as depicted in the left-hand side of fig 7
     * [sem_le_syn](theories/backtranslations/sem_syn/sem_le_syn) contains the remaining machinery for §4.3
-      + [guard_assert.v](theories/backtranslations/sem_syn/sem_le_syn/guard_assert.v) defines the guards/asserts (fig 10)
-      + [connective.v](theories/backtranslations/sem_syn/sem_le_syn/connective.v) proves lemma 4.5
-      + [ga_ctx.v](theories/backtranslations/sem_syn/sem_le_syn/ga_ctx.v) defines Eq 13 en Eq 14.
-      + [ga_ctx_le_ep_ctx.v](theories/backtranslations/sem_syn/sem_le_syn/ga_ctx_le_ep_ctx.v) relates the two contexts as depicted in fig 9
-      + We have [no_op.v](theories/backtranslations/sem_syn/sem_le_syn/no_op.v) and [ghost_step_ga.v](theories/backtranslations/sem_syn/sem_le_syn/ghost_step_ga.v) as an alternative to Lemma 4.6 in the paper. The relatedness of contexts in fig 8 is accordingly split up in two parts: [ctx_le_gs_ctx.v](theories/backtranslations/sem_syn/sem_le_syn/ctx_le_gs_ctx.v) and [gs_ctx_le_ga_ctx.v](theories/backtranslations/sem_syn/sem_le_syn/gs_ctx_le_ga_ctx.v) using our ghost steps as an intermediate stepping stone.
+      + [guard_assert.v](theories/backtranslations/sem_syn/sem_le_syn/guard_assert.v) defines the guards/asserts (§4.3)
+      + [ga_ctx.v](theories/backtranslations/sem_syn/sem_le_syn/ga_ctx.v) defines the equation above lemma 4.5
+      + [gs_ctx.v](theories/backtranslations/sem_syn/sem_le_syn/gs_ctx.v) defines the wrapper with virtual steps as explained in the end of §4.3
+      + [connective.v](theories/backtranslations/sem_syn/sem_le_syn/connective.v) proves lemma 4.4
+      + [ghost_step_ga.v](theories/backtranslations/sem_syn/sem_le_syn/ghost_step_ga.v) proves lemma 4.6
+      + [no_op.v](theories/backtranslations/sem_syn/sem_le_syn/no_op.v) proves lemma 4.7
+      + [ctx_le_gs_ctx.v](theories/backtranslations/sem_syn/sem_le_syn/ctx_le_gs_ctx.v) proves the relatedness for the leftmost refinement on the right-hand side of figure 5
+      + [gs_ctx_le_ga_ctx.v](theories/backtranslations/sem_syn/sem_le_syn/gs_ctx_le_ga_ctx.v) proves the relatedness for the refinement in the middle on the right-hand side of figure 5
+      + [ga_ctx_le_ep_ctx.v](theories/backtranslations/sem_syn/sem_le_syn/ga_ctx_le_ep_ctx.v) proves the relatedness for the rightmost refinement on the right-hand side of figure 5
   + [st_sem](theories/backtranslations/st_sem): this directory defines the remaining machinery from §5.
     * [heap_emul](theories/backtranslations/st_sem/heap_emul): contains [base.v](theories/backtranslations/st_sem/heap_emul/base.v) defining our encoding function for a list of values, and [spec.v](theories/backtranslations/st_sem/heap_emul/spec.v) which proves the specifications given in §5.1
-    
     * [expressions.v](theories/backtranslations/st_sem/expressions.v) defines the semantic back-translation on expressions
     * [contexts.v](theories/backtranslations/st_sem/contexts.v) on contexts
-
     * [well_defined/logrel](theories/backtranslations/st_sem/well_defined/logrel) contains the (theories/backtranslations/st_sem/well_defined/logrel/definition.v)[definition of the extend LR] (see §5.2), [the matching lemma](theories/backtranslations/st_sem/well_defined/logrel/matches_sem.v) (first equation in §5.2), the compatibility lemmas in [compat_lemmas_easy.v](theories/backtranslations/st_sem/well_defined/logrel/compat_lemmas_easy.v) and [compat_lemmas.v](theories/backtranslations/st_sem/well_defined/logrel/compat_lemmas.v), and [the fundamental theorem](theories/backtranslations/st_sem/well_defined/logrel/fundamental.v).
     * [correctnesss/sem_le_st](theories/backtranslations/st_sem/correctness/sem_le_st/): this folder contains the machinery for 5.3
       + [adequacy.v](theories/backtranslations/st_sem/correctness/sem_le_st/logrel/adequacy.v)
@@ -116,20 +118,19 @@ Here we give an overview of the most important directories/files.
 Get [opam](http://opam.ocaml.org/doc/Install.html), by e.g. fetching and running the install script.
 You need curl for this (e.g. `apt install curl`).
 ```
-sh <(curl -sL https://raw.githubusercontent.com/ocaml/opam/master/shell/install.sh)
+$ bash -c "sh <(curl -fsSL https://raw.githubusercontent.com/ocaml/opam/master/shell/install.sh)"
 ```
 Don't forget to add the directory of installation to your path such that you don't have to refer to opam by its full path.
 Initialize opam.
 ```
 $ opam init
-$ eval $(opam env) # optionally; see output of previous command
 ```
 Create a new switch with the ocaml-base-compiler.4.13.1.
 To do this, you need some base dependencies: make m4 cc (e.g. `apt install make m4 gcc`).
 ```
 $ opam switch create sem-back-st ocaml-base-compiler.4.13.1
 $ eval $(opam env) # optionally; see if asked to do by output of previous command
-$ opam switch # output should be like: → sem-back-st. If you get a WARNING, run `eval $(opam env)` first 
+$ opam switch # output should be like: → sem-back-st; If you get a WARNING, run `eval $(opam env)` first 
 ``` 
 Add coq and iris-dev repositories to this switch.
 For the iris-dev repo, you need to have git (e.g. `apt install git`).
@@ -138,12 +139,13 @@ $ opam repo add coq-released https://coq.inria.fr/opam/released
 $ opam repo add iris-dev https://gitlab.mpi-sws.org/iris/opam.git
 ``` 
 Install the correct version of Coq and the required libraries.
+To do this, you need a dependency called `libgmp-dev` (e.g. `apt install libgmp-dev`).
 ```
 $ opam install coq.8.14.1 coq-stdpp.1.6.0 coq-iris.3.5.0 coq-autosubst.1.7
 ```
 Optionally, you can also install coqide, a GUI to interact with the Coq code.
 ```
-$ opam install coqide.8.14.1 # will likely ask you to install missing dependencies
+$ opam install coqide.8.14.1 # will ask you to install some missing dependencies
 ```
 
 ## Compiling proofs
