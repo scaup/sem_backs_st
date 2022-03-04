@@ -1,5 +1,5 @@
 This is the Coq proof accompanying the paper titled:
-Purity of ST: Full Abstraction by Semantically Typed Back-translation
+Purity of an ST Monad: Full Abstraction by Semantically Typed Back-translation
 
 # Verifying f.a. from STLCmu into STLCmuST
 
@@ -19,15 +19,33 @@ To verify f.a. from STLCmu into STLCmuST, one needs to go over the following:
 
 - [embedding_STLCmu_STLCmuST.v](theories/end_to_end/embedding_STLCmu_STLCmuST.v) defines the canonical embedding from STLCmu into STLCmuST on expressions and contexts.
 
-- [back_ctx_STLCmuST_STLCmu.v](theories/end_to_end/back_ctx_STLCmuST_STLCmu.v) defines the uniform backtranslation on contexts from STLCmu to STLCmuST and proves that this backtranslation behaves correctly (Theorem 3.4).
+- [back_ctx_STLCmuST_STLCmu.v](theories/end_to_end/back_ctx_STLCmuST_STLCmu.v) defines the uniform back-translation on contexts from STLCmu to STLCmuST and proves that this back-translation behaves correctly (Theorem 3.4).
 
 - [pres_ctx_equiv.v](theories/end_to_end/pres_ctx_equiv.v) defines contextual equivalence of both STLCmu and STLCmuST (Definition 3.1) and proves that this equivalence is preserved under this canonical embedding (Theorem 3.3).
 
 - [refl_ctx_equiv.v](theories/end_to_end/refl_ctx_equiv.v) proves that contextual equivalence is reflected under this canonical embedding (Theorem 3.2).
 
-# Overview Coq Development
+# Back-translations
 
-Here we give an overview of the most important directories/files.
+Taking your first steps deeper into the Coq develpment, you can start out by checking out the definitions of the different back-translations.
+
+## The back-translation from untyped code to typed code into the universe (in the [un_syn](theories/backtranslations/un_syn) folder)
+- [universe](theories/backtranslations/un_syn/universe): Here, we define the universal type in [base.v](theories/backtranslations/un_syn/universe/base.v) (see §4.1), together with some of its important properties in [paths.v](theories/backtranslations/un_syn/universe/paths.v)
+- [expressions.v](theories/backtranslations/un_syn/expressions.v) and [contexts.v](theories/backtranslations/un_syn/contexts.v) define the translation into the universe of expressions (fig 4) and contexts respectively. [typed.v](theories/backtranslations/un_syn/typed.v) proves the well-typedness of these translations
+
+## The back-translation from semantically typed code into syntactically typed code (in the [sem_syn](theories/backtranslations/sem_syn) directory)
+- [embed_project.v](theories/backtranslations/sem_syn/embed_project.v) defines embed and project functions (§4.1)
+- [gamma_lib.v](theories/backtranslations/sem_syn/gamma_lib.v) defines some machinery related to let `let`-binding in the equation just above the heading §4.2 and the equation below lemma 4.5.
+- [back_ctx.v](theories/backtranslations/sem_syn/back_ctx.v) defines the equation just above the heading §4.2 
+
+## The back-translation from stateful contexts into semantically typed contexts (in the [st_sem](theories/backtranslations/st_sem) directory)
+- [heap_emul/base.v](theories/backtranslations/st_sem/heap_emul/base.v) defines our encoding function for a list of values and the associated pure functions (§5.1)
+- [expressions.v](theories/backtranslations/st_sem/expressions.v) defines the semantic back-translation on expressions (non trivial parts as described in §5.1)
+- [contexts.v](theories/backtranslations/st_sem/contexts.v) on contexts
+
+# More Complete Overview Coq Development
+
+Finally, we give a complete overview of the most important directories/files.
 
 - [./STLCmu](theories/STLCmu): This folder contains the completely standard definition of STLCmu (see above)
 - [./STLCmuVS](theories/STLCmuVS): This folder contains the definition of STLCmuVS; STLCmu where we have added the VirtualStep-construct in the grammar of expressions (§2.2.2), see [STLCmuVS/lang.v](theories/STLCmuVS/lang.v).
@@ -84,7 +102,7 @@ Here we give an overview of the most important directories/files.
       + [gs_ctx_le_ga_ctx.v](theories/backtranslations/sem_syn/sem_le_syn/gs_ctx_le_ga_ctx.v) proves the relatedness for the refinement in the middle on the right-hand side of figure 5
       + [ga_ctx_le_ep_ctx.v](theories/backtranslations/sem_syn/sem_le_syn/ga_ctx_le_ep_ctx.v) proves the relatedness for the rightmost refinement on the right-hand side of figure 5
   + [st_sem](theories/backtranslations/st_sem): this directory defines the remaining machinery from §5.
-    * [heap_emul](theories/backtranslations/st_sem/heap_emul): contains [base.v](theories/backtranslations/st_sem/heap_emul/base.v) defining our encoding function for a list of values, and [spec.v](theories/backtranslations/st_sem/heap_emul/spec.v) which proves the specifications given in §5.1
+    * [heap_emul](theories/backtranslations/st_sem/heap_emul): contains [base.v](theories/backtranslations/st_sem/heap_emul/base.v) defining our encoding function for a list of values and the associated pure functions (§5.1), and [spec.v](theories/backtranslations/st_sem/heap_emul/spec.v) which proves the specifications given in §5.1
     * [expressions.v](theories/backtranslations/st_sem/expressions.v) defines the semantic back-translation on expressions (non trivial parts as described in §5.1)
     * [contexts.v](theories/backtranslations/st_sem/contexts.v) on contexts
     * [well_defined/logrel](theories/backtranslations/st_sem/well_defined/logrel) contains the (theories/backtranslations/st_sem/well_defined/logrel/definition.v)[definition of the extend LR] (see §5.2), [the matching lemma](theories/backtranslations/st_sem/well_defined/logrel/matches_sem.v) (first equation in §5.2), the compatibility lemmas in [compat_lemmas_easy.v](theories/backtranslations/st_sem/well_defined/logrel/compat_lemmas_easy.v) and [compat_lemmas.v](theories/backtranslations/st_sem/well_defined/logrel/compat_lemmas.v), and [the fundamental theorem](theories/backtranslations/st_sem/well_defined/logrel/fundamental.v) (Theorem 5.1).
