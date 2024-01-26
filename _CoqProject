@@ -142,3 +142,6 @@ theories/end_to_end/refl_ctx_equiv_help.v
 theories/end_to_end/refl_ctx_equiv.v
 
 
+theories/cheap_extra/connective.v
+theories/cheap_extra/ep_ctx_le_ga_ctx.v
+theories/cheap_extra/compiler.v
